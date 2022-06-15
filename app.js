@@ -42,3 +42,5 @@ http.listen(app.get('port'), () => {
   console.log(`App running on port ${app.get('port')} in ${process.env.NODE_ENV} mode.`)
   db()
 })
+
+module.exports = app
