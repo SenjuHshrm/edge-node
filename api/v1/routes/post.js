@@ -3,8 +3,8 @@ const router = Router()
 const { testCtrl, userCtrl } = require('../controllers')
 
 router
-  .post('/test', testCtrl.post)
   .post('/login', userCtrl.login)
-
+  .post('/test', testCtrl.post)
+  .post('/refresh/access', userCtrl.refreshToken)
 
 module.exports = router

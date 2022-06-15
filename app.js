@@ -1,3 +1,5 @@
+require('dotenv').config()
+
 const express = require('express')
 const cors = require('cors')
 const morgan = require('morgan')
@@ -7,7 +9,6 @@ const { Server } = require('socket.io')
 const app = express()
 const { corsConfig, db, port } = require('./config')
 const { v1GETRoutes, v1POSTRoutes, v1PUTRoutes, v1DELETERoutes } = require('./api/v1/routes')
-require('dotenv').config()
 
 // Socket.IO intialization
 const http = createServer(app)
@@ -16,7 +17,7 @@ const io = new Server(http, {
     origin: '*:*'
   }
 })
-require('./socket/io', io)
+
 
 // Server setup
 app
@@ -26,7 +27,9 @@ app
   .use(express.urlencoded({ extended: false }))
   .use(morgan('dev'))
   .use(passport.initialize())
+
 require('./config/passport')
+require('./socket/io', io)
 
 // Route Setup for v1
 app.use('/api/v1/get/', v1GETRoutes)

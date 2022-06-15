@@ -23,7 +23,9 @@ let userSchema = new mongoose.Schema({
   gender: String,
   birthday: { type: String, required: true },
   contact: { type: String, required: true },
-  addr: addrSchema
+  addr: addrSchema,
+  refreshToken: [String],
+  accessLvl: { type: String, required: true }
 }, { timestamps: true })
 
 userSchema.methods.savePassword = function(pw) {
@@ -36,8 +38,8 @@ userSchema.methods.comparePasswords = function(pw) {
 
 userSchema.methods.generateToken = function() {
   return {
-    access: jwt.sign({ sub: this._id, name: nameBuilder(this) }, process.env.JWT_SECRET, { algorithm: 'RS256', expiresIn: '15m' }),
-    refresh: jwt.sign({ sub: this._id }, process.env.JWT_SECRET, { algorithm: 'RS256', expiresIn: '1y' })
+    access: jwt.sign({ sub: this._id, name: nameBuilder(this), img: this.img }, process.env.JWT_SECRET, { algorithm: 'HS256', expiresIn: '1d' }),
+    refresh: jwt.sign({ sub: this._id, time: new Date() }, process.env.JWT_SECRET, { algorithm: 'HS256', expiresIn: '1y' })
   }
 }
 

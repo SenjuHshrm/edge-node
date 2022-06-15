@@ -1,3 +1,9 @@
 node_modules
 app
 .env
+uploads/*
+!uploads/
+uploads/user-img/*
+!uploads/user-img/
+uploads/files/*
+!uploads/files/
