@@ -1,25 +1,8 @@
-const User = require('../models/User')
+const User = require('../../../models/User')
 const passport = require('passport')
+const jwt = require('jsonwebtoken')
 
 module.exports = {
-
-  /**
-   * 
-   * Authenticates the user using PassportJS
-   *
-   */
-  login: (req, res) => {
-    passport.authenticate('local', (err, user, info) => {
-      if(err) return res.status(500).json({ success: false, msg: info.message, data: err })
-      if(!user) return res.status(401).json({ success: false, msg: info.message })
-      if(req.body.access !== user.accessLvl) return res.status(403).json({ success: false, msg: 'Your account does not have permission to access this dashboard' }) 
-      let token = user.generateToken()
-      user.refreshToken.push(token.refresh)
-      user.markModified('refreshToken')
-      user.save()
-      return res.status(200).json({ success: true, msg: 'ok', info: token.access })
-    })(req, res)
-  },
 
   /**
    * 
@@ -37,7 +20,8 @@ module.exports = {
       gender: req.body.gender,
       birthday: req.body.bday,
       contact: req.body.contact,
-      addr: req.body.addr
+      addr: req.body.addr,
+      accessLvl: req.body.accessLvl
     })
     user.savePassword(req.body.password)
     user.setImg(req.body.img, req.body.username)
@@ -45,6 +29,7 @@ module.exports = {
         return res.status(200).json({ msg: 'Account registered successfully' })
       })
       .catch(err => {
+        console.log(err)
         return res.status(500).json({ msg: 'An error occured' })
       })
   },
@@ -58,15 +43,6 @@ module.exports = {
       return res.status(404).json({ msg: 'User not found.' })
     }
     return res.status(200).json({ success: true, msg: 'success', data: user.userProfile(), info: res.locals.token })
-  },
-
-  /**
-   * 
-   * Request new access token
-   * 
-   */
-  refreshToken: (req, res) => {
-    
   }
   
 

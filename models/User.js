@@ -2,7 +2,13 @@ const mongoose = require('mongoose')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const crypto = require('crypto')
-const { nameBuilder, addrBuilder } = require('../services')
+const { nameBuilder, addrBuilder } = require('../api/v1/services')
+const { v4: uuidv4 } = require('uuid')
+
+let rftSchema = new mongoose.Schema({
+  uid: String,
+  token: String
+})
 
 let addrSchema = new mongoose.Schema({
   province: { type: String, required: true },
@@ -24,8 +30,8 @@ let userSchema = new mongoose.Schema({
   birthday: { type: String, required: true },
   contact: { type: String, required: true },
   addr: addrSchema,
-  refreshToken: [String],
-  accessLvl: { type: String, required: true }
+  refreshToken: [rftSchema],
+  accessLvl: { type: Number, required: true }
 }, { timestamps: true })
 
 userSchema.methods.savePassword = function(pw) {
@@ -37,9 +43,11 @@ userSchema.methods.comparePasswords = function(pw) {
 }
 
 userSchema.methods.generateToken = function() {
+  let uid = uuidv4()
   return {
-    access: jwt.sign({ sub: this._id, name: nameBuilder(this), img: this.img }, process.env.JWT_SECRET, { algorithm: 'HS256', expiresIn: '1d' }),
-    refresh: jwt.sign({ sub: this._id, time: new Date() }, process.env.JWT_SECRET, { algorithm: 'HS256', expiresIn: '1y' })
+    uid: uid,
+    access: jwt.sign({ sub: this._id, name: nameBuilder(this), img: this.img, access: this.accessLvl, uid: uid }, process.env.JWT_SECRET, { algorithm: 'HS256', expiresIn: '1d' }),
+    refresh: jwt.sign({ sub: this._id }, process.env.JWT_SECRET, { algorithm: 'HS256', expiresIn: '1y' })
   }
 }
 

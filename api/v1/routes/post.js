@@ -1,10 +1,13 @@
 const Router = require('express').Router
 const router = Router()
-const { testCtrl, userCtrl } = require('../controllers')
+const passport = require('passport')
+const { testCtrl, userCtrl, authCtrl, inqCtrl } = require('../controllers')
 
 router
-  .post('/login', userCtrl.login)
+  .post('/login', authCtrl.login)
   .post('/test', testCtrl.post)
-  .post('/refresh/access', userCtrl.refreshToken)
+  .post('/register', userCtrl.register)
+  .post('/create-inquiry', passport.authenticate('jwt', { session: false }), inqCtrl.createInquiry)
+  .post('/refresh/access', authCtrl.refreshToken)
 
 module.exports = router

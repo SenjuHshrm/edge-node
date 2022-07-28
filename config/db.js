@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const User = require('../api/v1/models/User')
+const User = require('../models/User')
 
 module.exports = () => {
   mongoose.connect(process.env.MONGODB_URL)
@@ -27,7 +27,7 @@ module.exports = () => {
               brgy: 'Barangay',
               st: 'Street/HouseNumber'
             },
-            accessLvl: 'su'
+            accessLvl: 0
           })
           usr.savePassword(process.env.SU_PASSWORD)
           usr.setImg('', process.env.SU_USERNAME)
