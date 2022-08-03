@@ -6,25 +6,21 @@ module.exports = {
 
   /**
    * 
-   * User registration
+   * User registration for key partners
    * 
    */
   register: (req, res) => {
     let user = new User({
       email: req.body.email,
-      username: req.body.username,
-      firstName: req.body.fName,
-      middleName: req.body.mName,
-      lastName: req.body.lName,
-      extName: req.body.xName,
-      gender: req.body.gender,
-      birthday: req.body.bday,
+      username: '',
+      name: req.body.name,
       contact: req.body.contact,
-      addr: req.body.addr,
-      accessLvl: req.body.accessLvl
+      company: req.body.company,
+      accessLvl: req.body.accessLvl,
+      isActivated: false,
     })
     user.savePassword(req.body.password)
-    user.setImg(req.body.img, req.body.username)
+    user.setImg(req.body.img, req.body.email)
     user.save().then(record => {
         return res.status(200).json({ msg: 'Account registered successfully' })
       })
@@ -43,7 +39,34 @@ module.exports = {
       return res.status(404).json({ msg: 'User not found.' })
     }
     return res.status(200).json({ success: true, msg: 'success', data: user.userProfile(), info: res.locals.token })
-  }
+  },
+
+  /**
+   * Approve key partner account request
+   */
+  approveAcctReq: async (req, res) => {
+
+  },
+
+  /**
+   * Reject key partner account request
+   */
+  rejectAcctReq: async (req, res) => {
+
+  },
+
+  /**
+   * Activate registered key partner's account
+   */
+  activateUser: async (req, res) => {
+
+  },
   
+  /**
+   * Update profile
+   */
+  updateProfile: async (req, res) => {
+
+  },
 
 }

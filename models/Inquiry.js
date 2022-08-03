@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const { ObjectId } = mongoose.Schema
 
 let itemSchema = new mongoose.Schema({
   itemName: String,
@@ -9,7 +10,7 @@ let itemSchema = new mongoose.Schema({
 
 let inqSchema = new mongoose.Schema({
   inqId: { type: String, required: true },
-  keyPartnerId: { type: String, required: true, ref: 'user' },
+  keyPartnerId: { type: ObjectId, required: true, ref: 'user' },
   items: [itemSchema],
   isApproved: { type: Boolean, required: false }
 }, { timestamps: true })

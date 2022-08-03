@@ -10,28 +10,16 @@ let rftSchema = new mongoose.Schema({
   token: String
 })
 
-let addrSchema = new mongoose.Schema({
-  province: { type: String, required: true },
-  city: { type: String, required: true },
-  brgy: { type: String, required: true },
-  st: String
-})
-
 let userSchema = new mongoose.Schema({
-  email: { type: String, unique: true, required: true },
-  username: { type: String, unique: true, required: true },
-  password: { type: String, unique: true, required: true },
-  img: { type: String, required: true },
-  firstName: { type: String, required: true },
-  middleName: String,
-  lastName: { type: String, required: true },
-  extName: String,
-  gender: String,
-  birthday: { type: String, required: true },
+  email: { type: String, required: true },
+  username: String,
+  password: { type: String, required: true },
+  name: { type: String, required: true },
   contact: { type: String, required: true },
-  addr: addrSchema,
+  company: { type: String, required: true },
   refreshToken: [rftSchema],
-  accessLvl: { type: Number, required: true }
+  accessLvl: { type: Number, required: true },
+  isActivated: { type: Boolean, required: true },
 }, { timestamps: true })
 
 userSchema.methods.savePassword = function(pw) {

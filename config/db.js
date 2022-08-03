@@ -14,20 +14,11 @@ module.exports = () => {
           let usr = new User({
             email: process.env.SU_EMAIL,
             username: process.env.SU_USERNAME,
-            firstName: 'Super',
-            middleName: '',
-            lastName: 'Admin',
-            extName: '',
-            gender: 'male',
-            birthday: '1990/01/01',
+            name: process.env.SU_NAME,
             contact: '09100000000',
-            addr: {
-              province: 'Province',
-              city: 'City',
-              brgy: 'Barangay',
-              st: 'Street/HouseNumber'
-            },
-            accessLvl: 0
+            company: 'Super Admin',
+            accessLvl: 0,
+            isActivated: true,
           })
           usr.savePassword(process.env.SU_PASSWORD)
           usr.setImg('', process.env.SU_USERNAME)

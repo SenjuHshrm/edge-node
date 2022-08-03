@@ -26,9 +26,9 @@ module.exports = {
    */
   approveInquiry: async (req, res) => {
     try {
-      await Inquiry.findOneAndUpdate(
+      await Inquiry.findByIdAndUpdate(
         req.params.inqId,
-        { isApproved: true }
+        { $set: { isApproved: true } }
       ).exec()
       return res.status(200).json({ success: true, msg: 'OK' })
     } catch(e) {
@@ -53,7 +53,7 @@ module.exports = {
    */
   getInquiriesByKeyPartner: async (req, res) => {
     try {
-      let inquiries = await Inquiry.findById(req.params.id).populate('keyPartnerId').exec()
+      let inquiries = await Inquiry.find({ keyPartnerId: req.params.id }).populate('keyPartnerId').exec()
       return res.status(200).json({ success: true, info: inquiries })
     } catch(e) {
       return res.status(500).json({ success: false, msg: '' })
