@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 const { ObjectId } = mongoose.Schema
 
 let itemSchema = new mongoose.Schema({
-  itemName: String,
+  description: String,
   quantity: Number,
   units: String,
   remarks: String

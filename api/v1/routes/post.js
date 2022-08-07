@@ -29,11 +29,6 @@ router
     quoteCtrl.createQuotation
   )
   .post(
-    "/refresh/access",
-    passport.authenticate("jwt", { session: false }),
-    authCtrl.refreshToken
-  )
-  .post(
     "/create-classification",
     passport.authenticate("jwt", { session: false }),
     classCtrl.createClassification

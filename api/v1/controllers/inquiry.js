@@ -15,7 +15,11 @@ module.exports = {
       items: req.body.items,
       isApproved: false
     }).save().then(newInq => {
-      return res.status(200).json({ succes: true, info: newInq })
+      newInq.populate('keyPartnerId')
+      let { inqId, createdAt, items, keyPartnerId: { name, email, company } } = newInq
+      return res.status(200).json({ succes: true, info: {
+        inqId, createdAt, items, keyPartnerId: { name, email, company }
+      } })
     }).catch(e => {
       return res.status(500).json({ success: false, msg: '' })
     })
@@ -53,9 +57,24 @@ module.exports = {
    */
   getInquiriesByKeyPartner: async (req, res) => {
     try {
+      let response = []
       let inquiries = await Inquiry.find({ keyPartnerId: req.params.id }).populate('keyPartnerId').exec()
-      return res.status(200).json({ success: true, info: inquiries })
+      inquiries.forEach(inq => {
+        let { inqId, createdAt, items, keyPartnerId: { name, email, company } } = inq
+        response.push({
+          inqId,
+          createdAt,
+          items,
+          keyPartnerId: {
+            name,
+            email,
+            company
+          }
+        })
+      })
+      return res.status(200).json({ success: true, info: response })
     } catch(e) {
+      console.log(e)
       return res.status(500).json({ success: false, msg: '' })
     }
   }

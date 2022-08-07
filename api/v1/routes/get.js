@@ -1,7 +1,7 @@
 const Router = require("express").Router;
 const router = Router();
 const passport = require("passport");
-const { userCtrl, inqCtrl, classCtrl } = require("../controllers");
+const { userCtrl, inqCtrl, classCtrl, authCtrl } = require("../controllers");
 
 router
   .get(
@@ -15,7 +15,7 @@ router
     inqCtrl.getAllInquiries
   )
   .get(
-    "/get-inquiries/:id",
+    "/inquiries/:id",
     passport.authenticate("jwt", { session: false }),
     inqCtrl.getInquiriesByKeyPartner
   )
@@ -33,5 +33,9 @@ router
     "/get-all-classification/:type",
     passport.authenticate("jwt", { session: false }),
     classCtrl.getClassificationByType
-  );
+  )
+  .get(
+    "/refresh/access",
+    authCtrl.refreshToken
+  )
 module.exports = router;
