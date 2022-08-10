@@ -1,7 +1,13 @@
 const Router = require("express").Router;
 const router = Router();
 const passport = require("passport");
-const { userCtrl, inqCtrl, classCtrl, authCtrl } = require("../controllers");
+const {
+  userCtrl,
+  inqCtrl,
+  classCtrl,
+  authCtrl,
+  custCtrl,
+} = require("../controllers");
 
 router
   .get(
@@ -34,8 +40,18 @@ router
     passport.authenticate("jwt", { session: false }),
     classCtrl.getClassificationByType
   )
+
   .get(
-    "/refresh/access",
-    authCtrl.refreshToken
+    "/get-all-customer/:id",
+    passport.authenticate("jwt", { session: false }),
+    custCtrl.getAllCustomer
   )
+  .get(
+    "/get-customer/:id",
+    passport.authenticate("jwt", { session: false }),
+    custCtrl.getCustomer
+  )
+
+  .get("/refresh/access", authCtrl.refreshToken);
+
 module.exports = router;

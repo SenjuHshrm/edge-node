@@ -5,6 +5,7 @@ const testCtrl = require("./test");
 const quoteCtrl = require("./quotation");
 const poCtrl = require("./purchase-order");
 const classCtrl = require("./classification");
+const custCtrl = require("./customer");
 
 module.exports = {
   userCtrl,
@@ -14,4 +15,5 @@ module.exports = {
   quoteCtrl,
   poCtrl,
   classCtrl,
+  custCtrl,
 };

@@ -1,7 +1,7 @@
 const Router = require("express").Router;
 const router = Router();
 const passport = require("passport");
-const { userCtrl, inqCtrl, classCtrl } = require("../controllers");
+const { userCtrl, inqCtrl, classCtrl, custCtrl } = require("../controllers");
 
 router
   .put(
@@ -18,6 +18,11 @@ router
     "/update-classification/:id",
     passport.authenticate("jwt", { session: false }),
     classCtrl.updateClassification
+  )
+  .put(
+    "/update-customer/:id",
+    passport.authenticate("jwt", { session: false }),
+    custCtrl.updateCustomer
   );
 
 module.exports = router;
