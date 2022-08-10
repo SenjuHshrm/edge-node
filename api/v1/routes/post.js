@@ -8,6 +8,7 @@ const {
   quoteCtrl,
   poCtrl,
   classCtrl,
+  custCtrl,
 } = require("../controllers");
 
 router
@@ -32,6 +33,11 @@ router
     "/create-classification",
     passport.authenticate("jwt", { session: false }),
     classCtrl.createClassification
+  )
+  .post(
+    "/create-customer",
+    passport.authenticate("jwt", { session: false }),
+    custCtrl.createCustomer
   );
 
 module.exports = router;
