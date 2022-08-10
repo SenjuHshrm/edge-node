@@ -10,7 +10,7 @@ router
     userCtrl.profile
   )
   .get(
-    "/get-all-inquiries",
+    "/inquiries/all",
     passport.authenticate("jwt", { session: false }),
     inqCtrl.getAllInquiries
   )

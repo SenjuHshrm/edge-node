@@ -27,36 +27,24 @@ module.exports = {
    * 
    */
   refreshToken: async (req, res) => {
+    let token = jwt.decode(req.headers.authorization.split(' ')[1])
+    let user = await User.findById(token.sub).exec()
+    let refr = user.refreshToken.filter(ref => { return ref.uid === token.uid })
     try {
-      let token = jwt.decode(req.headers.authorization.split(' ')[1])
-      let user = await User.findById(token.sub)
-      let refr = user.refreshToken.filter(ref => ref.uid === token.uid)
-      jwt.verify(refr[0].token, process.env.JWT_SECRET, { algorithms: ['HS256'] }, async (err, payload) => {
-        if(err) {
-          if(e.name === 'TokenExpiredError') {
-            let newToken = user.generateToken()
-            await User.findByIdAndUpdate(payload.sub, { $pull: { uid: token.uid }, $push: { uid: newToken.uid, token: newToken.refresh } })
-            return res.status(200).json({ success: true, token: newToken.access })
-          }
-        }
-        let newToken = user.generateToken()
-        await User.findByIdAndUpdate(payload.sub, { $pull: { uid: token.uid }, $push: { uid: newToken.uid, token: newToken.refresh } })
-        return res.status(200).json({ success: true, token: newToken.access })
-      })
-        // .then(async (payload) => {
-
-        // })
-        // .catch(async (e) => {
-        //   console.log(e)
-        //   if(e.name === 'TokenExpiredError') {
-
-        //   }
-        // })
+      let decode = jwt.verify(refr[0].token, process.env.JWT_SECRET)
+      let newToken = user.generateToken()
+      await User.findOneAndUpdate({ _id: decode.sub, ['refreshToken.uid']: refr[0].uid }, { $set: { 'refreshToken.$': { uid: newToken.uid, token: newToken.refresh } } }).exec()
+      return res.status(200).json({ success: true, token: newToken.access })
     } catch(e) {
       console.log(e)
-      return res.status(500).json({ success: false, msg: 'error' })
+      if(e.name === 'TokenExpiredError') {
+        let newToken = user.generateToken()
+        await User.findOneAndUpdate({ _id: token.sub, ['refreshToken.uid']: refr[0].uid }, { $set: { 'refreshToken.$': { uid: newToken.uid, token: newToken.refresh } } }).exec()
+        return res.status(200).json({ success: true, token: newToken.access })
+      }
     }
   },
+
 
   /**
    * 

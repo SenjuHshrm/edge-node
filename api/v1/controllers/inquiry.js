@@ -45,8 +45,22 @@ module.exports = {
    */
   getAllInquiries: async (req, res) => {
     try {
-      let inquiries = await Inquiry.find({}).exec()
-      return res.status(200).json({ success: true, info: inquiries })
+      let response = []
+      let inquiries = await Inquiry.find({}).populate('keyPartnerId').exec()
+      inquiries.forEach(inq => {
+        let { inqId, createdAt, items, keyPartnerId: { name, email, company } } = inq
+        response.push({
+          inqId,
+          createdAt,
+          items,
+          keyPartnerId: {
+            name,
+            email,
+            company
+          }
+        })
+      })
+      return res.status(200).json({ success: true, info: response })
     } catch(e) {
       return res.status(500).json({ success: false, msg: '' })
     }

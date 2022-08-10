@@ -34,7 +34,7 @@ userSchema.methods.generateToken = function() {
   let uid = uuidv4()
   return {
     uid: uid,
-    access: jwt.sign({ sub: this._id, name: this.name, img: this.img, access: this.accessLvl, uid: uid }, process.env.JWT_SECRET, { algorithm: 'HS256', expiresIn: '1d' }),
+    access: jwt.sign({ sub: this._id, name: this.name, img: this.img, access: this.accessLvl, uid: uid }, process.env.JWT_SECRET, { algorithm: 'HS256', expiresIn: '15m' }),
     refresh: jwt.sign({ sub: this._id }, process.env.JWT_SECRET, { algorithm: 'HS256', expiresIn: '1y' })
   }
 }
