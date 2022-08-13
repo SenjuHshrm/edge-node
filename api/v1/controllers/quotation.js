@@ -1,4 +1,5 @@
 const Quotation = require('../../../models/Quotation')
+const Inquiry = require('../../../models/Inquiry')
 const generateId = require('../../../utils/id-generator')
 
 module.exports = {
@@ -7,15 +8,19 @@ module.exports = {
    */
   createQuotation: async (req, res) => {
     let prevQuote = await Quotation.find({}).exec()
-    let quoteId = generateId(prevQoute, 'QUOTE')
+    let quoteId = generateId(prevQuote, 'QUOTE')
     new Quotation({
       quotationId: quoteId,
       keyPartnerId: req.body.keyPartnerId,
+      quoteFrom: req.body.quoteFrom,
       items: req.body.items,
-      isApproved: false
-    }).save().then(newQuote => {
+      isApproved: false,
+      validUntil: req.body.validUntil
+    }).save().then(async (newQuote) => {
+      await Inquiry.findOneAndUpdate({ inqId: newQuote.quoteFrom }, { $set: { isApproved: true } }).exec()
       return res.status(200).json({ success: true, info: newQuote })
     }).catch(e => {
+      console.log(e)
       return res.status(500).json({ success: false, msg: '' })
     })
   },

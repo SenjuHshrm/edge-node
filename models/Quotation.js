@@ -4,15 +4,17 @@ const { ObjectId } = mongoose.Schema
 let itemSchema = new mongoose.Schema({
   item: String,
   price: String,
-  markUp: String,
+  quantity: String,
   totalPrice: String
 })
 
 let quotationSchema = new mongoose.Schema({
-  quotationId: { type: ObjectId, required: true, ref: 'purchase-orders' },
-  keyPartnerId: { type: String, required: true, ref: 'user' },
+  quotationId: { type: String, required: true },
+  keyPartnerId: { type: ObjectId, required: true, ref: 'user' },
+  quoteFrom: { type: String, required: true, ref: 'inquiry' },
   items: [itemSchema],
-  isApproved: { type: Boolean, required: true }
+  isApproved: { type: Boolean, required: true },
+  validUntil: { type: String, required: true }
 }, { timestamps: true })
 
 let Quotation = mongoose.model('quotation', quotationSchema)

@@ -48,12 +48,13 @@ module.exports = {
       let response = []
       let inquiries = await Inquiry.find({}).populate('keyPartnerId').exec()
       inquiries.forEach(inq => {
-        let { inqId, createdAt, items, keyPartnerId: { name, email, company } } = inq
+        let { inqId, createdAt, items, keyPartnerId: { _id, name, email, company } } = inq
         response.push({
           inqId,
           createdAt,
           items,
           keyPartnerId: {
+            _id,
             name,
             email,
             company
