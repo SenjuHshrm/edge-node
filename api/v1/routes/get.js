@@ -16,6 +16,16 @@ router
     userCtrl.profile
   )
   .get(
+    '/key-partners/for-approval',
+    passport.authenticate('jwt', { session: false }),
+    userCtrl.getAccountsForApproval
+  )
+  .get(
+    '/key-partners/approved',
+    passport.authenticate('jwt', { session: false }),
+    userCtrl.getApprovedKeyPartners
+  )
+  .get(
     "/inquiries/all",
     passport.authenticate("jwt", { session: false }),
     inqCtrl.getAllInquiries

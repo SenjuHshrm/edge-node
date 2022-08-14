@@ -18,9 +18,7 @@ let inventorySchema = new mongoose.Schema({
   color: { type: String, required: true },
   size: { type: String, required: true },
   sequence: { type: String, required: true },
-  sku: { type: String, required: true },
-  movingInv: capitalSchema,
-  nonMovingInv: capitalSchema
+  sku: { type: String, required: true }
 })
 
 const Inventory = mongoose.model('inventory', inventorySchema)

@@ -12,14 +12,17 @@ module.exports = {
   register: (req, res) => {
     let user = new User({
       email: req.body.email,
-      username: '',
+      username: req.body.email,
+      password: '',
       name: req.body.name,
       contact: req.body.contact,
       company: req.body.company,
+      addr: req.body.addr,
       accessLvl: req.body.accessLvl,
+      isApproved: 'pending',
       isActivated: false,
     })
-    user.savePassword(req.body.password)
+    // user.savePassword(req.body.password)
     user.setImg(req.body.img, req.body.email)
     user.save().then(record => {
         return res.status(200).json({ msg: 'Account registered successfully' })
@@ -28,6 +31,30 @@ module.exports = {
         console.log(err)
         return res.status(500).json({ msg: 'An error occured' })
       })
+  },
+
+  /**
+   * 
+   */
+  getAccountsForApproval: async (req, res) => {
+    try {
+      let users = await User.find({ accessLvl: 3, isApproved: 'pending' }, { password: 0, refreshToken: 0, isActivated: 0, isApproved: 0 }).exec()
+      return res.status(200).json({ success: true, info: users })
+    } catch(e) {
+      return res.status(500).json({ success: false, msg: '' })
+    }
+  },
+
+  /**
+   * 
+   */
+  getApprovedKeyPartners: async (req, res) => {
+    try {
+      let kp = await User.find({ accessLvl: 3, isApproved: 'true' }, { password: 0, refreshToken: 0, isApproved: 0 }).exec()
+      return res.status(200).json({ success: true, info: kp })
+    } catch(e) {
+      return res.status(500).json({ success: false, msg: '' })
+    }
   },
 
   /**
@@ -45,8 +72,26 @@ module.exports = {
    * Approve key partner account request
    */
   approveAcctReq: async (req, res) => {
-
+    try {
+      await User.findByIdAndUpdate(req.params.id, { $set: { isApproved: 'true' } }).exec()
+      return res.status(200).json({ success: true, msg: 'Key Partner approved.' })
+    } catch(e) {
+      return res.status(500).json({ success: false, msg: '' })
+    }
   },
+
+  /**
+   * 
+   */
+   setActiveStatus: async (req, res) => {
+    try {
+      await User.findByIdAndUpdate(req.params.id, { $set: { isActivated: req.body.status } }).exec()
+      let msg = (req.body.status) ? 'Account activated' : 'Account deactivated'
+      return res.status(200).json({ success: true, msg: msg })
+    } catch(e) {
+      return res.status(500).json({ success: false, msg: '' })
+    }
+   },
 
   /**
    * Reject key partner account request
