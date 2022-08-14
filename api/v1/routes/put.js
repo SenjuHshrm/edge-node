@@ -34,6 +34,16 @@ router
     "/update-inventory/:id",
     passport.authenticate("jwt", { session: false }),
     invCtrl.updateInventory
-  );
+  )
+  .put(
+    '/key-partner/approve/:id',
+    passport.authenticate('jwt', { session: false }),
+    userCtrl.approveAcctReq
+  )
+  .put(
+    '/key-partner/status/set/:id',
+    passport.authenticate('jwt', { session: false }),
+    userCtrl.setActiveStatus
+  )
 
 module.exports = router;

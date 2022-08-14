@@ -11,14 +11,18 @@ let rftSchema = new mongoose.Schema({
 })
 
 let userSchema = new mongoose.Schema({
-  email: { type: String, required: true },
-  username: String,
-  password: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  username: { type: String, required: true, unique: true },
+  userId: { type: String , default: ''},
+  password: String,
+  img: { type: String, required: true },
   name: { type: String, required: true },
   contact: { type: String, required: true },
   company: { type: String, required: true },
+  addr: { type: String, required: true },
   refreshToken: [rftSchema],
   accessLvl: { type: Number, required: true },
+  isApproved: { type: String, default: 'pending' },
   isActivated: { type: Boolean, required: true },
 }, { timestamps: true })
 
@@ -54,7 +58,7 @@ userSchema.methods.userProfile = function() {
     name: nameBuilder(this),
     gender: this.gender,
     bday: this.bday,
-    addr: addrBuilder(this.addr),
+    addr: this.addr,
     contact: this.contact
   }
 }
