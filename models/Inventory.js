@@ -1,28 +1,34 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
+const { ObjectId } = mongoose.Schema;
 
 let capitalSchema = new mongoose.Schema({
-  in: { type: String, required: true },
-  out: { type: String, required: true },
-  defective: { type: String, required: true },
-  rts: { type: String, required: true },
-  quantity: { type: String, required: true },
-  price: String,
-  totalAmt: String
-})
+  in: { type: String },
+  out: { type: String },
+  defective: { type: String },
+  rts: { type: String },
+  quantity: { type: String },
+  price: { type: String },
+  totalAmt: { type: String },
+});
 
-let inventorySchema = new mongoose.Schema({
-  desc: { type: String, required: true },
-  classification: { type: String, required: true },
-  code: { type: String, required: true },
-  type: { type: String, required: true },
-  color: { type: String, required: true },
-  size: { type: String, required: true },
-  sequence: { type: String, required: true },
-  sku: { type: String, required: true },
-  movingInv: capitalSchema,
-  nonMovingInv: capitalSchema
-})
+let inventorySchema = new mongoose.Schema(
+  {
+    keyPartnerId: { type: ObjectId, required: true, ref: "user" },
+    desc: { type: String, required: true },
+    code: { type: ObjectId, required: true, ref: "classification" },
+    classification: { type: ObjectId, required: true, ref: "classification" },
+    color: { type: ObjectId, required: true, ref: "classification" },
+    size: { type: ObjectId, required: true, ref: "classification" },
+    sequence: { type: String, required: true },
+    deletedAt: { type: String, default: "" },
+    movingInv: capitalSchema,
+    nonMovingInv: capitalSchema,
+  },
+  {
+    timestamps: true,
+  }
+);
 
-const Inventory = mongoose.model('inventory', inventorySchema)
+const Inventory = mongoose.model("inventory", inventorySchema);
 
-module.exports= Inventory
+module.exports = Inventory;

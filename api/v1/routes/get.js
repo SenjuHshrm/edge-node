@@ -7,6 +7,7 @@ const {
   classCtrl,
   authCtrl,
   custCtrl,
+  invCtrl,
 } = require("../controllers");
 
 router
@@ -50,6 +51,18 @@ router
     "/get-customer/:id",
     passport.authenticate("jwt", { session: false }),
     custCtrl.getCustomer
+  )
+
+  .get(
+    "/get-key-partners",
+    passport.authenticate("jwt", { session: false }),
+    userCtrl.getKeyPartners
+  )
+
+  .get(
+    "/get-all-inventory",
+    // passport.authenticate("jwt", { session: false }),
+    invCtrl.getAllItems
   )
 
   .get("/refresh/access", authCtrl.refreshToken);
