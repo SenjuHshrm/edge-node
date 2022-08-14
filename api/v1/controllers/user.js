@@ -1,13 +1,12 @@
-const User = require('../../../models/User')
-const passport = require('passport')
-const jwt = require('jsonwebtoken')
+const User = require("../../../models/User");
+const passport = require("passport");
+const jwt = require("jsonwebtoken");
 
 module.exports = {
-
   /**
-   * 
+   *
    * User registration for key partners
-   * 
+   *
    */
   register: (req, res) => {
     let user = new User({
@@ -28,9 +27,9 @@ module.exports = {
         return res.status(200).json({ msg: 'Account registered successfully' })
       })
       .catch(err => {
-        console.log(err)
-        return res.status(500).json({ msg: 'An error occured' })
-      })
+        console.log(err);
+        return res.status(500).json({ msg: "An error occured" });
+      });
   },
 
   /**
@@ -61,11 +60,16 @@ module.exports = {
    * Get user information by user id
    */
   profile: async (req, res) => {
-    let user = await User.findById(req.params.id).exec()
-    if(!user) {
-      return res.status(404).json({ msg: 'User not found.' })
+    let user = await User.findById(req.params.id).exec();
+    if (!user) {
+      return res.status(404).json({ msg: "User not found." });
     }
-    return res.status(200).json({ success: true, msg: 'success', data: user.userProfile(), info: res.locals.token })
+    return res.status(200).json({
+      success: true,
+      msg: "success",
+      data: user.userProfile(),
+      info: res.locals.token,
+    });
   },
 
   /**
@@ -96,22 +100,33 @@ module.exports = {
   /**
    * Reject key partner account request
    */
-  rejectAcctReq: async (req, res) => {
-
-  },
+  rejectAcctReq: async (req, res) => {},
 
   /**
    * Activate registered key partner's account
    */
-  activateUser: async (req, res) => {
+  activateUser: async (req, res) => {},
 
-  },
-  
   /**
    * Update profile
    */
-  updateProfile: async (req, res) => {
+  updateProfile: async (req, res) => {},
 
+  /**
+   * Get Keypartners
+   */
+  getKeyPartners: async (req, res) => {
+    try {
+      let keyPartners = await User.find({
+        deletedAt: "",
+        accessLvl: 3,
+      }).exec();
+      return res.status(200).json({ success: true, info: keyPartners });
+    } catch (e) {
+      return res.status(500).json({
+        success: false,
+        msg: "Failed to get the list of key partners.",
+      });
+    }
   },
-
-}
+};

@@ -1,14 +1,16 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
+const { ObjectId } = mongoose.Schema;
 
 let capitalSchema = new mongoose.Schema({
-  in: { type: String, required: true },
-  out: { type: String, required: true },
-  defective: { type: String, required: true },
-  rts: { type: String, required: true },
-  quantity: { type: String, required: true },
-  price: String,
-  totalAmt: String
-})
+  in: { type: String },
+  out: { type: String },
+  defective: { type: String },
+  rts: { type: String },
+  quantity: { type: String },
+  price: { type: String },
+  totalAmt: { type: String },
+});
+
 
 let inventorySchema = new mongoose.Schema({
   desc: { type: String, required: true },
@@ -21,6 +23,6 @@ let inventorySchema = new mongoose.Schema({
   sku: { type: String, required: true }
 })
 
-const Inventory = mongoose.model('inventory', inventorySchema)
+const Inventory = mongoose.model("inventory", inventorySchema);
 
-module.exports= Inventory
+module.exports = Inventory;

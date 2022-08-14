@@ -9,6 +9,7 @@ const {
   poCtrl,
   classCtrl,
   custCtrl,
+  invCtrl,
 } = require("../controllers");
 
 router
@@ -38,6 +39,11 @@ router
     "/create-customer",
     passport.authenticate("jwt", { session: false }),
     custCtrl.createCustomer
+  )
+  .post(
+    "/create-inventory",
+    passport.authenticate("jwt", { session: false }),
+    invCtrl.createInventory
   );
 
 module.exports = router;

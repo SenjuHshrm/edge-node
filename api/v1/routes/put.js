@@ -1,7 +1,13 @@
 const Router = require("express").Router;
 const router = Router();
 const passport = require("passport");
-const { userCtrl, inqCtrl, classCtrl, custCtrl } = require("../controllers");
+const {
+  userCtrl,
+  inqCtrl,
+  classCtrl,
+  custCtrl,
+  invCtrl,
+} = require("../controllers");
 
 router
   .put(
@@ -23,6 +29,11 @@ router
     "/update-customer/:id",
     passport.authenticate("jwt", { session: false }),
     custCtrl.updateCustomer
+  )
+  .put(
+    "/update-inventory/:id",
+    passport.authenticate("jwt", { session: false }),
+    invCtrl.updateInventory
   )
   .put(
     '/key-partner/approve/:id',
