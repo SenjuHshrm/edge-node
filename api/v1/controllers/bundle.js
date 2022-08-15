@@ -1,0 +1,76 @@
+const Bundle = require("../../../models/Bundle");
+
+module.exports = {
+  /**
+   * Create bundled item
+   */
+  createBundle: async (req, res) => {
+    new Bundle({
+      keyPartnerId: req.body.keyPartnerId,
+      name: req.body.name,
+      items: req.body.items,
+    })
+      .save()
+      .then(bundle => {
+        return res.status(200).json({ success: true, info: bundle });
+      })
+      .catch(e => {
+        return res.status(500).json({
+          success: false,
+          msg: "Failed to save a new Bundled Item.",
+        });
+      });
+  },
+
+  /**
+   * Get all bundled items per keypartner id
+   */
+  getAllBundledPerKeyPartners: async (req, res) => {
+    try {
+      let bundles = await Bundle.find({
+        deletedAt: "",
+        keyPartnerId: req.params.id,
+      }).exec();
+      return res.status(200).json({ success: true, info: bundles });
+    } catch (e) {
+      return res.status(500).json({
+        success: false,
+        msg: "Failed to get the list of bundled items.",
+      });
+    }
+  },
+
+  /**
+   * Update bundled items
+   */
+  updateBundle: async (req, res) => {
+    try {
+      let bundle = await Bundle.findByIdAndUpdate(req.params.id, req.body, {
+        new: true,
+      }).exec();
+      return res.status(200).json({ success: true, info: bundle });
+    } catch (e) {
+      return res.status(500).json({
+        success: false,
+        msg: "Failed to update the selected bundle item.",
+      });
+    }
+  },
+
+  /**
+   * Delete bundle
+   */
+  deleteBundle: async (req, res) => {
+    try {
+      await Bundle.findByIdAndUpdate(req.params.id, {
+        deletedAt: new Date().toLocaleString(),
+      }).exec();
+      return res.status(200).json({ success: true, info: req.params.id });
+    } catch (e) {
+      return res.status(500).json({
+        success: false,
+        msg: "Failed to delete the selected bundle item.",
+      });
+    }
+  },
+};
