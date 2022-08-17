@@ -45,5 +45,10 @@ router
     passport.authenticate('jwt', { session: false }),
     userCtrl.setActiveStatus
   )
+  .put(
+    '/key-partner/set-password/:id',
+    passport.authenticate('jwt', { session: false }),
+    userCtrl.setKeyPartnerPassword
+  )
 
 module.exports = router;

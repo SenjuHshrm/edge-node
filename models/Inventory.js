@@ -13,15 +13,17 @@ let capitalSchema = new mongoose.Schema({
 
 
 let inventorySchema = new mongoose.Schema({
+  keyPartnerId: { type: ObjectId, required: true, ref: "user" },
   desc: { type: String, required: true },
-  classification: { type: String, required: true },
-  code: { type: String, required: true },
-  type: { type: String, required: true },
-  color: { type: String, required: true },
-  size: { type: String, required: true },
+  code: { type: ObjectId, required: true, ref: "classification" },
+  classification: { type: ObjectId, required: true, ref: "classification" },
+  color: { type: ObjectId, required: true, ref: "classification" },
+  size: { type: ObjectId, required: true, ref: "classification" },
   sequence: { type: String, required: true },
-  deletedAt: { type: String }
-})
+  deletedAt: { type: String, default: "" },
+  movingInv: capitalSchema,
+  nonMovingInv: capitalSchema,
+}, { timestamps: true })
 
 const Inventory = mongoose.model("inventory", inventorySchema);
 

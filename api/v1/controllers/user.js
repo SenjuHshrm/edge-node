@@ -97,6 +97,26 @@ module.exports = {
     }
    },
 
+   /**
+    * 
+    */
+   setKeyPartnerPassword: async (req, res) => {
+    try {
+      let user = await User.findById(req.params.id).exec()
+      user.savePassword(req.boby.password)
+      user.markModified(password)
+      user.save()
+        .then(rec => {
+          
+        })
+        .catch(e => {
+          return res.status(500).json({ success: false, msg: '' })
+        })
+    } catch(e) {
+      return res.status(500).json({ success: false, msg: '' })
+    }
+   },
+
   /**
    * Reject key partner account request
    */
