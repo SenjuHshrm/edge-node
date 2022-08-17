@@ -40,16 +40,24 @@ module.exports = {
           color: req.body.color,
           size: req.body.size,
           sequence: seq,
-          movingInv: {
-            quantity: req.body.quantity,
-            price: req.body.price,
-            totalAmt:
-              parseFloat(req.body.quantity) * parseFloat(req.body.price),
-          },
+          in: req.body.quantity,
+          currentQty: req.body.quantity,
+          price: req.body.price,
         })
           .save()
-          .then(inventory => {
-            return res.status(200).json({ success: true, info: inventory });
+          .then(async inventory => {
+            let item = await Inventory.findById(inventory._id)
+              .populate({
+                path: "code classification color size",
+                select: "code name",
+              })
+              .populate({
+                path: "keyPartnerId",
+                select: "email name",
+              })
+              .exec();
+
+            return res.status(200).json({ success: true, info: item });
           })
           .catch(e => {
             return res.status(500).json({
@@ -89,8 +97,52 @@ module.exports = {
         newItems.push(clone);
       });
 
-      return res.status(200).json({ success: true, info: newItems });
+      return res.status(200).json({
+        success: true,
+        info: newItems.sort(
+          (a, b) => Number(b.createdAt) - Number(a.createdAt)
+        ),
+      });
     } catch (e) {
+      console.log(e);
+      return res.status(500).json({
+        success: false,
+        msg: "Failed to get the list of customers.",
+      });
+    }
+  },
+  /*
+   * Get all inventory items
+   */ getAllByKeyPartners: async (req, res) => {
+    try {
+      let items = await Inventory.find({
+        deletedAt: "",
+        keyPartnerId: req.params.id,
+      })
+        .populate({
+          path: "code classification color size",
+          select: "code name",
+        })
+        .populate({
+          path: "keyPartnerId",
+          select: "email name",
+        })
+        .exec();
+      let newItems = [];
+      items.map(item => {
+        let clone = { ...item._doc };
+        clone.sku = `SKU-EC-${item.classification?.code}-${item.code?.code}-${item.color?.code}-${item.size?.code}-${item.sequence}`;
+        newItems.push(clone);
+      });
+
+      return res.status(200).json({
+        success: true,
+        info: newItems.sort(
+          (a, b) => Number(b.createdAt) - Number(a.createdAt)
+        ),
+      });
+    } catch (e) {
+      console.log(e);
       return res.status(500).json({
         success: false,
         msg: "Failed to get the list of customers.",
@@ -119,7 +171,8 @@ module.exports = {
       );
 
       const format = "00000";
-      const count = parseInt(sorted[0].sequence) + 1;
+      const count =
+        filtered.length === 0 ? 1 : parseInt(sorted[0].sequence) + 1;
       const countChar = count.toString().length;
       seq = format.substring(0, format.length - countChar) + count.toString();
     }
@@ -146,16 +199,32 @@ module.exports = {
           color: req.body.color,
           size: req.body.size,
           sequence: seq,
-          movingInv: {
-            quantity: req.body.quantity,
-            price: req.body.price,
-            totalAmt:
-              parseFloat(req.body.quantity) * parseFloat(req.body.price),
-          },
+          in: req.body.in,
+          out: req.body.out,
+          rts: req.body.rts,
+          defective: req.body.defective,
+          currentQty:
+            parseFloat(req.body.in) -
+            (parseFloat(req.body.out) +
+              parseFloat(req.body.rts) +
+              parseFloat(req.body.defective)),
+          price: req.body.price,
         },
         { new: true }
       ).exec();
-      return res.status(200).json({ success: true, info: item });
+
+      let populated = await Inventory.findById(item._id)
+        .populate({
+          path: "code classification color size",
+          select: "code name",
+        })
+        .populate({
+          path: "keyPartnerId",
+          select: "email name",
+        })
+        .exec();
+
+      return res.status(200).json({ success: true, info: populated });
     } catch (e) {
       return res.status(500).json({
         success: false,
@@ -163,6 +232,27 @@ module.exports = {
       });
     }
   },
+  /**
+   * Update up to Many Moving to Non Moving classification
+   */
+  updateManyNonMoving: async (req, res) => {
+    try {
+      req.body.ids.map(async id => {
+        await Inventory.findByIdAndUpdate(
+          id,
+          { status: "non-moving" },
+          { new: true }
+        ).exec();
+      });
+      return res.status(200).json({ success: true, info: req.body.ids });
+    } catch (e) {
+      return res.status(500).json({
+        success: false,
+        msg: "Failed to update the selected items.",
+      });
+    }
+  },
+
   /**
    * Delete classification
    */

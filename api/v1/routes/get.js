@@ -17,13 +17,13 @@ router
     userCtrl.profile
   )
   .get(
-    '/key-partners/for-approval',
-    passport.authenticate('jwt', { session: false }),
+    "/key-partners/for-approval",
+    passport.authenticate("jwt", { session: false }),
     userCtrl.getAccountsForApproval
   )
   .get(
-    '/key-partners/approved',
-    passport.authenticate('jwt', { session: false }),
+    "/key-partners/approved",
+    passport.authenticate("jwt", { session: false }),
     userCtrl.getApprovedKeyPartners
   )
   .get(
@@ -71,8 +71,14 @@ router
 
   .get(
     "/get-all-inventory",
-    // passport.authenticate("jwt", { session: false }),
+    passport.authenticate("jwt", { session: false }),
     invCtrl.getAllItems
+  )
+
+  .get(
+    "/get-all-inventory-byKey/:id",
+    passport.authenticate("jwt", { session: false }),
+    invCtrl.getAllByKeyPartners
   )
 
   .get("/refresh/access", authCtrl.refreshToken);

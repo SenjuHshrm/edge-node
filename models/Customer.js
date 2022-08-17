@@ -12,7 +12,7 @@ let customerSchema = new mongoose.Schema(
     },
     contact: { type: String, required: true },
     email: { type: String, required: true },
-    keyPartnerId: { type: ObjectId, required: true, ref: "key-partners" },
+    keyPartnerId: { type: ObjectId, required: true, ref: "user" },
     deletedAt: { type: String, default: "" },
   },
   {

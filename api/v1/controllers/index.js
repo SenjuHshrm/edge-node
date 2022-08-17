@@ -7,6 +7,7 @@ const poCtrl = require("./purchase-order");
 const classCtrl = require("./classification");
 const custCtrl = require("./customer");
 const invCtrl = require("./inventory");
+const bundleCtrl = require("./bundle");
 
 module.exports = {
   userCtrl,
@@ -18,4 +19,5 @@ module.exports = {
   classCtrl,
   custCtrl,
   invCtrl,
+  bundleCtrl,
 };

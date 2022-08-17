@@ -10,6 +10,7 @@ const {
   classCtrl,
   custCtrl,
   invCtrl,
+  bundleCtrl,
 } = require("../controllers");
 
 router
@@ -44,6 +45,11 @@ router
     "/create-inventory",
     passport.authenticate("jwt", { session: false }),
     invCtrl.createInventory
+  )
+  .post(
+    "/create-bundle",
+    passport.authenticate("jwt", { session: false }),
+    bundleCtrl.createBundle
   );
 
 module.exports = router;
