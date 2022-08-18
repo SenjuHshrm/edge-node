@@ -7,6 +7,7 @@ const {
   classCtrl,
   custCtrl,
   invCtrl,
+  bundleCtrl,
 } = require("../controllers");
 
 router
@@ -51,9 +52,14 @@ router
     userCtrl.setActiveStatus
   )
   .put(
-    '/key-partner/set-password/:id',
-    passport.authenticate('jwt', { session: false }),
+    "/key-partner/set-password/:id",
+    passport.authenticate("jwt", { session: false }),
     userCtrl.setKeyPartnerPassword
   )
+  .put(
+    "/update-bundle/:id",
+    passport.authenticate("jwt", { session: false }),
+    bundleCtrl.updateBundle
+  );
 
 module.exports = router;

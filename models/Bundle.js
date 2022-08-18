@@ -2,7 +2,8 @@ const mongoose = require("mongoose");
 const { ObjectId } = mongoose.Schema;
 
 let itemSchema = new mongoose.Schema({
-  item: { type: ObjectId, required: true, ref: "inventory" },
+  itemId: { type: ObjectId, required: true, ref: "inventory" },
+  item: { type: String, required: true },
   quantity: { type: String, required: true },
   price: { type: String, required: true },
 });

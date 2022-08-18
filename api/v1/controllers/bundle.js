@@ -1,4 +1,5 @@
 const Bundle = require("../../../models/Bundle");
+const Inventory = require("../../../models/Inventory");
 
 module.exports = {
   /**
@@ -39,6 +40,20 @@ module.exports = {
       });
     }
   },
+  /**
+   * Get all bundle by id
+   */
+  getOneBundle: async (req, res) => {
+    try {
+      let bundle = await Bundle.findById(req.params.id).exec();
+      return res.status(200).json({ success: true, info: bundle });
+    } catch (e) {
+      return res.status(500).json({
+        success: false,
+        msg: "Failed to get the list of bundled items.",
+      });
+    }
+  },
 
   /**
    * Update bundled items
@@ -48,6 +63,7 @@ module.exports = {
       let bundle = await Bundle.findByIdAndUpdate(req.params.id, req.body, {
         new: true,
       }).exec();
+
       return res.status(200).json({ success: true, info: bundle });
     } catch (e) {
       return res.status(500).json({
@@ -62,6 +78,18 @@ module.exports = {
    */
   deleteBundle: async (req, res) => {
     try {
+      let bundle = await Bundle.findById(req.params.id).exec();
+      bundle.items.map(async item => {
+        const current = await Inventory.findById(item.itemId).exec();
+        let currentBundle =
+          parseFloat(current.inBundle) - parseFloat(item.quantity);
+        await Inventory.findByIdAndUpdate(
+          item.itemId,
+          { inBundle: `${currentBundle}` },
+          { new: true }
+        ).exec();
+      });
+
       await Bundle.findByIdAndUpdate(req.params.id, {
         deletedAt: new Date().toLocaleString(),
       }).exec();
