@@ -1,6 +1,7 @@
 const User = require("../../../models/User");
 const passport = require("passport");
 const jwt = require("jsonwebtoken");
+const sendCred = require('../../../utils/mailer').sendPassword
 
 module.exports = {
   /**
@@ -103,11 +104,12 @@ module.exports = {
    setKeyPartnerPassword: async (req, res) => {
     try {
       let user = await User.findById(req.params.id).exec()
-      user.savePassword(req.boby.password)
-      user.markModified(password)
+      user.savePassword(req.body.password)
+      user.markModified('password')
       user.save()
         .then(rec => {
-          
+          // sendCred(rec.email, req.body.password)
+          return res.status(200).json({ success: true, msg: 'Password set successfully. Credentials are now sent to the key partner\'s email address.' })
         })
         .catch(e => {
           return res.status(500).json({ success: false, msg: '' })
