@@ -8,6 +8,7 @@ const {
   authCtrl,
   custCtrl,
   invCtrl,
+  bundleCtrl,
 } = require("../controllers");
 
 router
@@ -79,6 +80,17 @@ router
     "/get-all-inventory-byKey/:id",
     passport.authenticate("jwt", { session: false }),
     invCtrl.getAllByKeyPartners
+  )
+
+  .get(
+    "/get-all-bundles-byKey/:id",
+    passport.authenticate("jwt", { session: false }),
+    bundleCtrl.getAllBundledPerKeyPartners
+  )
+  .get(
+    "/get-all-bundle/:id",
+    passport.authenticate("jwt", { session: false }),
+    bundleCtrl.getOneBundle
   )
 
   .get("/refresh/access", authCtrl.refreshToken);

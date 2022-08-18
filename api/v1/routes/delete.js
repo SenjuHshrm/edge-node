@@ -7,6 +7,7 @@ const {
   classCtrl,
   custCtrl,
   invCtrl,
+  bundleCtrl,
 } = require("../controllers");
 
 router
@@ -29,6 +30,11 @@ router
     "/delete-inventory/:id",
     passport.authenticate("jwt", { session: false }),
     invCtrl.deleteItem
+  )
+  .delete(
+    "/delete-bundle/:id",
+    passport.authenticate("jwt", { session: false }),
+    bundleCtrl.deleteBundle
   );
 
 module.exports = router;
