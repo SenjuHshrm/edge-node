@@ -1,7 +1,7 @@
 const User = require("../../../models/User");
 const passport = require("passport");
 const jwt = require("jsonwebtoken");
-const sendCred = require('../../../utils/mailer').sendPassword
+const sendCred = require("../../../utils/mailer").sendPassword;
 
 module.exports = {
   /**
@@ -13,19 +13,21 @@ module.exports = {
     let user = new User({
       email: req.body.email,
       username: req.body.email,
-      password: '',
+      password: "",
       name: req.body.name,
       contact: req.body.contact,
       company: req.body.company,
       addr: req.body.addr,
       accessLvl: req.body.accessLvl,
-      isApproved: 'pending',
+      isApproved: "pending",
       isActivated: false,
-    })
+    });
     // user.savePassword(req.body.password)
-    user.setImg(req.body.img, req.body.email)
-    user.save().then(record => {
-        return res.status(200).json({ msg: 'Account registered successfully' })
+    user.setImg(req.body.img, req.body.email);
+    user
+      .save()
+      .then(record => {
+        return res.status(200).json({ msg: "Account registered successfully" });
       })
       .catch(err => {
         console.log(err);
@@ -34,38 +36,59 @@ module.exports = {
   },
 
   /**
-   * 
+   *
    */
   getAccountsForApproval: async (req, res) => {
     try {
-      let users = await User.find({ accessLvl: 3, isApproved: 'pending' }, { password: 0, refreshToken: 0, isActivated: 0, isApproved: 0 }).exec()
-      return res.status(200).json({ success: true, info: users })
-    } catch(e) {
-      return res.status(500).json({ success: false, msg: '' })
+      let users = await User.find(
+        { accessLvl: 3, isApproved: "pending" },
+        { password: 0, refreshToken: 0, isActivated: 0, isApproved: 0 }
+      ).exec();
+      return res.status(200).json({ success: true, info: users });
+    } catch (e) {
+      return res.status(500).json({ success: false, msg: "" });
     }
   },
 
   /**
-   * 
+   *
    */
   getApprovedKeyPartners: async (req, res) => {
     try {
-      let kp = await User.find({ accessLvl: 3, isApproved: 'true' }, { password: 0, refreshToken: 0, isApproved: 0 }).exec()
-      return res.status(200).json({ success: true, info: kp })
-    } catch(e) {
-      return res.status(500).json({ success: false, msg: '' })
+      let kp = await User.find(
+        { accessLvl: 3, isApproved: "true" },
+        { password: 0, refreshToken: 0, isApproved: 0 }
+      ).exec();
+      return res.status(200).json({ success: true, info: kp });
+    } catch (e) {
+      return res.status(500).json({ success: false, msg: "" });
     }
   },
 
   /**
-   * 
+   *
+   */
+  getOneKeyPartners: async (req, res) => {
+    try {
+      let kp = await User.findById(req.params.id).exec();
+      return res.status(200).json({ success: true, info: kp });
+    } catch (e) {
+      return res.status(500).json({ success: false, msg: "" });
+    }
+  },
+
+  /**
+   *
    */
   getActiveKeyPartners: async (req, res) => {
     try {
-      let kp = await User.find({ accessLvl: 3, isActivated: true }, { _id: 1, company: 1, email: 1 }).exec()
-      return res.status(200).json({ success: true, info: kp })
-    } catch(e) {
-      return res.status(500).json({ success: false, msg: '' })
+      let kp = await User.find(
+        { accessLvl: 3, isActivated: true },
+        { _id: 1, company: 1, email: 1 }
+      ).exec();
+      return res.status(200).json({ success: true, info: kp });
+    } catch (e) {
+      return res.status(500).json({ success: false, msg: "" });
     }
   },
 
@@ -90,46 +113,56 @@ module.exports = {
    */
   approveAcctReq: async (req, res) => {
     try {
-      await User.findByIdAndUpdate(req.params.id, { $set: { isApproved: 'true' } }).exec()
-      return res.status(200).json({ success: true, msg: 'Key Partner approved.' })
-    } catch(e) {
-      return res.status(500).json({ success: false, msg: '' })
+      await User.findByIdAndUpdate(req.params.id, {
+        $set: { isApproved: "true" },
+      }).exec();
+      return res
+        .status(200)
+        .json({ success: true, msg: "Key Partner approved." });
+    } catch (e) {
+      return res.status(500).json({ success: false, msg: "" });
     }
   },
 
   /**
-   * 
+   *
    */
-   setActiveStatus: async (req, res) => {
+  setActiveStatus: async (req, res) => {
     try {
-      await User.findByIdAndUpdate(req.params.id, { $set: { isActivated: req.body.status } }).exec()
-      let msg = (req.body.status) ? 'Account activated' : 'Account deactivated'
-      return res.status(200).json({ success: true, msg: msg })
-    } catch(e) {
-      return res.status(500).json({ success: false, msg: '' })
+      await User.findByIdAndUpdate(req.params.id, {
+        $set: { isActivated: req.body.status },
+      }).exec();
+      let msg = req.body.status ? "Account activated" : "Account deactivated";
+      return res.status(200).json({ success: true, msg: msg });
+    } catch (e) {
+      return res.status(500).json({ success: false, msg: "" });
     }
-   },
+  },
 
-   /**
-    * 
-    */
-   setKeyPartnerPassword: async (req, res) => {
+  /**
+   *
+   */
+  setKeyPartnerPassword: async (req, res) => {
     try {
-      let user = await User.findById(req.params.id).exec()
-      user.savePassword(req.body.password)
-      user.markModified('password')
-      user.save()
+      let user = await User.findById(req.params.id).exec();
+      user.savePassword(req.body.password);
+      user.markModified("password");
+      user
+        .save()
         .then(rec => {
           // sendCred(rec.email, req.body.password)
-          return res.status(200).json({ success: true, msg: 'Password set successfully. Credentials are now sent to the key partner\'s email address.' })
+          return res.status(200).json({
+            success: true,
+            msg: "Password set successfully. Credentials are now sent to the key partner's email address.",
+          });
         })
         .catch(e => {
-          return res.status(500).json({ success: false, msg: '' })
-        })
-    } catch(e) {
-      return res.status(500).json({ success: false, msg: '' })
+          return res.status(500).json({ success: false, msg: "" });
+        });
+    } catch (e) {
+      return res.status(500).json({ success: false, msg: "" });
     }
-   },
+  },
 
   /**
    * Reject key partner account request
