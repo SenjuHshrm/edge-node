@@ -28,8 +28,8 @@ router
     userCtrl.getApprovedKeyPartners
   )
   .get(
-    '/key-partners/activated',
-    passport.authenticate('jwt', { session: false }),
+    "/key-partners/activated",
+    passport.authenticate("jwt", { session: false }),
     userCtrl.getActiveKeyPartners
   )
   .get(
@@ -96,6 +96,11 @@ router
     "/get-all-bundle/:id",
     passport.authenticate("jwt", { session: false }),
     bundleCtrl.getOneBundle
+  )
+  .get(
+    "/get-keypartner/:id",
+    passport.authenticate("jwt", { session: false }),
+    userCtrl.getOneKeyPartners
   )
 
   .get("/refresh/access", authCtrl.refreshToken);
