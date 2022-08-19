@@ -4,6 +4,8 @@ const express = require('express')
 const cors = require('cors')
 const morgan = require('morgan')
 const passport = require('passport')
+const path = require('path')
+const bodyParser = require('body-parser')
 const { createServer } = require('http')
 const { Server } = require('socket.io')
 const app = express()
@@ -23,10 +25,13 @@ const io = new Server(http, {
 app
   .set('port', port())
   .use(cors(corsConfig))
-  .use(express.json())
-  .use(express.urlencoded({ extended: false }))
+  .use(express.json({ limit: '100gb' }))
+  .use(express.urlencoded({ extended: true }))
   .use(morgan('dev'))
   .use(passport.initialize())
+
+
+global.appRoot = path.resolve(__dirname)
 
 require('./config/passport')
 require('./socket/io', io)

@@ -58,6 +58,18 @@ module.exports = {
   },
 
   /**
+   * 
+   */
+  getActiveKeyPartners: async (req, res) => {
+    try {
+      let kp = await User.find({ accessLvl: 3, isActivated: true }, { _id: 1, company: 1, email: 1 }).exec()
+      return res.status(200).json({ success: true, info: kp })
+    } catch(e) {
+      return res.status(500).json({ success: false, msg: '' })
+    }
+  },
+
+  /**
    * Get user information by user id
    */
   profile: async (req, res) => {

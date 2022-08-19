@@ -28,6 +28,11 @@ router
     userCtrl.getApprovedKeyPartners
   )
   .get(
+    '/key-partners/activated',
+    passport.authenticate('jwt', { session: false }),
+    userCtrl.getActiveKeyPartners
+  )
+  .get(
     "/inquiries/all",
     passport.authenticate("jwt", { session: false }),
     inqCtrl.getAllInquiries

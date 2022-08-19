@@ -9,6 +9,18 @@ const {
   invCtrl,
   bundleCtrl,
 } = require("../controllers");
+const path = require('path')
+const multer = require('multer')
+const tempStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(global.appRoot, '/uploads/files'))
+  },
+  filename: (req, file, cb) => {
+    let filename = req.body.name
+    cb(null, `${filename}.csv`)
+  }
+})
+const uploadTemp = multer({ dest: '/uploads/files', storage: tempStorage, limits: { fileSize: 1024000000 } })
 
 router
   .put(
@@ -60,6 +72,14 @@ router
     "/update-bundle/:id",
     passport.authenticate("jwt", { session: false }),
     bundleCtrl.updateBundle
-  );
-
+  )
+  .put(
+    '/addr-temp',
+    passport.authenticate('jwt', { session: false }),
+    uploadTemp.single('file'),
+    (req, res) => {
+      // console.log(req.file)
+      return res.sendStatus(204)
+    }
+  )
 module.exports = router;
