@@ -165,6 +165,18 @@ module.exports = {
   },
 
   /**
+   * 
+   */
+  setKeyPartnerCode: async (req, res) => {
+    try {
+      await User.findByIdAndUpdate(req.params.id, { $set: { userId: req.body.userId } }).exec()
+      return res.sendStatus(204)
+    } catch(e) {
+      return res.status(500).json({ success: false, msg: '' })
+    }
+  },
+
+  /**
    * Reject key partner account request
    */
   rejectAcctReq: async (req, res) => {},

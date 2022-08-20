@@ -11,7 +11,19 @@ const {
   custCtrl,
   invCtrl,
   bundleCtrl,
+  contractCtrl
 } = require("../controllers");
+const path = require('path')
+const multer = require('multer')
+const contStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(global.appRoot, '/uploads/contract'))
+  },
+  filename: (req, file, cb) => {
+    cb(null, req.body.filename)
+  }
+})
+const uploadCont = multer({ dest: '/uploads/contract', storage: contStorage })
 
 router
   .post("/login", authCtrl.login)
@@ -50,6 +62,12 @@ router
     "/create-bundle",
     passport.authenticate("jwt", { session: false }),
     bundleCtrl.createBundle
+  )
+  .post(
+    "/key-partners/save-contract",
+    passport.authenticate("jwt", { session: false }),
+    uploadCont.single('file'),
+    contractCtrl.saveContract
   );
 
 module.exports = router;

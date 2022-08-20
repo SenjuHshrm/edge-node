@@ -1,5 +1,6 @@
 const Quotation = require('../../../models/Quotation')
 const Inquiry = require('../../../models/Inquiry')
+const User = require('../../../models/User')
 const generateId = require('../../../utils/id-generator')
 
 module.exports = {
@@ -7,8 +8,9 @@ module.exports = {
    * Create quotation
    */
   createQuotation: async (req, res) => {
+    let user = await User.findById(req.body.keyPartnerId).exec()
     let prevQuote = await Quotation.find({}).exec()
-    let quoteId = generateId(prevQuote, 'QUOTE')
+    let quoteId = generateId(prevQuote, `${user.userId}-Q`)
     new Quotation({
       quotationId: quoteId,
       keyPartnerId: req.body.keyPartnerId,
@@ -45,7 +47,7 @@ module.exports = {
    */
   getAllQuotations: async (req, res) => {
     try {
-      let quotes = await Quotation.find({}).exec()
+      let quotes = await Quotation.find({}).populate('keyPartnerId', { password: 0, refreshToken: 0, updatedAt: 0, createdAt: 0 }).exec()
       return res.status(200).json({ success: true, info: quotes })
     } catch(e) {
       return res.status(500).json({ success: false, msg: '' })

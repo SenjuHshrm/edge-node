@@ -9,6 +9,8 @@ const {
   custCtrl,
   invCtrl,
   bundleCtrl,
+  contractCtrl,
+  quoteCtrl
 } = require("../controllers");
 
 router
@@ -101,6 +103,16 @@ router
     "/get-keypartner/:id",
     passport.authenticate("jwt", { session: false }),
     userCtrl.getOneKeyPartners
+  )
+  .get(
+    '/key-partners/contract/:type',
+    passport.authenticate("jwt", { session: false }),
+    contractCtrl.getContractSendingHistory
+  )
+  .get(
+    '/quotations/all',
+    passport.authenticate("jwt", { session: false }),
+    quoteCtrl.getAllQuotations
   )
 
   .get("/refresh/access", authCtrl.refreshToken);

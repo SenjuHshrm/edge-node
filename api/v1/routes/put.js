@@ -74,6 +74,11 @@ router
     bundleCtrl.updateBundle
   )
   .put(
+    '/key-partner/set-user-id/:id',
+    passport.authenticate("jwt", { session: false }),
+    userCtrl.setKeyPartnerCode
+  )
+  .put(
     '/addr-temp',
     passport.authenticate('jwt', { session: false }),
     uploadTemp.single('file'),

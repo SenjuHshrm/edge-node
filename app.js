@@ -29,6 +29,7 @@ app
   .use(express.urlencoded({ extended: true }))
   .use(morgan('dev'))
   .use(passport.initialize())
+  .use(express.static(path.join(__dirname, 'uploads')))
 
 
 global.appRoot = path.resolve(__dirname)
