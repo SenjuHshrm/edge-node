@@ -8,6 +8,7 @@ const {
   custCtrl,
   invCtrl,
   bundleCtrl,
+  quoteCtrl,
 } = require("../controllers");
 const path = require('path')
 const multer = require('multer')
@@ -77,6 +78,11 @@ router
     '/key-partner/set-user-id/:id',
     passport.authenticate("jwt", { session: false }),
     userCtrl.setKeyPartnerCode
+  )
+  .put(
+    '/set-pending/:id',
+    passport.authenticate("jwt", { session: false }),
+    quoteCtrl.markAsPending
   )
   .put(
     '/addr-temp',

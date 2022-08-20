@@ -59,8 +59,20 @@ module.exports = {
    */
   getOuotationsByKeyPartner: async (req, res) => {
     try {
-      let quotes = await Quotation.find({ keyPartnerId: req.params.id }).exec()
+      let quotes = await Quotation.find({ keyPartnerId: req.params.id, status: ['none', 'pending'] }).populate('keyPartnerId', { password: 0, refreshToken: 0, updatedAt: 0, createdAt: 0 }).exec()
       return res.status(200).json({ success: true, info: quotes })
+    } catch(e) {
+      return res.status(500).json({ success: false, msg: '' })
+    }
+  },
+
+  /**
+   * 
+   */
+  markAsPending: async (req, res) => {
+    try {
+      await Quotation.findByIdAndUpdate(req.params.id, { $set: { status: req.body.status } }).exec()
+      return res.sendStatus(204)
     } catch(e) {
       return res.status(500).json({ success: false, msg: '' })
     }

@@ -13,7 +13,7 @@ let quotationSchema = new mongoose.Schema({
   keyPartnerId: { type: ObjectId, required: true, ref: 'user' },
   quoteFrom: { type: String, required: true, ref: 'inquiry' },
   items: [itemSchema],
-  isApproved: { type: Boolean, required: true },
+  status: { type: String, required: true },
   validUntil: { type: String, required: true }
 }, { timestamps: true })
 

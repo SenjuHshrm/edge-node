@@ -114,6 +114,11 @@ router
     passport.authenticate("jwt", { session: false }),
     quoteCtrl.getAllQuotations
   )
+  .get(
+    '/quotations/:id',
+    passport.authenticate("jwt", { session: false }),
+    quoteCtrl.getOuotationsByKeyPartner
+  )
 
   .get("/refresh/access", authCtrl.refreshToken);
 
