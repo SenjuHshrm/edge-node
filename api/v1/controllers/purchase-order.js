@@ -29,6 +29,12 @@ module.exports = {
    * Get all created purchase order
    */
   getAllPurchaseOrder: async (req, res) => {
-
+    try {
+      let po = await PurchaseOrder.find({}).exec()
+      return res.status(200).json({ success: true, info: po })
+    } catch(e) {
+      console.log(e)
+      return res.status(500).json({ success: false, msg: '' })
+    }
   }
 }
