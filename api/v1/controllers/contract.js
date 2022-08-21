@@ -36,6 +36,18 @@ module.exports = {
       .catch(e => {
         return res.status(500).json({ success: false, msg: '' })
       })
+  },
+
+  /**
+   * 
+   */
+  getContractByKeyPartner: async (req, res) => {
+    try {
+      let c = await Contract.find({ keyPartnerId: req.params.id, contract: req.params.type }).exec()
+      return res.status(200).json({ success: true, info: c })
+    } catch(e) {
+      return res.status(500).json({ success: false, msg: '' })
+    }
   }
 
 

@@ -9,7 +9,7 @@ module.exports = {
    */
   createQuotation: async (req, res) => {
     let user = await User.findById(req.body.keyPartnerId).exec()
-    let prevQuote = await Quotation.find({}).exec()
+    let prevQuote = await Quotation.findById(req.body.keyPartnerId).exec()
     let quoteId = generateId(prevQuote, `${user.userId}-Q`)
     new Quotation({
       quotationId: quoteId,

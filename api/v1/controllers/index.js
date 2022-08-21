@@ -9,6 +9,8 @@ const custCtrl = require("./customer");
 const invCtrl = require("./inventory");
 const bundleCtrl = require("./bundle");
 const contractCtrl = require('./contract')
+const addrCtrl = require('./address')
+const bookingCtrl = require('./booking')
 
 module.exports = {
   userCtrl,
@@ -21,5 +23,7 @@ module.exports = {
   custCtrl,
   invCtrl,
   bundleCtrl,
-  contractCtrl
+  contractCtrl,
+  addrCtrl,
+  bookingCtrl
 };

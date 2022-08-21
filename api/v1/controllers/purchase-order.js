@@ -9,7 +9,7 @@ module.exports = {
    */
   createPurchaseOrder: async (req, res) => {
     let user = await User.findById(req.body.keyPartnerId).exec()
-    let prevPO = await PurchaseOrder.find({}).exec()
+    let prevPO = await PurchaseOrder.findById(req.body.keyPartnerId).exec()
     let poId = generateId(prevPO, user.userId)
     new PurchaseOrder({
       poId: poId,
@@ -30,7 +30,7 @@ module.exports = {
    */
   getAllPurchaseOrder: async (req, res) => {
     try {
-      let po = await PurchaseOrder.find({}).exec()
+      let po = await PurchaseOrder.find({}).populate('keyPartnerId', { password: 0, refreshToken: 0, updatedAt: 0, createdAt: 0 }).exec()
       return res.status(200).json({ success: true, info: po })
     } catch(e) {
       console.log(e)

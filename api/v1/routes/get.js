@@ -11,7 +11,8 @@ const {
   bundleCtrl,
   contractCtrl,
   quoteCtrl,
-  poCtrl
+  poCtrl,
+  addrCtrl
 } = require("../controllers");
 
 router
@@ -124,6 +125,16 @@ router
     '/purchase-order/all',
     passport.authenticate('jwt', { session: false }),
     poCtrl.getAllPurchaseOrder
+  )
+  .get(
+    '/contract/:type/:id',
+    passport.authenticate('jwt', { session: false }),
+    contractCtrl.getContractByKeyPartner
+  )
+  .get(
+    '/check-address/:province/:city/:brgy/:type',
+    passport.authenticate('jwt', { session: false }),
+    addrCtrl.checkAddressToCourier
   )
 
   .get("/refresh/access", authCtrl.refreshToken);

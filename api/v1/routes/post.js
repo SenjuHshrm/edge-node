@@ -11,7 +11,8 @@ const {
   custCtrl,
   invCtrl,
   bundleCtrl,
-  contractCtrl
+  contractCtrl,
+  bookingCtrl
 } = require("../controllers");
 const path = require('path')
 const multer = require('multer')
@@ -68,6 +69,11 @@ router
     passport.authenticate("jwt", { session: false }),
     uploadCont.single('file'),
     contractCtrl.saveContract
-  );
+  )
+  .post(
+    '/booking/add',
+    passport.authenticate('jwt', { session: false }),
+    bookingCtrl.createBooking
+  )
 
 module.exports = router;

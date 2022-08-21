@@ -3,7 +3,7 @@ const { ObjectId } = mongoose.Schema
 
 let itemSchema = new mongoose.Schema({
   description: String,
-  quantiry: String,
+  quantity: String,
   units: String,
   unitPrice: String,
   totalPrice: String

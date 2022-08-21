@@ -13,6 +13,13 @@ module.exports = {
     })
       .save()
       .then(bundle => {
+        req.body.items.forEach(async (x) => {
+          console.log(x)
+          let inv = await Inventory.findById(x.itemId).exec()
+          inv.currentQty = +inv.currentQty - x.quantity
+          inv.markModified('currentQty')
+          inv.save()
+        })
         return res.status(200).json({ success: true, info: bundle });
       })
       .catch(e => {
@@ -81,12 +88,10 @@ module.exports = {
       let bundle = await Bundle.findById(req.params.id).exec();
       bundle.items.map(async item => {
         const current = await Inventory.findById(item.itemId).exec();
-        let currentBundle =
-          parseFloat(current.inBundle) - parseFloat(item.quantity);
+        let currentBundle = parseFloat(current.currentQty) + parseFloat(item.quantity);
         await Inventory.findByIdAndUpdate(
           item.itemId,
-          { inBundle: `${currentBundle}` },
-          { new: true }
+          { $set: { currentQty: currentBundle } }
         ).exec();
       });
 
