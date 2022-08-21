@@ -2,15 +2,17 @@ const mongoose = require('mongoose')
 const { ObjectId } = mongoose.Schema
 
 let itemSchema = new mongoose.Schema({
-  item: String,
-  price: String,
-  markUp: String,
+  description: String,
+  quantiry: String,
+  units: String,
+  unitPrice: String,
   totalPrice: String
 })
 
 let poSchema = new mongoose.Schema({
   poId: { type: String, required: true },
-  buyer: { type: String, required: true },
+  keyPartnerId: { type: ObjectId, ref: 'user' },
+  poFrom: { type: String, required: true },
   items: [itemSchema]
 }, { timestamps: true })
 
