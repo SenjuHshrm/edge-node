@@ -12,7 +12,8 @@ const {
   contractCtrl,
   quoteCtrl,
   poCtrl,
-  addrCtrl
+  addrCtrl,
+  bookingCtrl,
 } = require("../controllers");
 
 router
@@ -107,34 +108,44 @@ router
     userCtrl.getOneKeyPartners
   )
   .get(
-    '/key-partners/contract/:type',
+    "/key-partners/contract/:type",
     passport.authenticate("jwt", { session: false }),
     contractCtrl.getContractSendingHistory
   )
   .get(
-    '/quotations/all',
+    "/quotations/all",
     passport.authenticate("jwt", { session: false }),
     quoteCtrl.getAllQuotations
   )
   .get(
-    '/quotations/:id',
+    "/quotations/:id",
     passport.authenticate("jwt", { session: false }),
     quoteCtrl.getOuotationsByKeyPartner
   )
   .get(
-    '/purchase-order/all',
-    passport.authenticate('jwt', { session: false }),
+    "/purchase-order/all",
+    passport.authenticate("jwt", { session: false }),
     poCtrl.getAllPurchaseOrder
   )
   .get(
-    '/contract/:type/:id',
-    passport.authenticate('jwt', { session: false }),
+    "/contract/:type/:id",
+    passport.authenticate("jwt", { session: false }),
     contractCtrl.getContractByKeyPartner
   )
   .get(
-    '/check-address/:province/:city/:brgy/:type',
-    passport.authenticate('jwt', { session: false }),
+    "/check-address/:province/:city/:brgy/:type",
+    passport.authenticate("jwt", { session: false }),
     addrCtrl.checkAddressToCourier
+  )
+  .get(
+    "/get-all/booking/:id",
+    passport.authenticate("jwt", { session: false }),
+    bookingCtrl.getAllBookingPerKP
+  )
+  .get(
+    "/get-all/booking",
+    passport.authenticate("jwt", { session: false }),
+    bookingCtrl.getAllBookings
   )
 
   .get("/refresh/access", authCtrl.refreshToken);

@@ -10,18 +10,22 @@ const {
   bundleCtrl,
   quoteCtrl,
 } = require("../controllers");
-const path = require('path')
-const multer = require('multer')
+const path = require("path");
+const multer = require("multer");
 const tempStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(global.appRoot, '/uploads/files'))
+    cb(null, path.join(global.appRoot, "/uploads/files"));
   },
   filename: (req, file, cb) => {
-    let filename = req.body.name
-    cb(null, `${filename}.csv`)
-  }
-})
-const uploadTemp = multer({ dest: '/uploads/files', storage: tempStorage, limits: { fileSize: 1024000000 } })
+    let filename = req.body.name;
+    cb(null, `${filename}.csv`);
+  },
+});
+const uploadTemp = multer({
+  dest: "/uploads/files",
+  storage: tempStorage,
+  limits: { fileSize: 1024000000 },
+});
 
 router
   .put(
@@ -75,22 +79,32 @@ router
     bundleCtrl.updateBundle
   )
   .put(
-    '/key-partner/set-user-id/:id',
+    "/key-partner/set-user-id/:id",
     passport.authenticate("jwt", { session: false }),
     userCtrl.setKeyPartnerCode
   )
   .put(
-    '/set-pending/:id',
+    "/set-pending/:id",
     passport.authenticate("jwt", { session: false }),
     quoteCtrl.markAsPending
   )
   .put(
-    '/addr-temp',
-    passport.authenticate('jwt', { session: false }),
-    uploadTemp.single('file'),
+    "/addr-temp",
+    passport.authenticate("jwt", { session: false }),
+    uploadTemp.single("file"),
     (req, res) => {
       // console.log(req.file)
-      return res.sendStatus(204)
+      return res.sendStatus(204);
     }
   )
+  .put(
+    "/change-password",
+    passport.authenticate("jwt", { session: false }),
+    userCtrl.changePassword
+  )
+  .put(
+    "/update-profile/:id",
+    passport.authenticate("jwt", { session: false }),
+    userCtrl.updateProfile
+  );
 module.exports = router;
