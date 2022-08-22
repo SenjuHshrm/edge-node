@@ -14,6 +14,7 @@ let bundleSchema = new mongoose.Schema(
     name: { type: String, required: true },
     items: [itemSchema],
     deletedAt: { type: String, default: "" },
+    status: { type: String, required: true }
   },
   {
     timestamps: true,

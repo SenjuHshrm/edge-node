@@ -2,11 +2,13 @@ const mongoose = require('mongoose')
 const { ObjectId } = mongoose.Schema
 
 let itemSchema = new mongoose.Schema({
-  itemId: ObjectId,
-  quantity: String
+  itemId: { type: ObjectId, ref: 'inventory' },
+  quantity: String,
+  itemType: String
 })
 
 let bookingSchema = new mongoose.Schema({
+  keyPartnerId: { type: ObjectId, requried: true, ref: 'user' },
   customer: { type: String, required: true },
   customerContact: { type: String, required: true },
   province: { type: String, required: true },
@@ -21,7 +23,8 @@ let bookingSchema = new mongoose.Schema({
   sender: { type: String, required: true },
   senderContact: { type: String, required: true },
   remarks: { type: String, required: true },
-  items: [itemSchema]
+  items: [itemSchema],
+  status: { type: String, required: true }
 })
 
 let Booking = mongoose.model('booking', bookingSchema)

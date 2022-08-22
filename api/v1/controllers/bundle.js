@@ -10,6 +10,7 @@ module.exports = {
       keyPartnerId: req.body.keyPartnerId,
       name: req.body.name,
       items: req.body.items,
+      status: 'in'
     })
       .save()
       .then(bundle => {
