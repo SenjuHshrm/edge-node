@@ -165,14 +165,16 @@ module.exports = {
   },
 
   /**
-   * 
+   *
    */
   setKeyPartnerCode: async (req, res) => {
     try {
-      await User.findByIdAndUpdate(req.params.id, { $set: { userId: req.body.userId } }).exec()
-      return res.sendStatus(204)
-    } catch(e) {
-      return res.status(500).json({ success: false, msg: '' })
+      await User.findByIdAndUpdate(req.params.id, {
+        $set: { userId: req.body.userId },
+      }).exec();
+      return res.sendStatus(204);
+    } catch (e) {
+      return res.status(500).json({ success: false, msg: "" });
     }
   },
 
@@ -189,7 +191,19 @@ module.exports = {
   /**
    * Update profile
    */
-  updateProfile: async (req, res) => {},
+  updateProfile: async (req, res) => {
+    try {
+      let profile = await User.findByIdAndUpdate(req.params.id, req.body, {
+        new: true,
+      }).exec();
+      return res.status(200).json({ success: true, info: profile });
+    } catch (e) {
+      return res.status(500).json({
+        success: false,
+        msg: "Failed to update the selected customer.",
+      });
+    }
+  },
 
   /**
    * Get Keypartners
@@ -205,6 +219,39 @@ module.exports = {
       return res.status(500).json({
         success: false,
         msg: "Failed to get the list of key partners.",
+      });
+    }
+  },
+
+  changePassword: async (req, res) => {
+    try {
+      let user = await User.findById(req.body.id).exec();
+      if (user && (await user.comparePasswords(req.body.oldPass))) {
+        user.savePassword(req.body.newPass);
+        user.markModified("password");
+        user
+          .save()
+          .then(rec => {
+            return res.status(200).json({
+              success: true,
+              msg: "Password has been changed successfully",
+            });
+          })
+          .catch(e => {
+            console.log(e);
+            return res.status(500).json({ success: false, msg: "" });
+          });
+      } else {
+        return res.status(200).json({
+          success: false,
+          msg: "Please enter the right current password.",
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        success: false,
+        msg: "Failed to change your password.",
       });
     }
   },
