@@ -30,6 +30,7 @@ app
   .use(morgan('dev'))
   .use(passport.initialize())
   .use(express.static(path.join(__dirname, 'uploads')))
+  .use(express.static(path.join(__dirname, 'app')))
 
 
 global.appRoot = path.resolve(__dirname)
@@ -42,6 +43,10 @@ app.use('/api/v1/get/', v1GETRoutes)
 app.use('/api/v1/post/', v1POSTRoutes)
 app.use('/api/v1/put/', v1PUTRoutes)
 app.use('/api/v1/delete/', v1DELETERoutes)
+
+app.get('/*', (req, res) => {
+  res.sendFile(__dirname + '/app/index.html')
+})
 
 // Listener
 http.listen(app.get('port'), () => {

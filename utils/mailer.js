@@ -26,6 +26,7 @@ exports.sendPassword = (email, password) => {
     }
   })
   readFile('./view/keypartner-password.html', (err, html) => {
+    if(err) throw err
     let template = handlebars.compile(html)
     let replacements = {
       email: email,

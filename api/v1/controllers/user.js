@@ -12,17 +12,19 @@ module.exports = {
   register: (req, res) => {
     let user = new User({
       email: req.body.email,
-      username: req.body.email,
+      username: (req.body.accessLvl === 3) ? req.body.email : req.body.username,
       password: "",
       name: req.body.name,
       contact: req.body.contact,
       company: req.body.company,
       addr: req.body.addr,
       accessLvl: req.body.accessLvl,
-      isApproved: "pending",
-      isActivated: false,
+      isApproved: (req.body.accessLvl === 3) ? "pending" : "true",
+      isActivated: (req.body.accessLvl === 3) ? false : true,
     });
-    // user.savePassword(req.body.password)
+    if(req.body.accessLvl !== 3) {
+      user.savePassword(req.body.password)
+    }
     user.setImg(req.body.img, req.body.email);
     user
       .save()
