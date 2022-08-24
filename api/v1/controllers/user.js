@@ -192,7 +192,7 @@ module.exports = {
       user
         .save()
         .then(async rec => {
-          // sendCred(rec.email, req.body.password)
+          sendCred(rec.email, req.body.password)
           return res.status(200).json({
             success: true,
             msg: "Password and Code set successfully. Credentials are now sent to the key partner's email address.",
