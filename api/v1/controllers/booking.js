@@ -1,14 +1,20 @@
 const Booking = require("../../../models/Booking");
 const Bundle = require("../../../models/Bundle");
 const Inventory = require("../../../models/Inventory");
+const User = require('../../../models/User')
+const generateId = require('../../../utils/id-generator')
 
 module.exports = {
   /**
    *
    */
-  createBooking: (req, res) => {
+  createBooking: async (req, res) => {
+    let booking = await Booking.find({ keyPartnerId: req.body.keyPartnerId }).exec()
+    let user = await User.findById(req.body.keyPartnerId).exec()
+    let genId = generateId(booking, user.userId)
     new Booking({
       keyPartnerId: req.body.keyPartnerId,
+      bookingId: genId,
       customer: req.body.customer,
       customerContact: req.body.customerContact,
       province: req.body.province,

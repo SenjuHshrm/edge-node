@@ -4,6 +4,7 @@ const { ObjectId } = mongoose.Schema;
 let bookingSchema = new mongoose.Schema(
   {
     keyPartnerId: { type: ObjectId, requried: true, ref: "user" },
+    bookingId: { type: String, required: true },
     customer: { type: String, required: true },
     customerContact: { type: String, required: true },
     province: { type: String, required: true },
