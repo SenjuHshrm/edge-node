@@ -106,5 +106,10 @@ router
     "/update-profile/:id",
     passport.authenticate("jwt", { session: false }),
     userCtrl.updateProfile
+  )
+  .put(
+    "/assign-codePassword/:id",
+    passport.authenticate("jwt", { session: false }),
+    userCtrl.assignCodeAndPassword
   );
 module.exports = router;

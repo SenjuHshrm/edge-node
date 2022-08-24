@@ -12,18 +12,18 @@ module.exports = {
   register: (req, res) => {
     let user = new User({
       email: req.body.email,
-      username: (req.body.accessLvl === 3) ? req.body.email : req.body.username,
+      username: req.body.accessLvl === 3 ? req.body.email : req.body.username,
       password: "",
       name: req.body.name,
       contact: req.body.contact,
       company: req.body.company,
       addr: req.body.addr,
       accessLvl: req.body.accessLvl,
-      isApproved: (req.body.accessLvl === 3) ? "pending" : "true",
-      isActivated: (req.body.accessLvl === 3) ? false : true,
+      isApproved: req.body.accessLvl === 3 ? "pending" : "true",
+      isActivated: req.body.accessLvl === 3 ? false : true,
     });
-    if(req.body.accessLvl !== 3) {
-      user.savePassword(req.body.password)
+    if (req.body.accessLvl !== 3) {
+      user.savePassword(req.body.password);
     }
     user.setImg(req.body.img, req.body.email);
     user
@@ -176,6 +176,33 @@ module.exports = {
       }).exec();
       return res.sendStatus(204);
     } catch (e) {
+      return res.status(500).json({ success: false, msg: "" });
+    }
+  },
+
+  assignCodeAndPassword: async (req, res) => {
+    try {
+      await User.findByIdAndUpdate(req.params.id, {
+        $set: { userId: req.body.userId },
+      }).exec();
+
+      let user = await User.findById(req.params.id).exec();
+      user.savePassword(req.body.password);
+      user.markModified("password");
+      user
+        .save()
+        .then(async rec => {
+          // sendCred(rec.email, req.body.password)
+          return res.status(200).json({
+            success: true,
+            msg: "Password and Code set successfully. Credentials are now sent to the key partner's email address.",
+            info: rec,
+          });
+        })
+        .catch(e => {
+          return res.status(500).json({ success: false, msg: "" });
+        });
+    } catch (error) {
       return res.status(500).json({ success: false, msg: "" });
     }
   },
