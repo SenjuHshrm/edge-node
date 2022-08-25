@@ -3,6 +3,7 @@ const Bundle = require("../../../models/Bundle");
 const Inventory = require("../../../models/Inventory");
 const User = require('../../../models/User')
 const generateId = require('../../../utils/id-generator')
+const moment = require('moment')
 
 module.exports = {
   /**
@@ -129,6 +130,42 @@ module.exports = {
         success: false,
         msg: "Failed to get the list of bookings record.",
       });
+    }
+  },
+
+  getMonthlyBooking: async (req, res) => {
+    try {
+      let response = []
+      for(let i = 0; i < moment().daysInMonth(); i++) {
+        response.push(0)
+      }
+      let bookings = await Booking.find({ createdAt: { $gte: req.params.start, $lte: req.params.end } }).exec()
+      for(let i = 0; i < bookings.length; i++) {
+        let j = moment(bookings[i].createdAt).format('DD')
+        response[parseInt(j)] += 1
+      }
+      return res.status(200).json({ succes: true, info: response })
+    } catch(e) {
+      console.log(e)
+      return res.status(500).json({ success: false, msg: '' })
+    }
+  },
+
+  getMonthlyBookingByKeyPartner: async (req, res) => {
+    try {
+      let response = []
+      for(let i = 0; i < moment().daysInMonth(); i++) {
+        response.push(0)
+      }
+      let bookings = await Booking.find({ keyPartnerId: req.params.id, createdAt: { $gte: req.params.start, $lte: req.params.end } }).exec()
+      for(let i = 0; i < bookings.length; i++) {
+        let j = moment(bookings[i].createdAt).format('DD')
+        response[parseInt(j)] += 1
+      }
+      return res.status(200).json({ succes: true, info: response })
+    } catch(e) {
+      console.log(e)
+      return res.status(500).json({ success: false, msg: '' })
     }
   },
 };

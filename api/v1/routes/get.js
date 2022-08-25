@@ -147,6 +147,16 @@ router
     passport.authenticate("jwt", { session: false }),
     bookingCtrl.getAllBookings
   )
+  .get(
+    '/monthly-booking/:start/:end',
+    passport.authenticate("jwt", { session: false }),
+    bookingCtrl.getMonthlyBooking
+  )
+  .get(
+    '/monthly-booking/:start/:end/:id',
+    passport.authenticate("jwt", { session: false }),
+    bookingCtrl.getMonthlyBookingByKeyPartner
+  )
 
   .get("/refresh/access", authCtrl.refreshToken);
 
