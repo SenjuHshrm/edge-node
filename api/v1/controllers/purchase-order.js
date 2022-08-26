@@ -9,7 +9,7 @@ module.exports = {
    */
   createPurchaseOrder: async (req, res) => {
     let user = await User.findById(req.body.keyPartnerId).exec()
-    let prevPO = await PurchaseOrder.findById(req.body.keyPartnerId).exec()
+    let prevPO = await PurchaseOrder.find({ keyPartnerId: req.body.keyPartnerId }).exec()
     let poId = generateId(prevPO, user.userId)
     new PurchaseOrder({
       poId: poId,
