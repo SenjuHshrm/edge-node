@@ -17,7 +17,8 @@ module.exports = {
       quoteFrom: req.body.quoteFrom,
       items: req.body.items,
       isApproved: false,
-      validUntil: req.body.validUntil
+      validUntil: req.body.validUntil,
+      status: 'none'
     }).save().then(async (newQuote) => {
       await Inquiry.findOneAndUpdate({ inqId: newQuote.quoteFrom }, { $set: { isApproved: true } }).exec()
       return res.status(200).json({ success: true, info: newQuote })
