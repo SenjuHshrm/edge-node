@@ -142,7 +142,7 @@ module.exports = {
       let bookings = await Booking.find({ createdAt: { $gte: req.params.start, $lte: req.params.end } }).exec()
       for(let i = 0; i < bookings.length; i++) {
         let j = moment(bookings[i].createdAt).format('DD')
-        response[parseInt(j)] += 1
+        response[parseInt(j) - 1] += 1
       }
       return res.status(200).json({ succes: true, info: response })
     } catch(e) {
@@ -160,7 +160,7 @@ module.exports = {
       let bookings = await Booking.find({ keyPartnerId: req.params.id, createdAt: { $gte: req.params.start, $lte: req.params.end } }).exec()
       for(let i = 0; i < bookings.length; i++) {
         let j = moment(bookings[i].createdAt).format('DD')
-        response[parseInt(j)] += 1
+        response[parseInt(j) - 1] += 1
       }
       return res.status(200).json({ succes: true, info: response })
     } catch(e) {
