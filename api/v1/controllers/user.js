@@ -2,6 +2,7 @@ const User = require("../../../models/User");
 const passport = require("passport");
 const jwt = require("jsonwebtoken");
 const sendCred = require("../../../utils/mailer").sendPassword;
+const fs = require("fs");
 
 module.exports = {
   /**
@@ -152,7 +153,7 @@ module.exports = {
       user
         .save()
         .then(rec => {
-          sendCred(rec.email, req.body.password)
+          sendCred(rec.email, req.body.password);
           return res.status(200).json({
             success: true,
             msg: "Password set successfully. Credentials are now sent to the key partner's email address.",
@@ -192,7 +193,7 @@ module.exports = {
       user
         .save()
         .then(async rec => {
-          sendCred(rec.email, req.body.password)
+          sendCred(rec.email, req.body.password);
           return res.status(200).json({
             success: true,
             msg: "Password and Code set successfully. Credentials are now sent to the key partner's email address.",
@@ -230,6 +231,25 @@ module.exports = {
       return res.status(500).json({
         success: false,
         msg: "Failed to update the selected customer.",
+      });
+    }
+  },
+
+  /* Update Profile Image */
+  updateProfileImage: async (req, res) => {
+    try {
+      const { filename, keyPartnerId } = req.body;
+      const path = `/profile/${filename}`;
+      let user = await User.findByIdAndUpdate(
+        keyPartnerId,
+        { img: path },
+        { new: true }
+      ).exec();
+      res.status(200).json({ success: true, info: user.img });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        msg: "Failed to update the profile image.",
       });
     }
   },
