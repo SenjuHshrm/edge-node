@@ -5,7 +5,6 @@ const cors = require('cors')
 const morgan = require('morgan')
 const passport = require('passport')
 const path = require('path')
-const bodyParser = require('body-parser')
 const { createServer } = require('http')
 const { Server } = require('socket.io')
 const app = express()
@@ -16,7 +15,7 @@ const { v1GETRoutes, v1POSTRoutes, v1PUTRoutes, v1DELETERoutes } = require('./ap
 const http = createServer(app)
 const io = new Server(http, {
   cors: {
-    origin: '*:*'
+    origin: process.env.CORS_ORIGIN.split(' ')
   }
 })
 
@@ -34,9 +33,10 @@ app
 
 
 global.appRoot = path.resolve(__dirname)
+global.io = io
 
 require('./config/passport')
-require('./socket/io', io)
+require('./socket/io')(io)
 
 // Route Setup for v1
 app.use('/api/v1/get/', v1GETRoutes)

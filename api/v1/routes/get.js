@@ -157,6 +157,11 @@ router
     passport.authenticate("jwt", { session: false }),
     bookingCtrl.getMonthlyBookingByKeyPartner
   )
+  .get(
+    '/notif-count/:id',
+    passport.authenticate("jwt", { session: false }),
+    userCtrl.getNotificationCounts
+  )
 
   .get("/refresh/access", authCtrl.refreshToken);
 

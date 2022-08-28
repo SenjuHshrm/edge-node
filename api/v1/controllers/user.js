@@ -1,8 +1,6 @@
 const User = require("../../../models/User");
-const passport = require("passport");
-const jwt = require("jsonwebtoken");
 const sendCred = require("../../../utils/mailer").sendPassword;
-const fs = require("fs");
+const NotificationCount = require('../../../models/NotificationCount')
 
 module.exports = {
   /**
@@ -29,7 +27,25 @@ module.exports = {
     user.setImg(req.body.img, req.body.email);
     user
       .save()
-      .then(record => {
+      .then(async record => {
+        if(record.accessLvl === 3) {
+          new NotificationCount({
+            userId: user._doc._id,
+            contract: { count: 0, isOpened: true },
+            quotation: { count: 0, isOpened: true }
+          }).save()
+        } else if(record.accessLvl === 1 || record.accessLvl === 2) {
+          new NotificationCount({
+            userId: user._doc._id,
+            purchaseOrder: { count: 0, isOpened: true },
+            acctReq: { count: 0, isOpened: true }
+          }).save()
+        }
+        let admins = await User.find({ accessLvl: [1, 2] }).exec()
+        admins.forEach(async admin => {
+          await NotificationCount.findOneAndUpdate({ userId: admin._id }, { $inc: { 'acctReq.count': 1 }}).exec()
+          global.io.emit('new account request', { info: 1 })
+        })
         return res.status(200).json({ msg: "Account registered successfully" });
       })
       .catch(err => {
@@ -304,4 +320,30 @@ module.exports = {
       });
     }
   },
+
+  /**
+   * Get Notification counters
+   */
+  getNotificationCounts: async (req, res) => {
+    try {
+      let notifCounts = await NotificationCount.findOne({ user: req.params.id }).exec()
+      return res.status(200).json({ success: true, info: notifCounts })
+    } catch(e) {
+      console.log(e)
+      return res.status(500).json({ success: false, msg: '' })
+    }
+  },
+
+  /**
+   * Update isOpened property of counters
+   */
+  updateNotifOpenStatus: async (req, res) => {
+    try {
+      await NotificationCount.findOneAndUpdate({ userId: req.params.id }, { $set: { [`${req.body.field}.isOpened`]: true, [`${req.body.field}.count`]: 0 } }).exec()
+      return res.status(200).json({ success: true, msg: 'ok' })
+    } catch(e) {
+      console.log(e)
+      return res.status(500).json({ success: false, msg: '' })
+    }
+  }
 };

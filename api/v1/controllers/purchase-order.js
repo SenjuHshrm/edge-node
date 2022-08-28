@@ -1,6 +1,7 @@
 const PurchaseOrder = require('../../../models/PurchaseOrder')
 const Quotation = require('../../../models/Quotation')
 const User = require('../../../models/User')
+const NotificationCount = require('../../../models/NotificationCount')
 const generateId = require('../../../utils/id-generator')
 
 module.exports = {
@@ -18,6 +19,11 @@ module.exports = {
       items: req.body.items
     }).save().then(async (newPO) => {
       await Quotation.findOneAndUpdate({ quotationId: newPO.poFrom }, { $set: { status: 'approved' } }).exec()
+      let admins = await User.find({ accessLvl: [1, 2] }).exec()
+      admins.forEach(async admin => {
+        await NotificationCount.findOneAndUpdate({ userId: admin._id }, { $inc: { 'purchaseOrder.count': 1 }}).exec()
+        global.io.emit('new purchase order', { info: 1 })
+      })
       return res.status(200).json({ success: true, info: newPO })
     }).catch(e => {
       console.log(e)

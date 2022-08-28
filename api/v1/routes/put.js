@@ -111,5 +111,10 @@ router
     "/assign-codePassword/:id",
     passport.authenticate("jwt", { session: false }),
     userCtrl.assignCodeAndPassword
-  );
+  )
+  .put(
+    "/toggle-notification/:id",
+    passport.authenticate("jwt", { session: false }),
+    userCtrl.updateNotifOpenStatus
+  )
 module.exports = router;
