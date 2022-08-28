@@ -12,19 +12,30 @@ const {
   invCtrl,
   bundleCtrl,
   contractCtrl,
-  bookingCtrl
+  bookingCtrl,
 } = require("../controllers");
-const path = require('path')
-const multer = require('multer')
+const path = require("path");
+const multer = require("multer");
+
 const contStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(global.appRoot, '/uploads/contract'))
+    cb(null, path.join(global.appRoot, "/uploads/contract"));
   },
   filename: (req, file, cb) => {
-    cb(null, req.body.filename)
-  }
-})
-const uploadCont = multer({ dest: '/uploads/contract', storage: contStorage })
+    cb(null, req.body.filename);
+  },
+});
+const uploadCont = multer({ dest: "/uploads/contract", storage: contStorage });
+
+const dpStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(global.appRoot, "/uploads/profile"));
+  },
+  filename: (req, file, cb) => {
+    cb(null, req.body.filename);
+  },
+});
+const dpUpload = multer({ dest: "/uploads/profile", storage: dpStorage });
 
 router
   .post("/login", authCtrl.login)
@@ -67,13 +78,19 @@ router
   .post(
     "/key-partners/save-contract",
     passport.authenticate("jwt", { session: false }),
-    uploadCont.single('file'),
+    uploadCont.single("file"),
     contractCtrl.saveContract
   )
   .post(
-    '/booking/add',
-    passport.authenticate('jwt', { session: false }),
+    "/booking/add",
+    passport.authenticate("jwt", { session: false }),
     bookingCtrl.createBooking
   )
+  .post(
+    "/profile/upload",
+    passport.authenticate("jwt", { session: false }),
+    dpUpload.single("image"),
+    userCtrl.updateProfileImage
+  );
 
 module.exports = router;
