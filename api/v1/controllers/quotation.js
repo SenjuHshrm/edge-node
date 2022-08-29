@@ -1,6 +1,7 @@
 const Quotation = require('../../../models/Quotation')
 const Inquiry = require('../../../models/Inquiry')
 const User = require('../../../models/User')
+const NotificationCount = require('../../../models/NotificationCount')
 const generateId = require('../../../utils/id-generator')
 
 module.exports = {
@@ -21,6 +22,8 @@ module.exports = {
       status: 'none'
     }).save().then(async (newQuote) => {
       await Inquiry.findOneAndUpdate({ inqId: newQuote.quoteFrom }, { $set: { isApproved: true } }).exec()
+      await NotificationCount.findOneAndUpdate({ userId: newQuote.keyPartnerId }, { $inc: { quotation: 1 } }).exec()
+      global.io.emit('new quotation', { id: newQuote.keyPartnerId, info: 1 })
       return res.status(200).json({ success: true, info: newQuote })
     }).catch(e => {
       console.log(e)

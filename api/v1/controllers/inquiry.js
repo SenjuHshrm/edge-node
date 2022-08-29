@@ -1,5 +1,7 @@
 const Inquiry = require('../../../models/Inquiry')
 const generateId = require('../../../utils/id-generator')
+const NotificationCount = require('../../../models/NotificationCount')
+const User = require('../../../models/User')
 
 module.exports = {
 
@@ -14,13 +16,19 @@ module.exports = {
       keyPartnerId: req.body.keyPartnerId,
       items: req.body.items,
       isApproved: false
-    }).save().then(newInq => {
+    }).save().then(async (newInq) => {
       newInq.populate('keyPartnerId')
       let { inqId, createdAt, items, keyPartnerId: { name, email, company } } = newInq
+      let admins = await User.find({ accessLvl: [1, 2] }).exec()
+      admins.forEach(async admin => {
+        await NotificationCount.findOneAndUpdate({ userId: admin._id }, { $inc: { inquiry: 1 } }).exec()
+        global.io.emit('new inquiry' , { id: admin._id, info: 1 })
+      })
       return res.status(200).json({ succes: true, info: {
         inqId, createdAt, items, keyPartnerId: { name, email, company }
       } })
     }).catch(e => {
+      console.log(e)
       return res.status(500).json({ success: false, msg: '' })
     })
   },

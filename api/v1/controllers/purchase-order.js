@@ -21,8 +21,8 @@ module.exports = {
       await Quotation.findOneAndUpdate({ quotationId: newPO.poFrom }, { $set: { status: 'approved' } }).exec()
       let admins = await User.find({ accessLvl: [1, 2] }).exec()
       admins.forEach(async admin => {
-        await NotificationCount.findOneAndUpdate({ userId: admin._id }, { $inc: { 'purchaseOrder.count': 1 }}).exec()
-        global.io.emit('new purchase order', { info: 1 })
+        await NotificationCount.findOneAndUpdate({ userId: admin._id }, { $inc: { purchaseOrder: 1 }}).exec()
+        global.io.emit('new purchase order', { id: admin._id, info: 1 })
       })
       return res.status(200).json({ success: true, info: newPO })
     }).catch(e => {

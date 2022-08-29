@@ -1,5 +1,6 @@
 const Contract = require('../../../models/Contract')
 const User = require('../../../models/User')
+const NotificationCount = require('../../../models/NotificationCount')
 
 module.exports = {
 
@@ -27,10 +28,13 @@ module.exports = {
     })
     await cont.save()
     cont.populate('keyPartner', { _id: 1, company: 1, email: 1, name: 1, file: 1 })
-      .then(contRec => {
+      .then(async contRec => {
         let resp = {
           ...contRec._doc
         }
+        let field = req.body.type === 'soa' ? 'soa' : 'coanda'
+        await NotificationCount.findOneAndUpdate({ userId: req.body.id }, { $inc: { [field]: 1 } }).exec()
+        global.io.emit(`new ${req.body.type}`, { id: req.body.id, info: 1 })
         return res.status(200).json({ success: true, info: resp })
       })
       .catch(e => {

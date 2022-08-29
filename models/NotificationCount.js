@@ -8,10 +8,16 @@ let counterSchema = new mongoose.Schema({
 
 let notificationSchema = new mongoose.Schema({
   userId: { type: ObjectId, ref: 'user' },
-  purchaseOrder: counterSchema,
-  acctReq: counterSchema,
-  contract: counterSchema,
-  quotation: counterSchema
+  //admin
+  inquiry: Number,
+  purchaseOrder: Number,
+  acctReq: Number,
+  adminInv: Number,
+  //keypartner
+  coanda: Number,
+  soa: Number,
+  quotation: Number,
+  kpInv: Number
 })
 
 let NotificationCount = mongoose.model('notification-count', notificationSchema)

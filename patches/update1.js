@@ -10,23 +10,19 @@ mongoose.connection
       users.forEach(async user => {
         if(user.accessLvl === 1 || user.accessLvl === 2) {
           await new NotificationCount({
-            userId: user._id,
-            inquiry: 0,
-            purchaseOrder: 0,
-            acctReq: 0,
-            adminInv: 0
+            userId: user._doc._id,
+            purchaseOrder: { count: 0, isOpened: true },
+            acctReq: { count: 0, isOpened: true }
           }).save()
         } else if(user.accessLvl === 3) {
           await new NotificationCount({
-            userId: user._id,
-            coanda: 0,
-            soa: 0,
-            quotation: 0,
-            kpInv: 0
+            userId: user._doc._id,
+            contract: { count: 0, isOpened: true },
+            quotation: { count: 0, isOpened: true }
           }).save()
         }
       })
-      return console.log('Patch done!!! Press Ctrl + C to close...')
+      console.log('Patch done!!! Press Ctrl + C to close...')
     } catch(e) {
       console.log(e)
     }
