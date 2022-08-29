@@ -30,6 +30,7 @@ app
   .use(passport.initialize())
   .use(express.static(path.join(__dirname, 'uploads')))
   .use(express.static(path.join(__dirname, 'app')))
+  .use(express.static(path.join(__dirname, 'temp')))
 
 
 global.appRoot = path.resolve(__dirname)

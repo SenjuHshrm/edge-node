@@ -11,6 +11,7 @@ const bundleCtrl = require("./bundle");
 const contractCtrl = require('./contract')
 const addrCtrl = require('./address')
 const bookingCtrl = require('./booking')
+const excelCtrl = require('./excel')
 
 module.exports = {
   userCtrl,
@@ -25,5 +26,6 @@ module.exports = {
   bundleCtrl,
   contractCtrl,
   addrCtrl,
-  bookingCtrl
+  bookingCtrl,
+  excelCtrl
 };

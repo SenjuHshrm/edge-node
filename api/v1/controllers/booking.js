@@ -3,7 +3,9 @@ const Bundle = require("../../../models/Bundle");
 const Inventory = require("../../../models/Inventory");
 const User = require('../../../models/User')
 const generateId = require('../../../utils/id-generator')
-const moment = require('moment')
+const moment = require('moment');
+const generateFlash = require("../services/generate-flash");
+const generateJnt = require("../services/generate-jnt");
 
 module.exports = {
   /**
@@ -168,4 +170,61 @@ module.exports = {
       return res.status(500).json({ success: false, msg: '' })
     }
   },
+
+  /**
+   * Mark booking as fulfilled
+   */
+  markSelectedAsFulfilled: async (req, res) => {
+    try {
+      let bookings = await Booking.find({ _id: req.body.ids }).exec()
+      bookings.forEach((booking) => {
+        booking.status = 'fulfilled'
+        booking.markModified('status')
+        booking.save()
+      })
+      return res.status(200).json({ success: true, info: '' })
+    } catch(e) {
+      console.log(e)
+      return res.status(500).json({ success: false, msg: '' })
+    }
+  },
+
+  /**
+   * Mark one as fulfilled
+   */
+  markOneAsFulfilled: async (req, res) => {
+    try {
+      await Booking.findByIdAndUpdate(req.params.id, { $set: { status: 'fulfilled' } }).exec()
+      return res.status(200).json({ success: true, info: '' })
+    } catch(e) {
+      console.log(e)
+      return res.status(500).json({ success: false, msg: '' })
+    }
+  },
+
+  /**
+   * Mark one as unfulfilled
+   */
+  markOneAsUnfulfilled: async (req, res) => {
+    try {
+      await Booking.findByIdAndUpdate(req.params.id, { $set: { status: 'unfulfilled' } }).exec()
+      return res.status(200).json({ success: true, info: '' })
+    } catch(e) {
+      console.log(e)
+      return res.status(500).json({ success: false, msg: '' })
+    }
+  },
+  /**
+   * Mark one as unfulfilled
+   */
+  exportOne: async (req, res) => {
+    try {
+      let booking = await Booking.find({ _id: req.params.id }).populate({ path: 'itemId', populate: { path: 'classification' } }).populate('bundleId').exec()
+      let file = (booking[0].courier === 'flash') ? await generateFlash(booking) : await generateJnt(booking)
+      return res.status(200).json({ success: true, info: file })
+    } catch(e) {
+      console.log(e)
+      return res.status(500).json({ success: false, msg: '' })
+    }
+  }
 };

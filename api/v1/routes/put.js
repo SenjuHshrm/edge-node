@@ -9,6 +9,8 @@ const {
   invCtrl,
   bundleCtrl,
   quoteCtrl,
+  excelCtrl,
+  bookingCtrl
 } = require("../controllers");
 const path = require("path");
 const multer = require("multer");
@@ -117,4 +119,30 @@ router
     passport.authenticate("jwt", { session: false }),
     userCtrl.updateNotifOpenStatus
   )
+  .put(
+    '/export/all',
+    passport.authenticate('jwt', { session: false }),
+    excelCtrl.generateExcelAllCourier
+  )
+  .put(
+    '/mark-as-fulfilled',
+    passport.authenticate('jwt', { session: false }),
+    bookingCtrl.markSelectedAsFulfilled
+  )
+  .put(
+    '/mark-one/fulfilled/:id',
+    passport.authenticate('jwt', { session: false }),
+    bookingCtrl.markOneAsFulfilled
+  )
+  .put(
+    '/mark-one/unfulfilled/:id',
+    passport.authenticate('jwt', { session: false }),
+    bookingCtrl.markOneAsUnfulfilled
+  )
+  .put(
+    '/export-one/:id',
+    passport.authenticate('jwt', { session: false }),
+    bookingCtrl.exportOne
+  )
+
 module.exports = router;

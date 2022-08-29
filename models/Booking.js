@@ -3,7 +3,7 @@ const { ObjectId } = mongoose.Schema;
 
 let bookingSchema = new mongoose.Schema(
   {
-    keyPartnerId: { type: ObjectId, requried: true, ref: "user" },
+    keyPartnerId: { type: ObjectId, required: true, ref: "user" },
     bookingId: { type: String, required: true },
     customer: { type: String, required: true },
     customerContact: { type: String, required: true },
@@ -18,8 +18,8 @@ let bookingSchema = new mongoose.Schema(
     senderContact: { type: String, required: true },
     remarks: { type: String, required: true },
     status: { type: String, required: true },
-    itemId: { type: String, required: true },
-    bundleId: { type: String, required: true },
+    itemId: { type: String, required: true, ref: 'inventory' },
+    bundleId: { type: String, required: true, ref: 'bundle' },
     quantity: { type: String },
     itemType: String,
   },
