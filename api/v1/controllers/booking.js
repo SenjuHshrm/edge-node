@@ -2,6 +2,7 @@ const Booking = require("../../../models/Booking");
 const Bundle = require("../../../models/Bundle");
 const Inventory = require("../../../models/Inventory");
 const User = require('../../../models/User')
+const NotificationCount = require('../../../models/NotificationCount')
 const generateId = require('../../../utils/id-generator')
 const moment = require('moment');
 const generateFlash = require("../services/generate-flash");
@@ -45,6 +46,16 @@ module.exports = {
           inv.markModified("currentQty");
           inv.markModified("out");
           inv.save();
+          console.log(inv.currentQty)
+          if(+inv.currentQty < 20) {
+            let admins = await User.find({ accessLvl: [1, 2] }).exec()
+            admins.forEach(async admin => {
+              await NotificationCount.findOneAndUpdate({ userId: admin._id }, { $inc: { adminInv: 1 } }).exec()
+              global.io.emit('admin inventory warning', { id: admin._id, info: 1 })
+            })
+            await NotificationCount.findOneAndUpdate({ userId: req.body.keyPartnerId }, { $inc: { kpInv: 1 } }).exec()
+            global.io.emit('keypartner inventory warning', { id: req.body.keyPartnerId, info: 1 })
+          }
         } else {
           await Bundle.findByIdAndUpdate(newBooking.itemId, {
             $set: { status: "out" },
