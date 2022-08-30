@@ -1,6 +1,6 @@
 const User = require("../../../models/User");
 const sendCred = require("../../../utils/mailer").sendPassword;
-const NotificationCount = require('../../../models/NotificationCount')
+const NotificationCount = require("../../../models/NotificationCount");
 
 module.exports = {
   /**
@@ -29,24 +29,27 @@ module.exports = {
     user
       .save()
       .then(async record => {
-        if(record.accessLvl === 3) {
+        if (record.accessLvl === 3) {
           new NotificationCount({
             userId: user._doc._id,
             contract: { count: 0, isOpened: true },
-            quotation: { count: 0, isOpened: true }
-          }).save()
-        } else if(record.accessLvl === 1 || record.accessLvl === 2) {
+            quotation: { count: 0, isOpened: true },
+          }).save();
+        } else if (record.accessLvl === 1 || record.accessLvl === 2) {
           new NotificationCount({
             userId: user._doc._id,
             purchaseOrder: { count: 0, isOpened: true },
-            acctReq: { count: 0, isOpened: true }
-          }).save()
+            acctReq: { count: 0, isOpened: true },
+          }).save();
         }
-        let admins = await User.find({ accessLvl: [1, 2] }).exec()
+        let admins = await User.find({ accessLvl: [1, 2] }).exec();
         admins.forEach(async admin => {
-          await NotificationCount.findOneAndUpdate({ userId: admin._id }, { $inc: { 'acctReq.count': 1 }}).exec()
-          global.io.emit('new account request', { id: admin._id, info: 1 })
-        })
+          await NotificationCount.findOneAndUpdate(
+            { userId: admin._id },
+            { $inc: { "acctReq.count": 1 } }
+          ).exec();
+          global.io.emit("new account request", { id: admin._id, info: 1 });
+        });
         return res.status(200).json({ msg: "Account registered successfully" });
       })
       .catch(err => {
@@ -76,7 +79,7 @@ module.exports = {
   getApprovedKeyPartners: async (req, res) => {
     try {
       let kp = await User.find(
-        { accessLvl: 3, isApproved: "true" },
+        { accessLvl: 3, isApproved: "true", deletedAt: null },
         { password: 0, refreshToken: 0, isApproved: 0 }
       ).exec();
       return res.status(200).json({ success: true, info: kp });
@@ -166,7 +169,7 @@ module.exports = {
     try {
       let user = await User.findById(req.params.id).exec();
       user.savePassword(req.body.password);
-      user.saveSecondPassword(req.body.secondPassword)
+      user.saveSecondPassword(req.body.secondPassword);
       user
         .save()
         .then(rec => {
@@ -206,7 +209,7 @@ module.exports = {
 
       let user = await User.findById(req.params.id).exec();
       user.savePassword(req.body.password);
-      user.saveSecondPassword(req.body.secondPassword)
+      user.saveSecondPassword(req.body.secondPassword);
       // user.markModified("password")
       // user.markModified("secondPassword")
       user
@@ -256,11 +259,17 @@ module.exports = {
 
   updateUsername: async (req, res) => {
     try {
-      await User.findByIdAndUpdate(req.params.id, { $set: { username: req.body.username } }, { runValidators: true, context: 'query' }).exec()
-      return res.status(200).json({ success: true, msg: 'Username updated' })
-    } catch(e) {
-      console.log(e.errors.username.message)
-      return res.status(500).json({ success: false, msg: e.errors.username.message })
+      await User.findByIdAndUpdate(
+        req.params.id,
+        { $set: { username: req.body.username } },
+        { runValidators: true, context: "query" }
+      ).exec();
+      return res.status(200).json({ success: true, msg: "Username updated" });
+    } catch (e) {
+      console.log(e.errors.username.message);
+      return res
+        .status(500)
+        .json({ success: false, msg: e.errors.username.message });
     }
   },
 
@@ -289,7 +298,7 @@ module.exports = {
   getKeyPartners: async (req, res) => {
     try {
       let keyPartners = await User.find({
-        deletedAt: "",
+        deletedAt: null,
         accessLvl: 3,
       }).exec();
       return res.status(200).json({ success: true, info: keyPartners });
@@ -339,11 +348,13 @@ module.exports = {
    */
   getNotificationCounts: async (req, res) => {
     try {
-      let notifCounts = await NotificationCount.findOne({ userId: req.params.id }).exec()
-      return res.status(200).json({ success: true, info: notifCounts })
-    } catch(e) {
-      console.log(e)
-      return res.status(500).json({ success: false, msg: '' })
+      let notifCounts = await NotificationCount.findOne({
+        userId: req.params.id,
+      }).exec();
+      return res.status(200).json({ success: true, info: notifCounts });
+    } catch (e) {
+      console.log(e);
+      return res.status(500).json({ success: false, msg: "" });
     }
   },
 
@@ -352,11 +363,35 @@ module.exports = {
    */
   updateNotifOpenStatus: async (req, res) => {
     try {
-      await NotificationCount.findOneAndUpdate({ userId: req.params.id }, { $set: { [`${req.body.field}`]: 0 } }).exec()
-      return res.status(200).json({ success: true, msg: 'ok' })
-    } catch(e) {
-      console.log(e)
-      return res.status(500).json({ success: false, msg: '' })
+      await NotificationCount.findOneAndUpdate(
+        { userId: req.params.id },
+        { $set: { [`${req.body.field}`]: 0 } }
+      ).exec();
+      return res.status(200).json({ success: true, msg: "ok" });
+    } catch (e) {
+      console.log(e);
+      return res.status(500).json({ success: false, msg: "" });
     }
-  }
+  },
+
+  /**
+   * Delete Key Partners
+   */
+
+  deleteKeyPartners: async (req, res) => {
+    try {
+      await User.findByIdAndUpdate(req.params.id, {
+        deletedAt: new Date().toLocaleString(),
+        isActivated: false,
+      });
+      return res
+        .status(200)
+        .json({ success: true, msg: "ok", info: req.params.id });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        msg: "Failed to delete the key partner.",
+      });
+    }
+  },
 };

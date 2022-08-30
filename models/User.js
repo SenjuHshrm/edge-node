@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const { nameBuilder, addrBuilder } = require("../api/v1/services");
 const { v4: uuidv4 } = require("uuid");
-const uniqueValidator = require('mongoose-unique-validator')
+const uniqueValidator = require("mongoose-unique-validator");
 
 let rftSchema = new mongoose.Schema({
   uid: String,
@@ -27,6 +27,7 @@ let userSchema = new mongoose.Schema(
     accessLvl: { type: Number, required: true },
     isApproved: { type: String, default: "pending" },
     isActivated: { type: Boolean, required: true },
+    deletedAt: { type: String },
   },
   { timestamps: true }
 );
@@ -36,8 +37,8 @@ userSchema.methods.savePassword = function (pw) {
 };
 
 userSchema.methods.saveSecondPassword = function (pw) {
-  this.secondPassword = bcrypt.hashSync(pw, 10)
-}
+  this.secondPassword = bcrypt.hashSync(pw, 10);
+};
 
 userSchema.methods.comparePasswords = function (pw) {
   return bcrypt.compareSync(pw, this.password);
@@ -85,7 +86,7 @@ userSchema.methods.userProfile = function () {
   };
 };
 
-userSchema.plugin(uniqueValidator, { message: 'Username already registered' })
+userSchema.plugin(uniqueValidator, { message: "Username already registered" });
 
 const User = mongoose.model("user", userSchema);
 

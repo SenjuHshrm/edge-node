@@ -35,6 +35,11 @@ router
     "/delete-bundle/:id",
     passport.authenticate("jwt", { session: false }),
     bundleCtrl.deleteBundle
+  )
+  .delete(
+    "/delete-kp/:id",
+    passport.authenticate("jwt", { session: false }),
+    userCtrl.deleteKeyPartners
   );
 
 module.exports = router;
