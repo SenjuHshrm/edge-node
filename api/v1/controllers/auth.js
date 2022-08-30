@@ -12,6 +12,7 @@ module.exports = {
     passport.authenticate('local', (err, user, info) => {
       if(err) return res.status(500).json({ success: false, msg: info, data: err })
       if(!user) return res.status(401).json({ success: false, msg: info.message })
+      if(!user.isActivated) return res.status(403).json({ success: false, msg: 'Your account is deactivated' })
       if(req.body.access !== user.accessLvl) return res.status(403).json({ success: false, msg: 'Your account does not have permission to access this dashboard' }) 
       let token = user.generateToken()
       user.refreshToken.push({ uid: token.uid, token: token.refresh })

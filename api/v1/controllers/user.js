@@ -13,6 +13,7 @@ module.exports = {
       email: req.body.email,
       username: req.body.accessLvl === 3 ? req.body.email : req.body.username,
       password: "",
+      secondPassword: "",
       name: req.body.name,
       contact: req.body.contact,
       company: req.body.company,
@@ -165,11 +166,11 @@ module.exports = {
     try {
       let user = await User.findById(req.params.id).exec();
       user.savePassword(req.body.password);
-      user.markModified("password");
+      user.saveSecondPassword(req.body.secondPassword)
       user
         .save()
         .then(rec => {
-          sendCred(rec.email, req.body.password);
+          sendCred(rec.email, req.body.password, req.body.secondPassword);
           return res.status(200).json({
             success: true,
             msg: "Password set successfully. Credentials are now sent to the key partner's email address.",
@@ -205,11 +206,13 @@ module.exports = {
 
       let user = await User.findById(req.params.id).exec();
       user.savePassword(req.body.password);
-      user.markModified("password");
+      user.saveSecondPassword(req.body.secondPassword)
+      // user.markModified("password")
+      // user.markModified("secondPassword")
       user
         .save()
         .then(async rec => {
-          sendCred(rec.email, req.body.password);
+          sendCred(rec.email, req.body.password, req.body.secondPassword);
           return res.status(200).json({
             success: true,
             msg: "Password and Code set successfully. Credentials are now sent to the key partner's email address.",
@@ -248,6 +251,16 @@ module.exports = {
         success: false,
         msg: "Failed to update the selected customer.",
       });
+    }
+  },
+
+  updateUsername: async (req, res) => {
+    try {
+      await User.findByIdAndUpdate(req.params.id, { $set: { username: req.body.username } }, { runValidators: true, context: 'query' }).exec()
+      return res.status(200).json({ success: true, msg: 'Username updated' })
+    } catch(e) {
+      console.log(e.errors.username.message)
+      return res.status(500).json({ success: false, msg: e.errors.username.message })
     }
   },
 

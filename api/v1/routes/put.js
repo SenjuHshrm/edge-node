@@ -110,6 +110,11 @@ router
     userCtrl.updateProfile
   )
   .put(
+    '/update-username/:id',
+    passport.authenticate('jwt', { session: false }),
+    userCtrl.updateUsername
+  )
+  .put(
     "/assign-codePassword/:id",
     passport.authenticate("jwt", { session: false }),
     userCtrl.assignCodeAndPassword

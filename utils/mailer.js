@@ -10,12 +10,12 @@ const transporter = nodemailer.createTransport({
   }
 })
 
-exports.sendPassword = async (email, password) => {
+exports.sendPassword = async (email, password, secPass) => {
   try {
     let file = fs.readFileSync(`${global.appRoot}/view/keypartner-password.html`, { encoding: 'utf-8' })
     let template = handlebars.compile(file)
     let replacements = {
-      email: email, password: password
+      email: email, password: password, secPass: secPass
     }
     let html = template(replacements)
     let msg = {
