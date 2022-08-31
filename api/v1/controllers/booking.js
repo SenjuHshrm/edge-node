@@ -5,8 +5,8 @@ const User = require('../../../models/User')
 const NotificationCount = require('../../../models/NotificationCount')
 const generateId = require('../../../utils/id-generator')
 const moment = require('moment');
-const generateFlash = require("../services/generate-flash");
-const generateJnt = require("../services/generate-jnt");
+const generateFlash = require("../../../services/generate-flash");
+const generateJnt = require("../../../services/generate-jnt");
 
 module.exports = {
   /**

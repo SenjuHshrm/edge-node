@@ -1,6 +1,6 @@
 const Booking = require('../../../models/Booking')
-const generateFlash = require('../services/generate-flash')
-const generateJNT = require('../services/generate-jnt')
+const generateFlash = require('../../../services/generate-flash')
+const generateJNT = require('../../../services/generate-jnt')
 
 module.exports = {
   /**

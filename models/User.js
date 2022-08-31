@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
-const { nameBuilder, addrBuilder } = require("../api/v1/services");
+const { nameBuilder, addrBuilder } = require("../services");
 const { v4: uuidv4 } = require("uuid");
 const uniqueValidator = require("mongoose-unique-validator");
 

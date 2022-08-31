@@ -1,4 +1,5 @@
 const Contract = require('../../../models/Contract')
+const File = require('../../../models/File')
 const User = require('../../../models/User')
 const NotificationCount = require('../../../models/NotificationCount')
 
@@ -33,6 +34,7 @@ module.exports = {
           ...contRec._doc
         }
         let field = req.body.type === 'soa' ? 'soa' : 'coanda'
+        await new File({ filePath: filename, from: { collection: 'contract', id: resp._id } }).save()
         await NotificationCount.findOneAndUpdate({ userId: req.body.id }, { $inc: { [field]: 1 } }).exec()
         global.io.emit(`new ${req.body.type}`, { id: req.body.id, info: 1 })
         return res.status(200).json({ success: true, info: resp })

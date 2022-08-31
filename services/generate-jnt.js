@@ -1,4 +1,5 @@
 const Excel = require('exceljs')
+const File = require('../models/File')
 const moment = require('moment')
 const fs = require('fs')
 
@@ -24,8 +25,7 @@ module.exports = (booking) => {
         worksheet.getCell(`M${j + 9}`).value = booking[j].remarks
       }
       await workbook.xlsx.writeFile(`./temp/${filename}`)
-      // let file = fs.readFileSync(`./temp/${filename}`)
-      // let encode = new Buffer.from(file).toString('base64')
+      new File({ filePath: `/temp/${filename}`, from: null }).save()
       return { link: `/${filename}`, filename: filename }
     })
     .catch((e) => {
