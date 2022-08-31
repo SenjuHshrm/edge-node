@@ -310,11 +310,50 @@ module.exports = {
     }
   },
 
+  /**
+   * Change password
+   */
   changePassword: async (req, res) => {
     try {
       let user = await User.findById(req.body.id).exec();
       if (user && (await user.comparePasswords(req.body.oldPass))) {
         user.savePassword(req.body.newPass);
+        user.markModified("password");
+        user
+          .save()
+          .then(rec => {
+            return res.status(200).json({
+              success: true,
+              msg: "Password has been changed successfully",
+            });
+          })
+          .catch(e => {
+            console.log(e);
+            return res.status(500).json({ success: false, msg: "" });
+          });
+      } else {
+        return res.status(200).json({
+          success: false,
+          msg: "Please enter the right current password.",
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        success: false,
+        msg: "Failed to change your password.",
+      });
+    }
+  },
+
+  /**
+   * Change password for secure internal pages
+   */
+  changeIPAPassword: async (req, res) => {
+    try {
+      let user = await User.findById(req.body.id).exec();
+      if (user && (await user.compareSecondPassword(req.body.oldPass))) {
+        user.saveSecondPassword(req.body.newPass);
         user.markModified("password");
         user
           .save()

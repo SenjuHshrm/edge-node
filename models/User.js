@@ -44,6 +44,10 @@ userSchema.methods.comparePasswords = function (pw) {
   return bcrypt.compareSync(pw, this.password);
 };
 
+userSchema.methods.compareSecondPassword = function (pw) {
+  return bcrypt.compareSync(pw, this.secondPassword)
+}
+
 userSchema.methods.generateToken = function () {
   let uid = uuidv4();
   return {

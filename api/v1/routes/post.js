@@ -39,6 +39,7 @@ const dpUpload = multer({ dest: "/uploads/profile", storage: dpStorage });
 
 router
   .post("/login", authCtrl.login)
+  .post('/authenticate/internal-page', passport.authenticate('jwt', { session: false }), authCtrl.internalPageAuth)
   .post("/register", userCtrl.register)
   .post(
     "/create-inquiry",

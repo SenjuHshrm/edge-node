@@ -105,6 +105,11 @@ router
     userCtrl.changePassword
   )
   .put(
+    "/change-password/internal-page",
+    passport.authenticate("jwt", { session: false }),
+    userCtrl.changeIPAPassword
+  )
+  .put(
     "/update-profile/:id",
     passport.authenticate("jwt", { session: false }),
     userCtrl.updateProfile

@@ -46,6 +46,21 @@ module.exports = {
     }
   },
 
+  /**
+   * Internal page authentication
+   */
+  internalPageAuth: (req, res) => {
+    User.findById(req.body.id)
+      .then(user => {
+        if(!user.compareSecondPassword(req.body.secPass)) return res.status(401).json({ success: false, msg: 'Incorrect password' })
+        return res.status(200).json({ success: true })
+      })
+      .catch(e => {
+        console.log(e)
+        return res.status(500).json({ success: false, msg: '' })
+      })
+  },
+
 
   /**
    * 
