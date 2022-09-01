@@ -7,3 +7,4 @@ uploads/user-img/*
 !uploads/user-img/
 uploads/files/*
 !uploads/files/
+temp/*.xlsx

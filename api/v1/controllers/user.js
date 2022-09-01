@@ -32,24 +32,30 @@ module.exports = {
         if (record.accessLvl === 3) {
           new NotificationCount({
             userId: user._doc._id,
-            contract: { count: 0, isOpened: true },
-            quotation: { count: 0, isOpened: true },
+            coanda: 0,
+            soa: 0,
+            quotation: 0,
+            kpInv: 0
           }).save();
         } else if (record.accessLvl === 1 || record.accessLvl === 2) {
           new NotificationCount({
             userId: user._doc._id,
-            purchaseOrder: { count: 0, isOpened: true },
-            acctReq: { count: 0, isOpened: true },
+            inquiry: 0,
+            purchaseOrder: 0,
+            acctReq: 0,
+            adminInv: 0
           }).save();
         }
-        let admins = await User.find({ accessLvl: [1, 2] }).exec();
-        admins.forEach(async admin => {
-          await NotificationCount.findOneAndUpdate(
-            { userId: admin._id },
-            { $inc: { "acctReq.count": 1 } }
-          ).exec();
-          global.io.emit("new account request", { id: admin._id, info: 1 });
-        });
+        if(req.body.accessLvl === 3) {
+          let admins = await User.find({ accessLvl: [1, 2] }).exec();
+          admins.forEach(async admin => {
+            await NotificationCount.findOneAndUpdate(
+              { userId: admin._id },
+              { $inc: { "acctReq.count": 1 } }
+            ).exec();
+            global.io.emit("new account request", { id: admin._id, info: 1 });
+          });
+        }
         return res.status(200).json({ msg: "Account registered successfully" });
       })
       .catch(err => {
