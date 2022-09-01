@@ -54,7 +54,7 @@ module.exports = {
   getAllInquiries: async (req, res) => {
     try {
       let response = []
-      let inquiries = await Inquiry.find({}).populate('keyPartnerId').exec()
+      let inquiries = await Inquiry.find({}).populate('keyPartnerId').sort({ createdAt: -1 }).exec()
       inquiries.forEach(inq => {
         let { inqId, createdAt, items, keyPartnerId: { _id, name, email, company } } = inq
         response.push({

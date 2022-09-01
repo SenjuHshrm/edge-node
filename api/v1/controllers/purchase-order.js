@@ -36,7 +36,7 @@ module.exports = {
    */
   getAllPurchaseOrder: async (req, res) => {
     try {
-      let po = await PurchaseOrder.find({}).populate('keyPartnerId', { password: 0, refreshToken: 0, updatedAt: 0, createdAt: 0 }).exec()
+      let po = await PurchaseOrder.find({}).populate('keyPartnerId', { password: 0, refreshToken: 0, updatedAt: 0, createdAt: 0 }).sort({ createdAt: -1 }).exec()
       return res.status(200).json({ success: true, info: po })
     } catch(e) {
       console.log(e)

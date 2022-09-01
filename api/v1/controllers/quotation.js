@@ -51,7 +51,7 @@ module.exports = {
    */
   getAllQuotations: async (req, res) => {
     try {
-      let quotes = await Quotation.find({}).populate('keyPartnerId', { password: 0, refreshToken: 0, updatedAt: 0, createdAt: 0 }).exec()
+      let quotes = await Quotation.find({}).populate('keyPartnerId', { password: 0, refreshToken: 0, updatedAt: 0, createdAt: 0 }).sort({ createdAt: -1 }).exec()
       return res.status(200).json({ success: true, info: quotes })
     } catch(e) {
       return res.status(500).json({ success: false, msg: '' })
@@ -63,7 +63,7 @@ module.exports = {
    */
   getOuotationsByKeyPartner: async (req, res) => {
     try {
-      let quotes = await Quotation.find({ keyPartnerId: req.params.id, status: ['none', 'pending'] }).populate('keyPartnerId', { password: 0, refreshToken: 0, updatedAt: 0, createdAt: 0 }).exec()
+      let quotes = await Quotation.find({ keyPartnerId: req.params.id, status: ['none', 'pending'] }).populate('keyPartnerId', { password: 0, refreshToken: 0, updatedAt: 0, createdAt: 0 }).sort({ createdAt: -1 }).exec()
       return res.status(200).json({ success: true, info: quotes })
     } catch(e) {
       return res.status(500).json({ success: false, msg: '' })
