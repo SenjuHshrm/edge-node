@@ -162,6 +162,21 @@ router
     passport.authenticate("jwt", { session: false }),
     userCtrl.getNotificationCounts
   )
+  .get(
+    '/inquiry/form/:id',
+    passport.authenticate("jwt", { session: false }),
+    inqCtrl.generateInquiryForm
+  )
+  .get(
+    '/quotation/form/:id',
+    passport.authenticate("jwt", { session: false }),
+    quoteCtrl.generateQuoteFile
+  )
+  .get(
+    '/purchase-order/form/:id',
+    passport.authenticate("jwt", { session: false }),
+    poCtrl.generatePOFile
+  )
 
   .get("/refresh/access", authCtrl.refreshToken);
 

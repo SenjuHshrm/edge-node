@@ -3,6 +3,7 @@ const Inquiry = require('../../../models/Inquiry')
 const User = require('../../../models/User')
 const NotificationCount = require('../../../models/NotificationCount')
 const generateId = require('../../../utils/id-generator')
+const generateQuoteFile = require('../../../services/generate-quotation')
 
 module.exports = {
   /**
@@ -78,6 +79,20 @@ module.exports = {
       await Quotation.findByIdAndUpdate(req.params.id, { $set: { status: req.body.status } }).exec()
       return res.sendStatus(204)
     } catch(e) {
+      return res.status(500).json({ success: false, msg: '' })
+    }
+  },
+
+  /**
+   * 
+   */
+  generateQuoteFile: async (req, res) => {
+    try {
+      let quote = await Quotation.findOne({ quotationId: req.params.id }).populate('keyPartnerId').exec()
+      let file = await generateQuoteFile(quote)
+      return res.status(200).json({ success: true, info: file })
+    } catch(e) {
+      console.log(e)
       return res.status(500).json({ success: false, msg: '' })
     }
   }

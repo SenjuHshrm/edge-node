@@ -3,6 +3,7 @@ const Quotation = require('../../../models/Quotation')
 const User = require('../../../models/User')
 const NotificationCount = require('../../../models/NotificationCount')
 const generateId = require('../../../utils/id-generator')
+const generatePO = require('../../../services/generate-po')
 
 module.exports = {
   /**
@@ -38,6 +39,20 @@ module.exports = {
     try {
       let po = await PurchaseOrder.find({}).populate('keyPartnerId', { password: 0, refreshToken: 0, updatedAt: 0, createdAt: 0 }).sort({ createdAt: -1 }).exec()
       return res.status(200).json({ success: true, info: po })
+    } catch(e) {
+      console.log(e)
+      return res.status(500).json({ success: false, msg: '' })
+    }
+  },
+
+  /**
+   * Generate purchase order form
+   */
+  generatePOFile: async (req, res) => {
+    try {
+      let po = await PurchaseOrder.findOne({ poId: req.params.id }).populate('keyPartnerId').exec()
+      let poFile = await generatePO(po)
+      return res.status(200).json({ success: true, info: poFile })
     } catch(e) {
       console.log(e)
       return res.status(500).json({ success: false, msg: '' })

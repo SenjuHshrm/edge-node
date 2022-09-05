@@ -2,6 +2,7 @@ const Inquiry = require('../../../models/Inquiry')
 const generateId = require('../../../utils/id-generator')
 const NotificationCount = require('../../../models/NotificationCount')
 const User = require('../../../models/User')
+const generateInq = require('../../../services/generate-inquiry')
 
 module.exports = {
 
@@ -96,6 +97,20 @@ module.exports = {
         })
       })
       return res.status(200).json({ success: true, info: response })
+    } catch(e) {
+      console.log(e)
+      return res.status(500).json({ success: false, msg: '' })
+    }
+  },
+
+  /**
+   * Generate inquiry form
+   */
+  generateInquiryForm: async (req, res) => {
+    try {
+      let inq = await Inquiry.findOne({ inqId: req.params.id }).populate('keyPartnerId').exec()
+      let inqFile = await generateInq(inq)
+      return res.status(200).json({ success: true, info: inqFile })
     } catch(e) {
       console.log(e)
       return res.status(500).json({ success: false, msg: '' })
