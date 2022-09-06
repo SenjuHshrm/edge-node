@@ -39,6 +39,7 @@ module.exports = {
       let bundles = await Bundle.find({
         deletedAt: "",
         keyPartnerId: req.params.id,
+        status: { $ne: "out" },
       }).exec();
       return res.status(200).json({ success: true, info: bundles });
     } catch (e) {
