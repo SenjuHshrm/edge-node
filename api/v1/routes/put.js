@@ -10,7 +10,8 @@ const {
   bundleCtrl,
   quoteCtrl,
   excelCtrl,
-  bookingCtrl
+  bookingCtrl,
+  poCtrl
 } = require("../controllers");
 const path = require("path");
 const multer = require("multer");
@@ -153,6 +154,21 @@ router
     '/export-one/:id',
     passport.authenticate('jwt', { session: false }),
     bookingCtrl.exportOne
+  )
+  .put(
+    '/inquiry/form/selected',
+    passport.authenticate('jwt', { session: false }),
+    inqCtrl.generateMultipleInquiry
+  )
+  .put(
+    '/quotation/form/selected',
+    passport.authenticate('jwt', { session: false }),
+    quoteCtrl.generateMultipleQuoatation
+  )
+  .put(
+    '/purchase-order/form/selected',
+    passport.authenticate('jwt', { session: false }),
+    poCtrl.generateMultiplePO
   )
 
 module.exports = router;

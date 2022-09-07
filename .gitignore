@@ -8,3 +8,4 @@ uploads/user-img/*
 uploads/files/*
 !uploads/files/
 temp/*.xlsx
+temp/*.zip

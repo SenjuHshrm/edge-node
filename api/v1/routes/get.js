@@ -165,17 +165,17 @@ router
   .get(
     '/inquiry/form/:id',
     passport.authenticate("jwt", { session: false }),
-    inqCtrl.generateInquiryForm
+    inqCtrl.generateSingleInquiryForm
   )
   .get(
     '/quotation/form/:id',
     passport.authenticate("jwt", { session: false }),
-    quoteCtrl.generateQuoteFile
+    quoteCtrl.generateSingleQuoteFile
   )
   .get(
     '/purchase-order/form/:id',
     passport.authenticate("jwt", { session: false }),
-    poCtrl.generatePOFile
+    poCtrl.generateSinglePOFile
   )
 
   .get("/refresh/access", authCtrl.refreshToken);

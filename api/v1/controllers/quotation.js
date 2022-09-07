@@ -3,7 +3,7 @@ const Inquiry = require('../../../models/Inquiry')
 const User = require('../../../models/User')
 const NotificationCount = require('../../../models/NotificationCount')
 const generateId = require('../../../utils/id-generator')
-const generateQuoteFile = require('../../../services/generate-quotation')
+const { generateSingleQuotation, generateMultipleQuoatation } = require('../../../services/generate-quotation')
 
 module.exports = {
   /**
@@ -86,10 +86,27 @@ module.exports = {
   /**
    * 
    */
-  generateQuoteFile: async (req, res) => {
+  generateSingleQuoteFile: async (req, res) => {
     try {
       let quote = await Quotation.findOne({ quotationId: req.params.id }).populate('keyPartnerId').exec()
-      let file = await generateQuoteFile(quote)
+      let file = await generateSingleQuotation(quote)
+      return res.status(200).json({ success: true, info: file })
+    } catch(e) {
+      console.log(e)
+      return res.status(500).json({ success: false, msg: '' })
+    }
+  },
+
+  /**
+   * 
+   * @param {*} req 
+   * @param {*} res 
+   * @returns 
+   */
+  generateMultipleQuoatation: async (req, res) => {
+    try {
+      let quotes = await Quotation.find({ quotationId: req.body.ids }).populate('keyPartnerId').exec()
+      let file = await generateMultipleQuoatation(quotes, req.body.id)
       return res.status(200).json({ success: true, info: file })
     } catch(e) {
       console.log(e)
