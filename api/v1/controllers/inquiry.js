@@ -2,7 +2,7 @@ const Inquiry = require('../../../models/Inquiry')
 const generateId = require('../../../utils/id-generator')
 const NotificationCount = require('../../../models/NotificationCount')
 const User = require('../../../models/User')
-const generateInq = require('../../../services/generate-inquiry')
+const { generateSingleInquiry, generateMultipleInquiry } = require('../../../services/generate-inquiry')
 
 module.exports = {
 
@@ -104,18 +104,31 @@ module.exports = {
   },
 
   /**
-   * Generate inquiry form
+   * Generate single inquiry form
    */
-  generateInquiryForm: async (req, res) => {
+  generateSingleInquiryForm: async (req, res) => {
     try {
       let inq = await Inquiry.findOne({ inqId: req.params.id }).populate('keyPartnerId').exec()
-      let inqFile = await generateInq(inq)
+      let inqFile = await generateSingleInquiry(inq)
+      return res.status(200).json({ success: true, info: inqFile })
+    } catch(e) {
+      console.log(e)
+      return res.status(500).json({ success: false, msg: '' })
+    }
+  },
+
+  /**
+   * Generate multiple inquiry form
+   */
+  generateMultipleInquiry: async (req, res) => {
+    try {
+      let inq = await Inquiry.find({ inqId: req.body.ids }).exec()
+      let inqFile = await generateMultipleInquiry(inq, req.body.id)
       return res.status(200).json({ success: true, info: inqFile })
     } catch(e) {
       console.log(e)
       return res.status(500).json({ success: false, msg: '' })
     }
   }
-
 
 }
