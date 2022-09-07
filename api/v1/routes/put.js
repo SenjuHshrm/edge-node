@@ -116,8 +116,8 @@ router
     userCtrl.updateProfile
   )
   .put(
-    '/update-username/:id',
-    passport.authenticate('jwt', { session: false }),
+    "/update-username/:id",
+    passport.authenticate("jwt", { session: false }),
     userCtrl.updateUsername
   )
   .put(
@@ -131,29 +131,34 @@ router
     userCtrl.updateNotifOpenStatus
   )
   .put(
-    '/export/all',
-    passport.authenticate('jwt', { session: false }),
+    "/export/all",
+    passport.authenticate("jwt", { session: false }),
     excelCtrl.generateExcelAllCourier
   )
   .put(
-    '/mark-as-fulfilled',
-    passport.authenticate('jwt', { session: false }),
+    "/mark-as-fulfilled",
+    passport.authenticate("jwt", { session: false }),
     bookingCtrl.markSelectedAsFulfilled
   )
   .put(
-    '/mark-one/fulfilled/:id',
-    passport.authenticate('jwt', { session: false }),
+    "/mark-one/fulfilled/:id",
+    passport.authenticate("jwt", { session: false }),
     bookingCtrl.markOneAsFulfilled
   )
   .put(
-    '/mark-one/unfulfilled/:id',
-    passport.authenticate('jwt', { session: false }),
+    "/mark-one/unfulfilled/:id",
+    passport.authenticate("jwt", { session: false }),
     bookingCtrl.markOneAsUnfulfilled
   )
   .put(
-    '/export-one/:id',
-    passport.authenticate('jwt', { session: false }),
+    "/export-one/:id",
+    passport.authenticate("jwt", { session: false }),
     bookingCtrl.exportOne
+  )
+  .put(
+    "/return/booking/:id",
+    passport.authenticate("jwt", { session: false }),
+    bookingCtrl.returnBooking
   )
   .put(
     '/inquiry/form/selected',
@@ -169,6 +174,6 @@ router
     '/purchase-order/form/selected',
     passport.authenticate('jwt', { session: false }),
     poCtrl.generateMultiplePO
-  )
+  );
 
 module.exports = router;

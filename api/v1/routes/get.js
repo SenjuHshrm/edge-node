@@ -148,34 +148,39 @@ router
     bookingCtrl.getAllBookings
   )
   .get(
-    '/monthly-booking/:start/:end',
+    "/monthly-booking/:start/:end",
     passport.authenticate("jwt", { session: false }),
     bookingCtrl.getMonthlyBooking
   )
   .get(
-    '/monthly-booking/:start/:end/:id',
+    "/monthly-booking/:start/:end/:id",
     passport.authenticate("jwt", { session: false }),
     bookingCtrl.getMonthlyBookingByKeyPartner
   )
   .get(
-    '/notif-count/:id',
+    "/notif-count/:id",
     passport.authenticate("jwt", { session: false }),
     userCtrl.getNotificationCounts
   )
   .get(
-    '/inquiry/form/:id',
+    "/inquiry/form/:id",
     passport.authenticate("jwt", { session: false }),
     inqCtrl.generateSingleInquiryForm
   )
   .get(
-    '/quotation/form/:id',
+    "/quotation/form/:id",
     passport.authenticate("jwt", { session: false }),
     quoteCtrl.generateSingleQuoteFile
   )
   .get(
-    '/purchase-order/form/:id',
+    "/purchase-order/form/:id",
     passport.authenticate("jwt", { session: false }),
     poCtrl.generateSinglePOFile
+  )
+  .get(
+    "/booking/:id",
+    passport.authenticate("jwt", { session: false }),
+    bookingCtrl.getSingleBooking
   )
 
   .get("/refresh/access", authCtrl.refreshToken);
