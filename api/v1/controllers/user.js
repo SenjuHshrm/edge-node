@@ -35,7 +35,7 @@ module.exports = {
             coanda: 0,
             soa: 0,
             quotation: 0,
-            kpInv: 0
+            kpInv: 0,
           }).save();
         } else if (record.accessLvl === 1 || record.accessLvl === 2) {
           new NotificationCount({
@@ -43,10 +43,10 @@ module.exports = {
             inquiry: 0,
             purchaseOrder: 0,
             acctReq: 0,
-            adminInv: 0
+            adminInv: 0,
           }).save();
         }
-        if(req.body.accessLvl === 3) {
+        if (req.body.accessLvl === 3) {
           let admins = await User.find({ accessLvl: [1, 2] }).exec();
           admins.forEach(async admin => {
             await NotificationCount.findOneAndUpdate(
@@ -186,9 +186,11 @@ module.exports = {
           });
         })
         .catch(e => {
+          console.log(e);
           return res.status(500).json({ success: false, msg: "" });
         });
     } catch (e) {
+      console.log(e);
       return res.status(500).json({ success: false, msg: "" });
     }
   },
