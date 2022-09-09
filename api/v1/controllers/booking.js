@@ -73,9 +73,7 @@ module.exports = {
           let bundle = await Bundle.findById(newBooking.itemId).exec();
           bundle.items.map(async item => {
             let inv = await Inventory.findById(item.itemId).exec();
-            inv.currentQty = +inv.currentQty - +item.quantity;
             inv.out = +inv.out + +item.quantity;
-            inv.markModified("currentQty");
             inv.markModified("out");
             inv.save();
           });
@@ -122,7 +120,6 @@ module.exports = {
       let bookings = await Booking.find({
         deletedAt: "",
         keyPartnerId: req.params.id,
-        status: { $ne: "returned" },
       })
         .populate({
           path: "itemId",
@@ -148,7 +145,6 @@ module.exports = {
     try {
       let bookings = await Booking.find({
         deletedAt: "",
-        status: { $ne: "returned" },
       })
         .populate({
           path: "itemId",
@@ -174,6 +170,7 @@ module.exports = {
     try {
       let booking = await Booking.findOne({
         bookingId: req.params.id,
+        status: "fulfilled",
       })
         .populate({
           path: "itemId",
@@ -306,7 +303,7 @@ module.exports = {
    */
   returnBooking: async (req, res) => {
     try {
-      req.body.map(async item => {
+      req.body.items.map(async item => {
         let it = await Inventory.findById(item.itemId).exec();
         await Inventory.findByIdAndUpdate(
           it._id,
@@ -319,7 +316,7 @@ module.exports = {
         ).exec();
       });
       await Booking.findByIdAndUpdate(req.params.id, {
-        status: "returned",
+        remarks: req.body.remarks,
       }).then(booking => {
         return res.status(200).json({ success: true, info: booking });
       });
