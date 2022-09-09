@@ -12,7 +12,7 @@ let inqSchema = new mongoose.Schema({
   inqId: { type: String, required: true },
   keyPartnerId: { type: ObjectId, required: true, ref: 'user' },
   items: [itemSchema],
-  isApproved: { type: Boolean, required: false }
+  isApproved: { type: String, required: false }
 }, { timestamps: true })
 
 let Inquiry = mongoose.model('inquiry', inqSchema)

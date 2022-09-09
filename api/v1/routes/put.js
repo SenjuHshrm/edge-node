@@ -87,7 +87,7 @@ router
     userCtrl.setKeyPartnerCode
   )
   .put(
-    "/set-pending/:id",
+    "/set-status/:id",
     passport.authenticate("jwt", { session: false }),
     quoteCtrl.markAsPending
   )

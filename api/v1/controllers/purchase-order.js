@@ -1,6 +1,7 @@
 const PurchaseOrder = require('../../../models/PurchaseOrder')
 const Quotation = require('../../../models/Quotation')
 const User = require('../../../models/User')
+const Inquiry = require('../../../models/Inquiry')
 const NotificationCount = require('../../../models/NotificationCount')
 const generateId = require('../../../utils/id-generator')
 const { generateSinglePO, generateMultiplePO } = require('../../../services/generate-po')
@@ -19,7 +20,8 @@ module.exports = {
       poFrom: req.body.poFrom,
       items: req.body.items
     }).save().then(async (newPO) => {
-      await Quotation.findOneAndUpdate({ quotationId: newPO.poFrom }, { $set: { status: 'approved' } }).exec()
+      let quote = await Quotation.findOneAndUpdate({ quotationId: newPO.poFrom }, { $set: { status: 'approved' } }, { new: true }).exec()
+      await Inquiry.findOneAndUpdate({ inqId: quote.quoteFrom }, { $set: { isApproved: "true" } }).exec()
       let admins = await User.find({ accessLvl: [1, 2] }).exec()
       admins.forEach(async admin => {
         await NotificationCount.findOneAndUpdate({ userId: admin._id }, { $inc: { purchaseOrder: 1 }}).exec()

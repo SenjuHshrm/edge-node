@@ -16,17 +16,17 @@ module.exports = {
       inqId: inqId,
       keyPartnerId: req.body.keyPartnerId,
       items: req.body.items,
-      isApproved: false
+      isApproved: 'pending'
     }).save().then(async (newInq) => {
       newInq.populate('keyPartnerId')
-      let { inqId, createdAt, items, keyPartnerId: { name, email, company } } = newInq
+      let { inqId, createdAt, items, isApproved, keyPartnerId: { name, email, company } } = newInq
       let admins = await User.find({ accessLvl: [1, 2] }).exec()
       admins.forEach(async admin => {
         await NotificationCount.findOneAndUpdate({ userId: admin._id }, { $inc: { inquiry: 1 } }).exec()
         global.io.emit('new inquiry' , { id: admin._id, info: 1 })
       })
       return res.status(200).json({ succes: true, info: {
-        inqId, createdAt, items, keyPartnerId: { name, email, company }
+        inqId, createdAt, items, isApproved, keyPartnerId: { name, email, company }
       } })
     }).catch(e => {
       console.log(e)
@@ -41,7 +41,7 @@ module.exports = {
     try {
       await Inquiry.findByIdAndUpdate(
         req.params.inqId,
-        { $set: { isApproved: true } }
+        { $set: { isApproved: 'true' } }
       ).exec()
       return res.status(200).json({ success: true, msg: 'OK' })
     } catch(e) {
@@ -57,11 +57,12 @@ module.exports = {
       let response = []
       let inquiries = await Inquiry.find({}).populate('keyPartnerId').sort({ createdAt: -1 }).exec()
       inquiries.forEach(inq => {
-        let { inqId, createdAt, items, keyPartnerId: { _id, name, email, company } } = inq
+        let { inqId, createdAt, items, isApproved, keyPartnerId: { _id, name, email, company } } = inq
         response.push({
           inqId,
           createdAt,
           items,
+          isApproved,
           keyPartnerId: {
             _id,
             name,
@@ -84,11 +85,12 @@ module.exports = {
       let response = []
       let inquiries = await Inquiry.find({ keyPartnerId: req.params.id }).populate('keyPartnerId').sort({ createdAt: -1 }).exec()
       inquiries.forEach(inq => {
-        let { inqId, createdAt, items, keyPartnerId: { name, email, company } } = inq
+        let { inqId, createdAt, items, isApproved, keyPartnerId: { name, email, company } } = inq
         response.push({
           inqId,
           createdAt,
           items,
+          isApproved,
           keyPartnerId: {
             name,
             email,

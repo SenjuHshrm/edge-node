@@ -118,6 +118,11 @@ router
     quoteCtrl.getAllQuotations
   )
   .get(
+    '/quotations/declined',
+    passport.authenticate("jwt", { session: false }),
+    quoteCtrl.getForRequote
+  )
+  .get(
     "/quotations/:id",
     passport.authenticate("jwt", { session: false }),
     quoteCtrl.getOuotationsByKeyPartner
