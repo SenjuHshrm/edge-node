@@ -1,6 +1,7 @@
 const Booking = require('../../../models/Booking')
 const generateFlash = require('../../../services/generate-flash')
 const generateJNT = require('../../../services/generate-jnt')
+const jwt = require('jsonwebtoken')
 
 module.exports = {
   /**
@@ -8,11 +9,12 @@ module.exports = {
    */
   generateExcelAllCourier: async (req, res) => {
     try {
+      let token = jwt.decode(req.headers.authorization.split(' ')[1])
       let booking = await Booking.find({ _id: req.body.ids }).populate({ path: 'itemId', populate: { path: 'classification' } }).populate('bundleId').exec()
       let flash = booking.filter((x) => { return x.courier === 'flash' })
       let jnt = booking.filter((x) => { return x.courier === 'jnt' })
-      let flashExcel = (flash.length > 0) ? await generateFlash(flash) : null;
-      let jntExcel = (jnt.length > 0) ? await generateJNT(jnt) : null;
+      let flashExcel = (flash.length > 0) ? await generateFlash(flash, token.sub) : null;
+      let jntExcel = (jnt.length > 0) ? await generateJNT(jnt, token.sub) : null;
       return res.status(200).json({ success: true, info: [flashExcel, jntExcel] })
     } catch(e) {
       console.log(e)

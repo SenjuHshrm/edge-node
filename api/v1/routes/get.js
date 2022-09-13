@@ -187,7 +187,16 @@ router
     passport.authenticate("jwt", { session: false }),
     bookingCtrl.getSingleBooking
   )
-
+  .get(
+    '/inventory/form/all',
+    passport.authenticate('jwt', { session: false }),
+    invCtrl.exportInventory
+  )
+  .get(
+    '/inventory/form/:id',
+    passport.authenticate('jwt', { session: false }),
+    invCtrl.exportInventoryByKeyPartner
+  )
   .get("/refresh/access", authCtrl.refreshToken);
 
 module.exports = router;

@@ -37,7 +37,8 @@ module.exports = {
             break;
           case 'jnt':
             let province = req.params.province.replace(' ', '-')
-            paramCity = req.params.city.replace(' ', '-')
+            paramCity = req.params.city.replace(/[ *]/g, '-')
+            console.log(paramCity)
             locations.splice((locations.length - 1), 1)
             selectedProvince = locations.filter((x) => { return province.match(x.split(',')[4].toUpperCase()) })
             selectedCity = selectedProvince.filter((x) => { return x.split(',')[5].toUpperCase().match(paramCity.trim()) })

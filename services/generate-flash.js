@@ -3,9 +3,9 @@ const File = require('../models/File')
 const moment = require('moment')
 const fs = require('fs')
 
-module.exports = (booking) => {
+module.exports = (booking, id) => {
   let workbook = new Excel.Workbook()
-  let filename = `flash-export-${moment().format('MMDDYYYY')}.xlsx`
+  let filename = `flash-export-${moment().format('MMDDYYYY')}-${id}.xlsx`
   return workbook.xlsx.readFile('./templates/flash.xlsx')
     .then(async () => {
       let worksheet = workbook.getWorksheet(1)

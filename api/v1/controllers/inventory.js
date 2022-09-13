@@ -1,5 +1,6 @@
 const Inventory = require("../../../models/Inventory");
 const Classification = require("../../../models/Classification");
+const generateInv = require('../../../services/generate-inventory')
 
 module.exports = {
   /**
@@ -203,11 +204,7 @@ module.exports = {
           out: req.body.out,
           rts: req.body.rts,
           defective: req.body.defective,
-          currentQty:
-            parseFloat(req.body.in) -
-            (parseFloat(req.body.out) +
-              parseFloat(req.body.rts) +
-              parseFloat(req.body.defective)),
+          currentQty: +req.body.in - (+req.body.out + +req.body.rts + +req.body.defective),
           price: req.body.price,
         },
         { new: true }
@@ -269,4 +266,32 @@ module.exports = {
       });
     }
   },
+
+  /**
+   * 
+   */
+  exportInventory: async (req, res) => {
+    try {
+      let inv = await Inventory.find({}).populate('classification').populate('classification').populate('code').populate('color').populate('size').exec()
+      let file = await generateInv(inv, req.params.id)
+      return res.status(200).json({ success: true, info: file })
+    } catch(e) {
+      console.log(e)
+      return res.staus(500).json({ success: false, msg: '' })
+    }
+  },
+
+  /**
+   * 
+   */
+  exportInventoryByKeyPartner: async (req, res) => {
+    try {
+      let inv = await Inventory.find({ keyPartnerId: req.params.id }).populate('classification').populate('code').populate('color').populate('size').exec()
+      let file = await generateInv(inv, req.params.id)
+      return res.status(200).json({ success: true, info: file })
+    } catch(e) {
+      console.log(e)
+      return res.staus(500).json({ success: false, msg: '' })
+    }
+  }
 };

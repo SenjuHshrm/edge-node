@@ -7,6 +7,7 @@ const generateId = require("../../../utils/id-generator");
 const moment = require("moment");
 const generateFlash = require("../../../services/generate-flash");
 const generateJnt = require("../../../services/generate-jnt");
+let jwt = require('jsonwebtoken')
 
 module.exports = {
   /**
@@ -284,14 +285,15 @@ module.exports = {
    */
   exportOne: async (req, res) => {
     try {
+      let token = jwt.decode(req.headers.authorization.split(' ')[1])
       let booking = await Booking.find({ _id: req.params.id })
         .populate({ path: "itemId", populate: { path: "classification" } })
         .populate("bundleId")
         .exec();
       let file =
         booking[0].courier === "flash"
-          ? await generateFlash(booking)
-          : await generateJnt(booking);
+          ? await generateFlash(booking, token.sub)
+          : await generateJnt(booking, token.sub);
       return res.status(200).json({ success: true, info: file });
     } catch (e) {
       console.log(e);
