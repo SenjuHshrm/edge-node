@@ -4,6 +4,7 @@ const User = require('../../../models/User')
 const Inquiry = require('../../../models/Inquiry')
 const NotificationCount = require('../../../models/NotificationCount')
 const generateId = require('../../../utils/id-generator')
+const moment = require('moment')
 const { generateSinglePO, generateMultiplePO } = require('../../../services/generate-po')
 
 module.exports = {
@@ -72,6 +73,29 @@ module.exports = {
     } catch(e) {
       console.log(e)
       return res.status(500).json({ success: false, msg: '' })
+    }
+  },
+
+  /**
+   * 
+   */
+   getMonthlyPurchaseOrder: async (req, res) => {
+    try {
+      let response = [];
+      for (let i = 0; i < moment().daysInMonth(); i++) {
+        response.push(0);
+      }
+      let bookings = await PurchaseOrder.find({
+        createdAt: { $gte: req.params.start, $lte: req.params.end },
+      }).exec();
+      for (let i = 0; i < bookings.length; i++) {
+        let j = moment(bookings[i].createdAt).format("DD");
+        response[parseInt(j) - 1] += 1;
+      }
+      return res.status(200).json({ succes: true, info: response });
+    } catch (e) {
+      console.log(e);
+      return res.status(500).json({ success: false, msg: "" });
     }
   }
 }

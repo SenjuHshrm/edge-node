@@ -197,6 +197,16 @@ router
     passport.authenticate('jwt', { session: false }),
     invCtrl.exportInventoryByKeyPartner
   )
+  .get(
+    '/monthly-quotation/:start/:end',
+    passport.authenticate('jwt', { session: false }),
+    quoteCtrl.getMonthlyQuotation
+  )
+  .get(
+    '/monthly-po/:start/:end',
+    passport.authenticate('jwt', { session: false }),
+    poCtrl.getMonthlyPurchaseOrder
+  )
   .get("/refresh/access", authCtrl.refreshToken);
 
 module.exports = router;

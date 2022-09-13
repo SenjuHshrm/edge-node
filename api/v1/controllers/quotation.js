@@ -3,6 +3,7 @@ const Inquiry = require('../../../models/Inquiry')
 const User = require('../../../models/User')
 const NotificationCount = require('../../../models/NotificationCount')
 const generateId = require('../../../utils/id-generator')
+const moment = require('moment')
 const { generateSingleQuotation, generateMultipleQuoatation } = require('../../../services/generate-quotation')
 
 module.exports = {
@@ -127,6 +128,27 @@ module.exports = {
       let quotes = await Quotation.find({ quotationId: req.body.ids }).lean().populate('keyPartnerId', '_id name company contact addr').exec()
       let file = await generateMultipleQuoatation(quotes, req.body.id)
       return res.status(200).json({ success: true, info: file })
+    } catch(e) {
+      console.log(e)
+      return res.status(500).json({ success: false, msg: '' })
+    }
+  },
+
+  /**
+   * 
+   */
+  getMonthlyQuotation: async (req, res) => {
+    try {
+      let response = []
+      for (let i = 0; i < moment().daysInMonth(); i++) {
+        response.push(0)
+      }
+      let quotes = await Quotation.find({ createdAt: { $gte: req.params.start, $lte: req.params.end } }).exec()
+      for(let i = 0; i < quotes.length; i++) {
+        let j = moment(quotes[i].createdAt).format('DD')
+        response[parseInt(j) - 1] += 1
+      }
+      return res.status(200).json({ success: true, info: response })
     } catch(e) {
       console.log(e)
       return res.status(500).json({ success: false, msg: '' })
