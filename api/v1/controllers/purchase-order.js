@@ -39,7 +39,7 @@ module.exports = {
    */
   getAllPurchaseOrder: async (req, res) => {
     try {
-      let po = await PurchaseOrder.find({}).populate('keyPartnerId', { password: 0, refreshToken: 0, updatedAt: 0, createdAt: 0 }).sort({ createdAt: -1 }).exec()
+      let po = await PurchaseOrder.find({}).lean().populate('keyPartnerId', '_id name company contact addr').sort({ createdAt: -1 }).exec()
       return res.status(200).json({ success: true, info: po })
     } catch(e) {
       console.log(e)
@@ -52,7 +52,7 @@ module.exports = {
    */
   generateSinglePOFile: async (req, res) => {
     try {
-      let po = await PurchaseOrder.findOne({ poId: req.params.id }).populate('keyPartnerId').exec()
+      let po = await PurchaseOrder.findOne({ poId: req.params.id }).lean().populate('keyPartnerId', '_id name company contact addr').exec()
       let poFile = await generateSinglePO(po)
       return res.status(200).json({ success: true, info: poFile })
     } catch(e) {
@@ -66,7 +66,7 @@ module.exports = {
    */
   generateMultiplePO: async (req, res) => {
     try {
-      let pos = await PurchaseOrder.find({ poId: req.body.ids }).populate('keyPartnerId').exec()
+      let pos = await PurchaseOrder.find({ poId: req.body.ids }).lean().populate('keyPartnerId', '_id name company contact addr').exec()
       let poFile = await generateMultiplePO(pos, req.body.id)
       return res.status(200).json({ success: true, info: poFile })
     } catch(e) {

@@ -51,7 +51,7 @@ module.exports = {
           admins.forEach(async admin => {
             await NotificationCount.findOneAndUpdate(
               { userId: admin._id },
-              { $inc: { "acctReq.count": 1 } }
+              { $inc: { acctReq: 1 } }
             ).exec();
             global.io.emit("new account request", { id: admin._id, info: 1 });
           });

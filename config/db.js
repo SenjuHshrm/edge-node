@@ -19,6 +19,7 @@ module.exports = () => {
             company: 'Super Admin',
             accessLvl: 0,
             isActivated: true,
+            isApproved: 'true'
           })
           usr.savePassword(process.env.SU_PASSWORD)
           usr.setImg('', process.env.SU_USERNAME)

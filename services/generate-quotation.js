@@ -24,15 +24,15 @@ const generate = async (quote, workbook, filename) => {
   worksheet.getCell('E9').value = quote.keyPartnerId.name
   worksheet.getCell('E10').value = quote.keyPartnerId.company
   worksheet.getCell('E11').value = quote.keyPartnerId.addr
-  worksheet.getCell('E12').value = quote.keyPartnerId.contact
+  worksheet.getCell('E12').value = quote.keyPartnerId.contact.toString()
   worksheet.getCell('D15').value = quote.quotationId
   worksheet.getCell('I15').value = moment(quote.createdAt).format('MM/DD/YYYY')
   worksheet.getCell('I16').value = moment(quote.validUntil).format('MM/DD/YYYY')
-  worksheet.getCell('I20').value = totalPrice(quote.items)
-  worksheet.getCell('I23').value = totalPrice(quote.items)
-  worksheet.getCell('G34').value = quote.keyPartnerId.name
-  worksheet.getCell('I28').value = moment().format('MM/DD/YYYY')
-  worksheet.getCell('I34').value = moment().format('MM/DD/YYYY')
+  worksheet.getCell('I22').value = totalPrice(quote.items)
+  worksheet.getCell('I25').value = totalPrice(quote.items)
+  worksheet.getCell('G36').value = quote.keyPartnerId.name
+  worksheet.getCell('I30').value = moment().format('MM/DD/YYYY')
+  worksheet.getCell('I36').value = moment().format('MM/DD/YYYY')
 
   let imgId = workbook.addImage({
     filename: './media/signature.png',
@@ -40,41 +40,45 @@ const generate = async (quote, workbook, filename) => {
 
   })
   worksheet.addImage(imgId, {
-    tl: { col: 7.5, row: 25 },
-    br: { col: 8.6, row: 27 },
+    tl: { col: 7.5, row: 27 + (quote.items.length - 1) },
+    br: { col: 8.6, row: 29 + (quote.items.length - 1) },
     editAs: 'oneCell'
   })
 
   for(let i = 0; i < quote.items.length; i++) {
     let row = []
-    row[3] = i + 1
-    row[4] = quote.items[i].description
-    row[6] = +quote.items[i].price
-    row[7] = +quote.items[i].quantity
-    row[8] = +(+quote.items[i].price * 0.15).toFixed(2)
-    row[9] = +quote.items[i].totalPrice
-    worksheet.insertRow(19 + i, row)
+    
+    worksheet.insertRow(20 + i, row, '')
 
-    worksheet.mergeCells(`D${19 + i}:E${19 + i}`)
-    worksheet.getCell(`D${19 + i}`).alignment = centerAlign
-    worksheet.getCell(`F${19 + i}`).alignment = centerAlign
-    worksheet.getCell(`G${19 + i}`).alignment = centerAlign
-    worksheet.getCell(`H${19 + i}`).alignment = centerAlign
-    worksheet.getCell(`I${19 + i}`).alignment = centerAlign
+    // worksheet.mergeCells(`D${20 + i}:E${20 + i}`)
+    
+    worksheet.getCell(`I${20 + i}`).font = { color: { argb: '00FFFFFF' } }
 
-    worksheet.getCell(`C${19 + i}`).fill = defGrayFill
-    worksheet.getCell(`D${19 + i}`).fill = defGrayFill
-    worksheet.getCell(`E${19 + i}`).fill = defGrayFill
-    worksheet.getCell(`F${19 + i}`).fill = defGrayFill
-    worksheet.getCell(`G${19 + i}`).fill = defGrayFill
-    worksheet.getCell(`H${19 + i}`).fill = defGrayFill
-    worksheet.getCell(`I${19 + i}`).fill = defDarkGrayFill
-    worksheet.getCell(`K${19 + i}`).border = defRightBorder
+    worksheet.getCell(`D${20 + i}`).alignment = centerAlign
+    worksheet.getCell(`F${20 + i}`).alignment = centerAlign
+    worksheet.getCell(`G${20 + i}`).alignment = centerAlign
+    worksheet.getCell(`H${20 + i}`).alignment = centerAlign
+    worksheet.getCell(`I${20 + i}`).alignment = centerAlign
 
-    worksheet.getCell(`F${19 + i}`).numFmt = '₱ #,##0.00'
-    worksheet.getCell(`H${19 + i}`).numFmt = '₱ #,##0.00'
-    worksheet.getCell(`I${19 + i}`).numFmt = '₱ #,##0.00'
-    worksheet.getCell(`I${19 + i}`).font = { color: { argb: '00FFFFFF' } }
+    worksheet.getCell(`C${20 + i}`).fill = defGrayFill
+    worksheet.getCell(`D${20 + i}`).fill = defGrayFill
+    worksheet.getCell(`E${20 + i}`).fill = defGrayFill
+    worksheet.getCell(`F${20 + i}`).fill = defGrayFill
+    worksheet.getCell(`G${20 + i}`).fill = defGrayFill
+    worksheet.getCell(`H${20 + i}`).fill = defGrayFill
+    worksheet.getCell(`I${20 + i}`).fill = defDarkGrayFill
+    worksheet.getCell(`K${20 + i}`).border = defRightBorder
+
+    worksheet.getCell(`C${20 + i}`).value = i + 1
+    worksheet.getCell(`D${20 + i}`).value = quote.items[i].description
+    worksheet.getCell(`F${20 + i}`).value = +quote.items[i].price
+    worksheet.getCell(`G${20 + i}`).value = +quote.items[i].quantity
+    worksheet.getCell(`H${20 + i}`).value = +quote.items[i].price * 0.15
+    worksheet.getCell(`I${20 + i}`).value = +quote.items[i].totalPrice
+
+    worksheet.getCell(`F${20 + i}`).numFmt = '₱ #,##0.00'
+    worksheet.getCell(`H${20 + i}`).numFmt = '₱ #,##0.00'
+    worksheet.getCell(`I${20 + i}`).numFmt = '₱ #,##0.00'
   }
 
   await workbook.xlsx.writeFile(`./temp/${filename}`)

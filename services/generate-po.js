@@ -39,8 +39,8 @@ const generate = async (po, workbook, filename) => {
 
   })
   worksheet.addImage(imgId, {
-    tl: { col: 7.5, row: 29 },
-    br: { col: 8.6, row: 32 },
+    tl: { col: 7.5, row: 28 + po.items.length },
+    br: { col: 8.6, row: 31 + po.items.length },
     editAs: 'oneCell'
   })
 
@@ -54,7 +54,7 @@ const generate = async (po, workbook, filename) => {
     row[9] = +po.items[i].totalPrice
     worksheet.insertRow(18 + i, row)
 
-    worksheet.mergeCells(`D${18 + i}:E${18 + i}`)
+    // worksheet.mergeCells(`D${18 + i}:E${18 + i}`)
     worksheet.getCell(`D${18 + i}`).alignment = centerAlign
     worksheet.getCell(`F${18 + i}`).alignment = centerAlign
     worksheet.getCell(`G${18 + i}`).alignment = centerAlign
@@ -70,8 +70,8 @@ const generate = async (po, workbook, filename) => {
     worksheet.getCell(`I${18 + i}`).fill = defOrangeFill
     worksheet.getCell(`K${18 + i}`).border = defRightBorder
 
-    worksheet.getCell(`H${18 + i}`).numFmt = '₱ #,##0.00'
-    worksheet.getCell(`I${18 + i}`).numFmt = '₱ #,##0.00'
+    worksheet.getCell(`H${18 + i}`).numFmt = '₱#,##0.00'
+    worksheet.getCell(`I${18 + i}`).numFmt = '₱#,##0.00'
   }
 
   await workbook.xlsx.writeFile(`./temp/${filename}`)

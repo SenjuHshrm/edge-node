@@ -57,7 +57,7 @@ module.exports = {
       let response = []
       let inquiries = await Inquiry.find({}).populate('keyPartnerId').sort({ createdAt: -1 }).exec()
       inquiries.forEach(inq => {
-        let { inqId, createdAt, items, isApproved, keyPartnerId: { _id, name, email, company } } = inq
+        let { inqId, createdAt, items, isApproved, keyPartnerId: { _id, name, email, company, addr } } = inq
         response.push({
           inqId,
           createdAt,
@@ -67,7 +67,8 @@ module.exports = {
             _id,
             name,
             email,
-            company
+            company,
+            addr
           }
         })
       })
@@ -85,7 +86,7 @@ module.exports = {
       let response = []
       let inquiries = await Inquiry.find({ keyPartnerId: req.params.id }).populate('keyPartnerId').sort({ createdAt: -1 }).exec()
       inquiries.forEach(inq => {
-        let { inqId, createdAt, items, isApproved, keyPartnerId: { name, email, company } } = inq
+        let { inqId, createdAt, items, isApproved, keyPartnerId: { name, email, company, addr } } = inq
         response.push({
           inqId,
           createdAt,
@@ -94,7 +95,8 @@ module.exports = {
           keyPartnerId: {
             name,
             email,
-            company
+            company,
+            addr
           }
         })
       })

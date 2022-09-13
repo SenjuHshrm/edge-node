@@ -52,7 +52,7 @@ module.exports = {
    */
   getAllQuotations: async (req, res) => {
     try {
-      let quotes = await Quotation.find({}).lean().populate('keyPartnerId', '_id name company contact').sort({ createdAt: -1 }).exec()
+      let quotes = await Quotation.find({}).lean().populate('keyPartnerId', '_id name company contact addr').sort({ createdAt: -1 }).exec()
       return res.status(200).json({ success: true, info: quotes })
     } catch(e) {
       return res.status(500).json({ success: false, msg: '' })
@@ -64,7 +64,7 @@ module.exports = {
       let resp = []
       let quotes = await Quotation.find({ status: 'declined' }).sort({ createdAt: -1 }).exec()
       for(let i = 0; i < quotes.length; i++) {
-        let inq = await Inquiry.findOne({ inqId: quotes[i].quoteFrom }).lean().populate('keyPartnerId', '_id name company contact').exec()
+        let inq = await Inquiry.findOne({ inqId: quotes[i].quoteFrom }).lean().populate('keyPartnerId', '_id name company contact addr').exec()
         resp.push(inq)
       }
       return res.status(200).json({ success: true, info: resp })
@@ -79,7 +79,7 @@ module.exports = {
    */
   getOuotationsByKeyPartner: async (req, res) => {
     try {
-      let quotes = await Quotation.find({ keyPartnerId: req.params.id, status: ['none', 'pending'] }).lean().populate('keyPartnerId', '_id name company contact').sort({ createdAt: -1 }).exec()
+      let quotes = await Quotation.find({ keyPartnerId: req.params.id }).lean().populate('keyPartnerId', '_id name company contact addr').sort({ createdAt: -1 }).exec()
       return res.status(200).json({ success: true, info: quotes })
     } catch(e) {
       return res.status(500).json({ success: false, msg: '' })
@@ -107,7 +107,7 @@ module.exports = {
    */
   generateSingleQuoteFile: async (req, res) => {
     try {
-      let quote = await Quotation.findOne({ quotationId: req.params.id }).lean().populate('keyPartnerId', '_id name company contact').exec()
+      let quote = await Quotation.findOne({ quotationId: req.params.id }).lean().populate('keyPartnerId', '_id name company contact addr').exec()
       let file = await generateSingleQuotation(quote)
       return res.status(200).json({ success: true, info: file })
     } catch(e) {
@@ -124,7 +124,7 @@ module.exports = {
    */
   generateMultipleQuoatation: async (req, res) => {
     try {
-      let quotes = await Quotation.find({ quotationId: req.body.ids }).lean().populate('keyPartnerId', '_id name company contact').exec()
+      let quotes = await Quotation.find({ quotationId: req.body.ids }).lean().populate('keyPartnerId', '_id name company contact addr').exec()
       let file = await generateMultipleQuoatation(quotes, req.body.id)
       return res.status(200).json({ success: true, info: file })
     } catch(e) {

@@ -20,6 +20,7 @@ exports.sendPassword = async (email, password, secPass) => {
     let html = template(replacements)
     let msg = {
       from: process.env.SU_EMAIL,
+      // cc: process.env.SU_BUSINESS_EMAIL,
       to: email,
       subject: 'Account verification',
       html: html
