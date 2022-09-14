@@ -174,6 +174,11 @@ router
     '/purchase-order/form/selected',
     passport.authenticate('jwt', { session: false }),
     poCtrl.generateMultiplePO
-  );
+  )
+  .put(
+    '/purchase-order/set-seen/:id',
+    passport.authenticate('jwt', { session: false }),
+    poCtrl.setPOAsSeen
+  )
 
 module.exports = router;

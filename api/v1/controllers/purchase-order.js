@@ -19,7 +19,8 @@ module.exports = {
       poId: poId,
       keyPartnerId: req.body.keyPartnerId,
       poFrom: req.body.poFrom,
-      items: req.body.items
+      items: req.body.items,
+      seenBy: []
     }).save().then(async (newPO) => {
       let quote = await Quotation.findOneAndUpdate({ quotationId: newPO.poFrom }, { $set: { status: 'approved' } }, { new: true }).exec()
       await Inquiry.findOneAndUpdate({ inqId: quote.quoteFrom }, { $set: { isApproved: "true" } }).exec()
@@ -96,6 +97,18 @@ module.exports = {
     } catch (e) {
       console.log(e);
       return res.status(500).json({ success: false, msg: "" });
+    }
+  },
+
+  /**
+   * 
+   */
+  setPOAsSeen: async (req, res) => {
+    try {
+      await PurchaseOrder.findByIdAndUpdate(req.params.id, { $push: { seenBy: req.body.id } }).exec()
+      return res.status(200).json({ success: true, info: req.body.id })
+    } catch(e) {
+      return res.status(500).json({ success: false, msg: '' })
     }
   }
 }

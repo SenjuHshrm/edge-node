@@ -15,6 +15,7 @@ let poSchema = new mongoose.Schema(
     keyPartnerId: { type: ObjectId, ref: "user" },
     poFrom: { type: String, required: true },
     items: [itemSchema],
+    seenBy: { type: [String] }
   },
   { timestamps: true }
 );
