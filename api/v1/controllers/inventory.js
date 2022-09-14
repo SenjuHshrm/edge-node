@@ -44,6 +44,7 @@ module.exports = {
           in: req.body.quantity,
           currentQty: req.body.quantity,
           price: req.body.price,
+          criticalBalance: req.body.criticalBalance
         })
           .save()
           .then(async inventory => {
@@ -206,6 +207,7 @@ module.exports = {
           defective: req.body.defective,
           currentQty: +req.body.in - (+req.body.out + +req.body.rts + +req.body.defective),
           price: req.body.price,
+          criticalBalance: req.body.criticalBalance
         },
         { new: true }
       ).exec();

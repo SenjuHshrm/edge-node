@@ -16,6 +16,7 @@ let inventorySchema = new mongoose.Schema(
     rts: { type: String, default: "0" },
     currentQty: { type: String, required: true },
     price: { type: String, required: true },
+    criticalBalance: { type: String, required: true },
     status: { type: String, default: "moving" },
     deletedAt: { type: String, default: "" },
   },
