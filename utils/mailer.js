@@ -30,3 +30,19 @@ exports.sendPassword = async (email, password, secPass) => {
     console.log(e)
   }
 }
+
+exports.sendRejectAcct = async (email) => {
+  try {
+    let file = fs.readFileSync(`${global.appRoot}/view/reject-acct-request.html`, { encoding: 'utf-8' })
+    let msg = {
+      from: process.env.SU_EMAIL,
+      // cc: process.env.SU_BUSINESS_EMAIL,
+      to: email,
+      subject: 'Account verification',
+      html: file
+    }
+    await transporter.sendMail(msg)
+  } catch(e) {
+    console.log(e)
+  }
+}

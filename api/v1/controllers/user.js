@@ -1,6 +1,7 @@
 const User = require("../../../models/User");
 const sendCred = require("../../../utils/mailer").sendPassword;
 const NotificationCount = require("../../../models/NotificationCount");
+const { sendRejectAcct } = require('../../../utils/mailer')
 
 module.exports = {
   /**
@@ -241,7 +242,16 @@ module.exports = {
   /**
    * Reject key partner account request
    */
-  rejectAcctReq: async (req, res) => {},
+  rejectAcctReq: async (req, res) => {
+    try {
+      await User.findByIdAndDelete(req.params.id).exec()
+      sendRejectAcct(req.params.email)
+      return res.status(200).json({ success: true, info: req.params.id })
+    } catch(e) {
+      console.log(e)
+      return res.status(500).json({ success: false, msg: '' })
+    }
+  },
 
   /**
    * Activate registered key partner's account

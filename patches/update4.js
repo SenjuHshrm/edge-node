@@ -1,11 +1,12 @@
-const Contract = require('../models/Contract')
+const Inventory  = require('../models/Inventory')
+const PurchaseOrder = require('../models/PurchaseOrder')
 const mongoose = require('mongoose')
 
 mongoose.connect('mongodb://localhost:27017/edge-commerce')
 mongoose.connection
   .on('open', async () => {
     try {
-      await Contract.updateMany({ $set: { isSeen: false } }).exec()
+      await PurchaseOrder.updateMany({ $set: { seenBy: [] } }).exec()
     } catch(e) {
       console.log(e)
     } finally {

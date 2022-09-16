@@ -11,7 +11,8 @@ const {
   quoteCtrl,
   excelCtrl,
   bookingCtrl,
-  poCtrl
+  poCtrl,
+  contractCtrl
 } = require("../controllers");
 const path = require("path");
 const multer = require("multer");
@@ -179,6 +180,11 @@ router
     '/purchase-order/set-seen/:id',
     passport.authenticate('jwt', { session: false }),
     poCtrl.setPOAsSeen
+  )
+  .put(
+    '/contract/set-seen/:id',
+    passport.authenticate('jwt', { session: false }),
+    contractCtrl.markAsSeen
   )
 
 module.exports = router;

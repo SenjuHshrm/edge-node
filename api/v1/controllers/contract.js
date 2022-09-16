@@ -57,6 +57,18 @@ module.exports = {
     } catch(e) {
       return res.status(500).json({ success: false, msg: '' })
     }
+  },
+
+  /**
+   * 
+   */
+  markAsSeen: async (req, res) => {
+    try {
+      await Contract.findByIdAndUpdate(req.params.id, { $set: { isSeen: true } }).exec()
+      return res.status(200).json({ success: true, info: req.params.id })
+    } catch(e) {
+
+    }
   }
 
 

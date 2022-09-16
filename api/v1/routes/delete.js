@@ -40,6 +40,11 @@ router
     "/delete-kp/:id",
     passport.authenticate("jwt", { session: false }),
     userCtrl.deleteKeyPartners
-  );
+  )
+  .delete(
+    '/acct-request/reject/:id/:email',
+    passport.authenticate('jwt', { session: false }),
+    userCtrl.rejectAcctReq
+  )
 
 module.exports = router;
