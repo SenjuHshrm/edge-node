@@ -27,6 +27,16 @@ const contStorage = multer.diskStorage({
 });
 const uploadCont = multer({ dest: "/uploads/contract", storage: contStorage });
 
+const bookingStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(global.appRoot, "/uploads/booking"));
+  },
+  filename: (req, file, cb) => {
+    cb(null, req.body.filename);
+  },
+})
+const uploadBooking = multer({ dest: '/uploads/booking', storage: bookingStorage })
+
 const dpStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, path.join(global.appRoot, "/uploads/profile"));
@@ -92,6 +102,12 @@ router
     passport.authenticate("jwt", { session: false }),
     dpUpload.single("image"),
     userCtrl.updateProfileImage
-  );
+  )
+  .post(
+    '/booking/upload-custom',
+    passport.authenticate('jwt', { session: false }),
+    uploadBooking.single('file'),
+    bookingCtrl.uploadBooking
+  )
 
 module.exports = router;
