@@ -32,6 +32,11 @@ app
   .use(express.static(path.join(__dirname, 'uploads')))
   .use(express.static(path.join(__dirname, 'app')))
   .use(express.static(path.join(__dirname, 'temp')))
+  .use((req, res, next) => {
+    res.setHeader('X-Frame-Options', 'DENY')
+    res.setHeader('Content-Security-Policy', "frame-ancestors 'none'")
+    next()
+  })
 
 
 global.appRoot = path.resolve(__dirname)

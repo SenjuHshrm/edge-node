@@ -207,6 +207,7 @@ router
     passport.authenticate('jwt', { session: false }),
     poCtrl.getMonthlyPurchaseOrder
   )
+  .get('/check/password-reset/:token', authCtrl.checkPasswordResetToken)
   .get("/refresh/access", authCtrl.refreshToken);
 
 module.exports = router;

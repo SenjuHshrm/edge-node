@@ -46,3 +46,23 @@ exports.sendRejectAcct = async (email) => {
     console.log(e)
   }
 }
+
+exports.sendPasswordReset = async (email, token) => {
+  try {
+    let file = fs.readFileSync(`${global.appRoot}/view/request-password-reset.html`, { encoding: 'utf-8' })
+    let template = handlebars.compile(file)
+    let replacements = {
+      link: `${process.env.HOST}/auth/reset-password/${token}`
+    }
+    let html = template(replacements)
+    let msg = {
+      from: process.env.SU_EMAIL,
+      to: email,
+      subject: 'Account password reset',
+      html: html
+    }
+    await transporter.sendMail(msg)
+  } catch(e) {
+    console.log(e)
+  }
+}

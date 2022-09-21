@@ -12,7 +12,8 @@ const {
   excelCtrl,
   bookingCtrl,
   poCtrl,
-  contractCtrl
+  contractCtrl,
+  authCtrl
 } = require("../controllers");
 const path = require("path");
 const multer = require("multer");
@@ -185,6 +186,10 @@ router
     '/contract/set-seen/:id',
     passport.authenticate('jwt', { session: false }),
     contractCtrl.markAsSeen
+  )
+  .put(
+    '/reset-password/:id',
+    authCtrl.resetPassword
   )
 
 module.exports = router;

@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken')
 const passport = require('passport')
 const User = require('../../../models/User')
+const { sendPasswordReset } = require('../../../utils/mailer')
 
 module.exports = {
   /**
@@ -59,6 +60,52 @@ module.exports = {
         console.log(e)
         return res.status(500).json({ success: false, msg: '' })
       })
+  },
+
+  /**
+   * 
+   */
+  requestAuthPasswordReset: async (req, res) => {
+    try {
+      let user = await User.findOne({ email: req.body.email }).exec()
+      if(!user) {
+        return res.status(404).json({ success: false, msg: 'Email not registered' })
+      }
+      let resetToken = user.requestPasswordReset()
+      sendPasswordReset(req.body.email, resetToken)
+      return res.sendStatus(204)
+    } catch(e) {
+      console.log(e)
+      return res.status(500).json({ success: false, msg: '' })
+    }
+  },
+
+  /**
+   * 
+   */
+  checkPasswordResetToken: (req, res) => {
+    jwt.verify(req.params.token, process.env.JWT_SECRET, (error, decode) => {
+      if(error) {
+        return res.status(403).json({ success: false, msg: error.message })
+      }
+      return res.sendStatus(204)
+    })
+  },
+
+  /**
+   * 
+   */
+  resetPassword: async (req, res) => {
+    try {
+      let user = await User.findById(req.params.id).exec()
+      user.savePassword(req.body.password)
+      user.markModified('password')
+      user.save()
+      return res.sendStatus(204)
+    } catch(e) {
+      console.log(e)
+      return res.status(500).json({ success: false, msg: '' })
+    }
   },
 
 

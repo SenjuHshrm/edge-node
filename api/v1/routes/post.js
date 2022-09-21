@@ -109,5 +109,9 @@ router
     uploadBooking.single('file'),
     bookingCtrl.uploadBooking
   )
+  .post(
+    '/request/password-reset',
+    authCtrl.requestAuthPasswordReset
+  )
 
 module.exports = router;

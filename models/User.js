@@ -90,6 +90,10 @@ userSchema.methods.userProfile = function () {
   };
 };
 
+userSchema.methods.requestPasswordReset = function() {
+  return jwt.sign({ sub: this._id, purpose: 'password-reset' }, process.env.JWT_SECRET, { algorithm: 'HS256', expiresIn: '48h' })
+}
+
 userSchema.plugin(uniqueValidator, { message: "Username already registered" });
 
 const User = mongoose.model("user", userSchema);
