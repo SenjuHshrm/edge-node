@@ -82,7 +82,7 @@ userSchema.methods.setImg = function (img, username) {
 userSchema.methods.userProfile = function () {
   return {
     username: this.username,
-    name: nameBuilder(this),
+    name: this.name,
     gender: this.gender,
     bday: this.bday,
     addr: this.addr,
