@@ -8,6 +8,7 @@ const {
   custCtrl,
   invCtrl,
   bundleCtrl,
+  bookingCtrl,
 } = require("../controllers");
 
 router
@@ -45,6 +46,11 @@ router
     '/acct-request/reject/:id/:email',
     passport.authenticate('jwt', { session: false }),
     userCtrl.rejectAcctReq
+  )
+  .delete(
+    '/booking/remove/:id',
+    passport.authenticate('jwt', { session: false }),
+    bookingCtrl.deleteBooking
   )
 
 module.exports = router;

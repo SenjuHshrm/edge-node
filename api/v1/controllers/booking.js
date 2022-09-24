@@ -76,13 +76,36 @@ module.exports = {
           let bundle = await Bundle.findById(newBooking.itemId).exec();
           bundle.items.map(async item => {
             let inv = await Inventory.findById(item.itemId).exec();
+            inv.currentQty = +inv.currentQty - +item.quantity
             inv.out = +inv.out + +item.quantity;
             inv.markModified("out");
             inv.save();
+            if (+inv.currentQty <= +inv.criticalBalance) {
+              let admins = await User.find({ accessLvl: [1, 2] }).exec();
+              admins.forEach(async admin => {
+                await NotificationCount.findOneAndUpdate(
+                  { userId: admin._id },
+                  { $inc: { adminInv: 1 } }
+                ).exec();
+                global.io.emit("admin inventory warning", {
+                  id: admin._id,
+                  info: 1,
+                });
+              });
+              await NotificationCount.findOneAndUpdate(
+                { userId: req.body.keyPartnerId },
+                { $inc: { kpInv: 1 } }
+              ).exec();
+              global.io.emit("keypartner inventory warning", {
+                id: req.body.keyPartnerId,
+                info: 1,
+              });
+            }
           });
-          await Bundle.findByIdAndUpdate(newBooking.itemId, {
-            $set: { status: "out" },
-          }).exec();
+
+          // await Bundle.findByIdAndUpdate(newBooking.itemId, {
+          //   $set: { status: "out" },
+          // }).exec();
         }
 
         let booking = await Booking.findById(newBooking._id)
@@ -433,5 +456,92 @@ module.exports = {
       console.log(e)
       return res.status(500).json({ success: false, msg: '' })
     }
+  },
+
+  /**
+   * 
+   */
+  deleteBooking: (req, res) => {
+    // try {
+    //   await Booking.findByIdAndDelete(req.params.id).exec()
+    //   return res.sendStatus(204)
+    // } catch(e) {
+    //   return res.status(500).json({ success: false, msg: 'Failed to delete booking' })
+    // }
+    Booking.findByIdAndDelete(req.params.id)
+      .then(async booking => {
+        if(booking.itemType === 'individual') {
+          let inv = await Inventory.findById(booking.itemId).exec()
+          inv.currentQty = +inv.currentQty + +booking.quantity
+          inv.out = +inv.out - +booking.quantity
+          inv.markModified('currentQty')
+          inv.markModified('out')
+          inv.save()
+          if (+inv.currentQty <= +inv.criticalBalance) {
+            let admins = await User.find({ accessLvl: [1, 2] }).exec();
+            admins.forEach(async admin => {
+              await NotificationCount.findOneAndUpdate(
+                { userId: admin._id },
+                { $inc: { adminInv: 1 } }
+              ).exec();
+              global.io.emit("admin inventory warning", {
+                id: admin._id,
+                info: 1,
+              });
+            });
+            await NotificationCount.findOneAndUpdate(
+              { userId: req.body.keyPartnerId },
+              { $inc: { kpInv: 1 } }
+            ).exec();
+            global.io.emit("keypartner inventory warning", {
+              id: req.body.keyPartnerId,
+              info: 1,
+            });
+          }
+          return res.sendStatus(204)
+        } else if(booking.itemType === 'bundle') {
+          Bundle.findById(booking.itemId)
+            .then(bundle => {
+              bundle.items.map(async item => {
+                let inv = await Inventory.findById(item.itemId).exec()
+                inv.currentQty = +inv.currentQty + +item.quantity
+                inv.out = +inv.out - +item.quantity
+                inv.markModified('currentQty')
+                inv.markModified('out')
+                inv.save()
+                if (+inv.currentQty <= +inv.criticalBalance) {
+                  let admins = await User.find({ accessLvl: [1, 2] }).exec();
+                  admins.forEach(async admin => {
+                    await NotificationCount.findOneAndUpdate(
+                      { userId: admin._id },
+                      { $inc: { adminInv: 1 } }
+                    ).exec();
+                    global.io.emit("admin inventory warning", {
+                      id: admin._id,
+                      info: 1,
+                    });
+                  });
+                  await NotificationCount.findOneAndUpdate(
+                    { userId: req.body.keyPartnerId },
+                    { $inc: { kpInv: 1 } }
+                  ).exec();
+                  global.io.emit("keypartner inventory warning", {
+                    id: req.body.keyPartnerId,
+                    info: 1,
+                  });
+                }
+              })
+              return res.sendStatus(204)
+            })
+            .catch(e => {
+              console.log('Bundle: ', e)
+              return res.status(500).json({ success: false, msg: 'Failed to update inventory' })
+            })
+        }
+      })
+      .catch(e => {
+        console.log('Booking: ', e)
+        return res.status(500).json({ success: false, msg: 'Failed to delete booking' })
+      })
   }
 };

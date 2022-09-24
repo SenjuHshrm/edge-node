@@ -6,29 +6,40 @@ module.exports = {
    * Create bundled item
    */
   createBundle: async (req, res) => {
-    new Bundle({
-      keyPartnerId: req.body.keyPartnerId,
-      name: req.body.name,
-      items: req.body.items,
-      status: "in",
-    })
-      .save()
-      .then(bundle => {
-        req.body.items.forEach(async x => {
-          console.log(x);
-          let inv = await Inventory.findById(x.itemId).exec();
-          inv.currentQty = +inv.currentQty - x.quantity;
-          inv.markModified("currentQty");
-          inv.save();
-        });
-        return res.status(200).json({ success: true, info: bundle });
-      })
-      .catch(e => {
-        return res.status(500).json({
-          success: false,
-          msg: "Failed to save a new Bundled Item.",
-        });
-      });
+    // new Bundle({
+    //   keyPartnerId: req.body.keyPartnerId,
+    //   name: req.body.name,
+    //   items: req.body.items,
+    //   status: "in",
+    // })
+    //   .save()
+    //   .then(bundle => {
+    //     req.body.items.forEach(async x => {
+    //       console.log(x);
+    //       let inv = await Inventory.findById(x.itemId).exec();
+    //       inv.currentQty = +inv.currentQty - x.quantity;
+    //       inv.markModified("currentQty");
+    //       inv.save();
+    //     });
+    //     return res.status(200).json({ success: true, info: bundle });
+    //   })
+    //   .catch(e => {
+    //     return res.status(500).json({
+    //       success: false,
+    //       msg: "Failed to save a new Bundled Item.",
+    //     });
+    //   });
+    try {
+      let bundle = await new Bundle({
+        keyPartnerId: req.body.keyPartnerId,
+        name: req.body.name,
+        items: req.body.items,
+        status: "in",
+      }).save()
+      return res.status(200).json({ success: true, info: bundle });
+    } catch(e) {
+      return res.status(500).json({ success: false, msg: 'Failed to save a new bundle' })
+    }
   },
 
   /**
