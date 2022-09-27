@@ -13,7 +13,7 @@ const {
   bookingCtrl,
   poCtrl,
   contractCtrl,
-  authCtrl
+  authCtrl,
 } = require("../controllers");
 const path = require("path");
 const multer = require("multer");
@@ -62,6 +62,11 @@ router
     "/update-many-status",
     passport.authenticate("jwt", { session: false }),
     invCtrl.updateManyNonMoving
+  )
+  .put(
+    "/update-many-moving",
+    passport.authenticate("jwt", { session: false }),
+    invCtrl.updateManyMoving
   )
   .put(
     "/key-partner/approve/:id",
@@ -163,33 +168,30 @@ router
     bookingCtrl.returnBooking
   )
   .put(
-    '/inquiry/form/selected',
-    passport.authenticate('jwt', { session: false }),
+    "/inquiry/form/selected",
+    passport.authenticate("jwt", { session: false }),
     inqCtrl.generateMultipleInquiry
   )
   .put(
-    '/quotation/form/selected',
-    passport.authenticate('jwt', { session: false }),
+    "/quotation/form/selected",
+    passport.authenticate("jwt", { session: false }),
     quoteCtrl.generateMultipleQuoatation
   )
   .put(
-    '/purchase-order/form/selected',
-    passport.authenticate('jwt', { session: false }),
+    "/purchase-order/form/selected",
+    passport.authenticate("jwt", { session: false }),
     poCtrl.generateMultiplePO
   )
   .put(
-    '/purchase-order/set-seen/:id',
-    passport.authenticate('jwt', { session: false }),
+    "/purchase-order/set-seen/:id",
+    passport.authenticate("jwt", { session: false }),
     poCtrl.setPOAsSeen
   )
   .put(
-    '/contract/set-seen/:id',
-    passport.authenticate('jwt', { session: false }),
+    "/contract/set-seen/:id",
+    passport.authenticate("jwt", { session: false }),
     contractCtrl.markAsSeen
   )
-  .put(
-    '/reset-password/:id',
-    authCtrl.resetPassword
-  )
+  .put("/reset-password/:id", authCtrl.resetPassword);
 
 module.exports = router;
