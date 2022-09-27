@@ -38,9 +38,10 @@ module.exports = {
       remarks: req.body.remarks,
       itemId: req.body.itemId,
       bundleId: req.body.itemId,
-      quantity: req.body.quantity,
+      quantity: (req.body.itemType === 'individual') ? req.body.quantity : '1',
       itemType: req.body.itemType,
       status: "unfulfilled",
+      deletedAt: ''
     })
       .save()
       .then(async newBooking => {
@@ -468,7 +469,7 @@ module.exports = {
     // } catch(e) {
     //   return res.status(500).json({ success: false, msg: 'Failed to delete booking' })
     // }
-    Booking.findByIdAndDelete(req.params.id)
+    Booking.findByIdAndUpdate(req.params.id, { $set: { deletedAt: moment() } })
       .then(async booking => {
         if(booking.itemType === 'individual') {
           let inv = await Inventory.findById(booking.itemId).exec()

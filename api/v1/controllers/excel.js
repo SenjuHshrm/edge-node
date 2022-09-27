@@ -10,7 +10,7 @@ module.exports = {
   generateExcelAllCourier: async (req, res) => {
     try {
       let token = jwt.decode(req.headers.authorization.split(' ')[1])
-      let booking = await Booking.find({ _id: req.body.ids }).populate({ path: 'itemId', populate: { path: 'classification' } }).populate('bundleId').exec()
+      let booking = await Booking.find({ _id: req.body.ids, deletedAt: '' }).populate({ path: 'itemId', populate: { path: 'classification size' } }).populate('bundleId').exec()
       let flash = booking.filter((x) => { return x.courier === 'flash' })
       let jnt = booking.filter((x) => { return x.courier === 'jnt' })
       let flashExcel = (flash.length > 0) ? await generateFlash(flash, token.sub) : null;

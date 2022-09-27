@@ -1,11 +1,11 @@
-const Booking = require('../models/Booking')
+const Contract = require('../models/Contract')
 const mongoose = require('mongoose')
 
 mongoose.connect('mongodb://localhost:27017/edge-commerce')
 mongoose.connection
   .on('open', async () => {
     try {
-      await Booking.updateMany({ $set: { deletedAt: '' } }).exec()
+      await Contract.updateMany({ $set: { isSeen: false } }).exec()
     } catch(e) {
       console.log(e)
     } finally {

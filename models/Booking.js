@@ -22,6 +22,7 @@ let bookingSchema = new mongoose.Schema(
     bundleId: { type: String, required: true, ref: "bundle" },
     quantity: { type: String },
     itemType: String,
+    deletedAt: String
   },
   {
     timestamps: true,
