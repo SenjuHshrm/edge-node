@@ -1,6 +1,6 @@
 const Inventory = require("../../../models/Inventory");
 const Classification = require("../../../models/Classification");
-const generateInv = require('../../../services/generate-inventory')
+const generateInv = require("../../../services/generate-inventory");
 
 module.exports = {
   /**
@@ -41,10 +41,11 @@ module.exports = {
           color: req.body.color,
           size: req.body.size,
           sequence: seq,
-          in: req.body.quantity,
+          in: "0",
           currentQty: req.body.quantity,
           price: req.body.price,
-          criticalBalance: req.body.criticalBalance
+          criticalBalance: req.body.criticalBalance,
+          kpOwned: req.body.kpOwned,
         })
           .save()
           .then(async inventory => {
@@ -201,13 +202,14 @@ module.exports = {
           color: req.body.color,
           size: req.body.size,
           sequence: seq,
-          in: req.body.in,
+          in: "0",
           out: req.body.out,
           rts: req.body.rts,
           defective: req.body.defective,
-          currentQty: +req.body.in - (+req.body.out + +req.body.rts + +req.body.defective),
+          currentQty: +req.body.currentQty + +req.body.in,
           price: req.body.price,
-          criticalBalance: req.body.criticalBalance
+          criticalBalance: req.body.criticalBalance,
+          kpOwned: req.body.kpOwned,
         },
         { new: true }
       ).exec();
@@ -251,6 +253,26 @@ module.exports = {
       });
     }
   },
+  /**
+   * Update up to Many Non Moving to Moving classification
+   */
+  updateManyMoving: async (req, res) => {
+    try {
+      req.body.ids.map(async id => {
+        await Inventory.findByIdAndUpdate(
+          id,
+          { status: "moving" },
+          { new: true }
+        ).exec();
+      });
+      return res.status(200).json({ success: true, info: req.body.ids });
+    } catch (e) {
+      return res.status(500).json({
+        success: false,
+        msg: "Failed to update the selected items.",
+      });
+    }
+  },
 
   /**
    * Delete classification
@@ -270,30 +292,41 @@ module.exports = {
   },
 
   /**
-   * 
+   *
    */
   exportInventory: async (req, res) => {
     try {
-      let inv = await Inventory.find({}).populate('classification').populate('classification').populate('code').populate('color').populate('size').exec()
-      let file = await generateInv(inv, req.params.id)
-      return res.status(200).json({ success: true, info: file })
-    } catch(e) {
-      console.log(e)
-      return res.staus(500).json({ success: false, msg: '' })
+      let inv = await Inventory.find({})
+        .populate("classification")
+        .populate("classification")
+        .populate("code")
+        .populate("color")
+        .populate("size")
+        .exec();
+      let file = await generateInv(inv, req.params.id);
+      return res.status(200).json({ success: true, info: file });
+    } catch (e) {
+      console.log(e);
+      return res.staus(500).json({ success: false, msg: "" });
     }
   },
 
   /**
-   * 
+   *
    */
   exportInventoryByKeyPartner: async (req, res) => {
     try {
-      let inv = await Inventory.find({ keyPartnerId: req.params.id }).populate('classification').populate('code').populate('color').populate('size').exec()
-      let file = await generateInv(inv, req.params.id)
-      return res.status(200).json({ success: true, info: file })
-    } catch(e) {
-      console.log(e)
-      return res.staus(500).json({ success: false, msg: '' })
+      let inv = await Inventory.find({ keyPartnerId: req.params.id })
+        .populate("classification")
+        .populate("code")
+        .populate("color")
+        .populate("size")
+        .exec();
+      let file = await generateInv(inv, req.params.id);
+      return res.status(200).json({ success: true, info: file });
+    } catch (e) {
+      console.log(e);
+      return res.staus(500).json({ success: false, msg: "" });
     }
-  }
+  },
 };
