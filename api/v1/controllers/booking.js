@@ -2,14 +2,14 @@ const Booking = require("../../../models/Booking");
 const Bundle = require("../../../models/Bundle");
 const Inventory = require("../../../models/Inventory");
 const User = require("../../../models/User");
-const File = require("../../../models/File")
+const File = require("../../../models/File");
 const NotificationCount = require("../../../models/NotificationCount");
 const generateId = require("../../../utils/id-generator");
 const moment = require("moment");
 const generateFlash = require("../../../services/generate-flash");
 const generateJnt = require("../../../services/generate-jnt");
-const jwt = require('jsonwebtoken')
-const fs = require('fs')
+const jwt = require("jsonwebtoken");
+const fs = require("fs");
 
 module.exports = {
   /**
@@ -37,11 +37,11 @@ module.exports = {
       senderContact: req.body.senderContact,
       remarks: req.body.remarks,
       itemId: req.body.itemId,
-      bundleId: req.body.itemId,
-      quantity: (req.body.itemType === 'individual') ? req.body.quantity : '1',
+      bundleId: req.body.bundleId,
+      quantity: req.body.itemType === "individual" ? req.body.quantity : "1",
       itemType: req.body.itemType,
       status: "unfulfilled",
-      deletedAt: ''
+      deletedAt: "",
     })
       .save()
       .then(async newBooking => {
@@ -74,10 +74,10 @@ module.exports = {
             });
           }
         } else {
-          let bundle = await Bundle.findById(newBooking.itemId).exec();
-          bundle.items.map(async item => {
+          // let bundle = await Bundle.findById(newBooking.itemId).exec();
+          req.body.bundleId.items.map(async item => {
             let inv = await Inventory.findById(item.itemId).exec();
-            inv.currentQty = +inv.currentQty - +item.quantity
+            inv.currentQty = +inv.currentQty - +item.quantity;
             inv.out = +inv.out + +item.quantity;
             inv.markModified("out");
             inv.save();
@@ -311,7 +311,7 @@ module.exports = {
    */
   exportOne: async (req, res) => {
     try {
-      let token = jwt.decode(req.headers.authorization.split(' ')[1])
+      let token = jwt.decode(req.headers.authorization.split(" ")[1]);
       let booking = await Booking.find({ _id: req.params.id })
         .populate({ path: "itemId", populate: { path: "classification" } })
         .populate("bundleId")
@@ -358,35 +358,49 @@ module.exports = {
   },
 
   /**
-   * 
+   *
    */
   uploadBooking: async (req, res) => {
     try {
-      let bookingFile = fs.readFileSync(`./uploads/booking/${req.body.filename}`, 'utf-8')
-      let bookingData = bookingFile.split('\r\n')
-      let returnBooking = []
-      bookingData.splice(0, 1)
+      let bookingFile = fs.readFileSync(
+        `./uploads/booking/${req.body.filename}`,
+        "utf-8"
+      );
+      let bookingData = bookingFile.split("\r\n");
+      let returnBooking = [];
+      bookingData.splice(0, 1);
 
-      // let 
+      // let
       // console.log(bookingData)
-      for(let i = 0; i < bookingData.length; i++) {
-        if(bookingData[i] !== '') {
-          let data = bookingData[i].split(','), itemId = null;
-          let booking = await Booking.find({ keyPartnerId: req.body.id }).exec();
+      for (let i = 0; i < bookingData.length; i++) {
+        if (bookingData[i] !== "") {
+          let data = bookingData[i].split(","),
+            itemId = null;
+          let booking = await Booking.find({
+            keyPartnerId: req.body.id,
+          }).exec();
           let user = await User.findById(req.body.id).exec();
           let genId = generateId(booking, user.userId);
-          if(data[14] === 'individual') {
-            let inv = await Inventory.find({ keyPartnerId: req.body.id }).populate({ path: 'classification code color size', model: 'classification' }).exec()
-            for(let j = 0; j < inv.length; j++) {
-              let sku = `SKU-EC-${inv[j].classification.code}-${inv[j].code.code}-${inv[j].color.code}-${inv[j].size.code}-${inv[j].sequence}`
-              if(data[12] === sku) {
-                itemId = inv[j]._id
+          if (data[14] === "individual") {
+            let inv = await Inventory.find({ keyPartnerId: req.body.id })
+              .populate({
+                path: "classification code color size",
+                model: "classification",
+              })
+              .exec();
+            for (let j = 0; j < inv.length; j++) {
+              let sku = `SKU-EC-${inv[j].classification.code}-${inv[j].code.code}-${inv[j].color.code}-${inv[j].size.code}-${inv[j].sequence}`;
+              if (data[12] === sku) {
+                itemId = inv[j]._id;
                 break;
               }
             }
-          } else if(data[14] === 'bundle') {
-            let bnd = await Bundle.findOne({ keyPartnerId: req.body.id, name: data[12] }).exec()
-            itemId = bnd._id
+          } else if (data[14] === "bundle") {
+            let bnd = await Bundle.findOne({
+              keyPartnerId: req.body.id,
+              name: data[12],
+            }).exec();
+            itemId = bnd._id;
           }
           let newBooking = await new Booking({
             keyPartnerId: req.body.id,
@@ -408,14 +422,14 @@ module.exports = {
             quantity: data[13],
             itemType: data[14],
             status: "unfulfilled",
-          }).save()
-          if(newBooking.itemType === 'individual') {
-            let inv = await Inventory.findById(newBooking.itemId).exec()
+          }).save();
+          if (newBooking.itemType === "individual") {
+            let inv = await Inventory.findById(newBooking.itemId).exec();
             inv.currentQty -= +newBooking.quantity;
-            inv.out += newBooking.quantity
-            inv.markModified('currentQty')
-            inv.markModified('out')
-            inv.save()
+            inv.out += newBooking.quantity;
+            inv.markModified("currentQty");
+            inv.markModified("out");
+            inv.save();
             if (+inv.currentQty <= +inv.criticalBalance) {
               let admins = await User.find({ accessLvl: [1, 2] }).exec();
               admins.forEach(async admin => {
@@ -437,30 +451,34 @@ module.exports = {
                 info: 1,
               });
             }
-          } else if(newBooking.itemType === 'bundle') {
-            let bnd = await Bundle.findById(newBooking.itemId).exec()
+          } else if (newBooking.itemType === "bundle") {
+            let bnd = await Bundle.findById(newBooking.itemId).exec();
             bnd.items.map(async item => {
-              let i = await Inventory.findById(item.itemId).exec()
-              i.out += item.quantity
-              i.markModified('out')
-              i.save()
-            })
-            await Bundle.findByIdAndUpdate(newBooking.itemId, { $set: { status: 'out' } }).exec()
+              let i = await Inventory.findById(item.itemId).exec();
+              i.out += item.quantity;
+              i.markModified("out");
+              i.save();
+            });
+            await Bundle.findByIdAndUpdate(newBooking.itemId, {
+              $set: { status: "out" },
+            }).exec();
           }
-          let responseBooking = await Booking.findById(newBooking._id).populate('itemId').exec()
-          returnBooking.push(responseBooking)
+          let responseBooking = await Booking.findById(newBooking._id)
+            .populate("itemId")
+            .exec();
+          returnBooking.push(responseBooking);
         }
       }
-      new File({ filePath: `/uploads/booking/${req.body.filename}` }).save()
-      return res.status(200).json({ success: true, info: returnBooking })
-    } catch(e) {
-      console.log(e)
-      return res.status(500).json({ success: false, msg: '' })
+      new File({ filePath: `/uploads/booking/${req.body.filename}` }).save();
+      return res.status(200).json({ success: true, info: returnBooking });
+    } catch (e) {
+      console.log(e);
+      return res.status(500).json({ success: false, msg: "" });
     }
   },
 
   /**
-   * 
+   *
    */
   deleteBooking: (req, res) => {
     // try {
@@ -471,13 +489,13 @@ module.exports = {
     // }
     Booking.findByIdAndUpdate(req.params.id, { $set: { deletedAt: moment() } })
       .then(async booking => {
-        if(booking.itemType === 'individual') {
-          let inv = await Inventory.findById(booking.itemId).exec()
-          inv.currentQty = +inv.currentQty + +booking.quantity
-          inv.out = +inv.out - +booking.quantity
-          inv.markModified('currentQty')
-          inv.markModified('out')
-          inv.save()
+        if (booking.itemType === "individual") {
+          let inv = await Inventory.findById(booking.itemId).exec();
+          inv.currentQty = +inv.currentQty + +booking.quantity;
+          inv.out = +inv.out - +booking.quantity;
+          inv.markModified("currentQty");
+          inv.markModified("out");
+          inv.save();
           if (+inv.currentQty <= +inv.criticalBalance) {
             let admins = await User.find({ accessLvl: [1, 2] }).exec();
             admins.forEach(async admin => {
@@ -499,17 +517,17 @@ module.exports = {
               info: 1,
             });
           }
-          return res.sendStatus(204)
-        } else if(booking.itemType === 'bundle') {
+          return res.sendStatus(204);
+        } else if (booking.itemType === "bundle") {
           Bundle.findById(booking.itemId)
             .then(bundle => {
               bundle.items.map(async item => {
-                let inv = await Inventory.findById(item.itemId).exec()
-                inv.currentQty = +inv.currentQty + +item.quantity
-                inv.out = +inv.out - +item.quantity
-                inv.markModified('currentQty')
-                inv.markModified('out')
-                inv.save()
+                let inv = await Inventory.findById(item.itemId).exec();
+                inv.currentQty = +inv.currentQty + +item.quantity;
+                inv.out = +inv.out - +item.quantity;
+                inv.markModified("currentQty");
+                inv.markModified("out");
+                inv.save();
                 if (+inv.currentQty <= +inv.criticalBalance) {
                   let admins = await User.find({ accessLvl: [1, 2] }).exec();
                   admins.forEach(async admin => {
@@ -531,18 +549,22 @@ module.exports = {
                     info: 1,
                   });
                 }
-              })
-              return res.sendStatus(204)
+              });
+              return res.sendStatus(204);
             })
             .catch(e => {
-              console.log('Bundle: ', e)
-              return res.status(500).json({ success: false, msg: 'Failed to update inventory' })
-            })
+              console.log("Bundle: ", e);
+              return res
+                .status(500)
+                .json({ success: false, msg: "Failed to update inventory" });
+            });
         }
       })
       .catch(e => {
-        console.log('Booking: ', e)
-        return res.status(500).json({ success: false, msg: 'Failed to delete booking' })
-      })
-  }
+        console.log("Booking: ", e);
+        return res
+          .status(500)
+          .json({ success: false, msg: "Failed to delete booking" });
+      });
+  },
 };
