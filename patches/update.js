@@ -10,13 +10,23 @@ mongoose.connection
       let bookings = await Booking.find({ itemType: 'bundle' }).exec()
       bookings.map(async booking => {
         let bnd = await Bundle.findById(booking.bundleId).exec()
-        booking.bundleId = {
-          name: bnd.name,
-          quantity: '',
-          items: bnd.items
+        if(bnd !== null) {
+          booking.bundleId = {
+            name: bnd.name,
+            quantity: '',
+            items: bnd.items
+          }
+          booking.markModified('bundleId')
+          booking.save()
+        } else {
+          booking.bundleId = {
+            name: '',
+            quantity: '',
+            items: []
+          }
+          booking.markModified('bundleId')
+          booking.save()
         }
-        booking.markModified('bundleId')
-        booking.save()
       })
     } catch(e) {
       console.log(e)
