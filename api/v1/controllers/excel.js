@@ -1,4 +1,6 @@
 const Booking = require('../../../models/Booking')
+const Quotation = require('../../../models/Quotation')
+const PurchaseOrder = require('../../../models/PurchaseOrder')
 const generateFlash = require('../../../services/generate-flash')
 const generateJNT = require('../../../services/generate-jnt')
 const jwt = require('jsonwebtoken')
@@ -10,7 +12,7 @@ module.exports = {
   generateExcelAllCourier: async (req, res) => {
     try {
       let token = jwt.decode(req.headers.authorization.split(' ')[1])
-      let booking = await Booking.find({ _id: req.body.ids, deletedAt: '' }).populate({ path: 'itemId', populate: { path: 'classification size' } }).populate('bundleId').exec()
+      let booking = await Booking.find({ _id: req.body.ids, deletedAt: '' }).populate({ path: 'itemId', populate: { path: 'classification size' } }).exec()
       let flash = booking.filter((x) => { return x.courier === 'flash' })
       let jnt = booking.filter((x) => { return x.courier === 'jnt' })
       let flashExcel = (flash.length > 0) ? await generateFlash(flash, token.sub) : null;
@@ -23,16 +25,17 @@ module.exports = {
   },
 
   /**
-   * Generate excel file for jnt
+   * Get report data
    */
-  generateExcelJNT: async (req, res) => {
-
-  },
-
-  /**
-   * Generate excel file for Flash
-   */
-  generateExcelFlash: async (req, res) => {
-
+  getTodaysReport: async (req, res) => {
+    try {
+      let bookings = await Booking.countDocuments({ createdAt: { $gte: req.params.currDateStart, $lte: req.params.currDateEnd } }).exec(),
+          quotations = await Quotation.countDocuments({ createdAt: { $gte: req.params.currDateStart, $lte: req.params.currDateEnd } }).exec(),
+          po = await PurchaseOrder.countDocuments({ createdAt: { $gte: req.params.currDateStart, $lte: req.params.currDateEnd } }).exec();
+      return res.status(200).json({ info: { bookings, quotations, po } })
+    } catch(e) {
+      console.log(e)
+      return res.status(500).json({ msg: '' })
+    }
   }
 }

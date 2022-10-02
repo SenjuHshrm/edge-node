@@ -14,6 +14,7 @@ const {
   poCtrl,
   addrCtrl,
   bookingCtrl,
+  excelCtrl
 } = require("../controllers");
 
 router
@@ -207,6 +208,7 @@ router
     passport.authenticate('jwt', { session: false }),
     poCtrl.getMonthlyPurchaseOrder
   )
+  .get('/report/current/:currDateStart/:currDateEnd', passport.authenticate('jwt', { session: false }), excelCtrl.getTodaysReport)
   .get('/check/password-reset/:token', authCtrl.checkPasswordResetToken)
   .get("/refresh/access", authCtrl.refreshToken);
 
