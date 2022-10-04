@@ -189,7 +189,7 @@ router
     bookingCtrl.getSingleBooking
   )
   .get(
-    '/inventory/form/all',
+    '/inventory/form/all/:id',
     passport.authenticate('jwt', { session: false }),
     invCtrl.exportInventory
   )

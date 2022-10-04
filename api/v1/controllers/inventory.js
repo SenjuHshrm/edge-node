@@ -9,14 +9,8 @@ module.exports = {
   createInventory: async (req, res) => {
     let items = await Inventory.find({
       deletedAt: "",
-    })
-      .populate({
-        path: "code",
-        select: "code",
-      })
-      .exec();
-
-    let filtered = items.filter(e => e.code.code === req.body.code);
+    }).exec();
+    let filtered = items.filter(e => e.classification.toString() === req.body.classification);
     let sorted = filtered.sort(
       (a, b) => parseInt(b.sequence) - parseInt(a.sequence)
     );
@@ -26,48 +20,33 @@ module.exports = {
     const countChar = count.toString().length;
     seq = format.substring(0, format.length - countChar) + count.toString();
 
-    new Classification({
-      type: "type",
-      name: req.body.desc,
-      code: req.body.code,
+    new Inventory({
+      keyPartnerId: req.body.keyPartnerId,
+      desc: req.body.desc,
+      classification: req.body.classification,
+      color: req.body.color,
+      size: req.body.size,
+      sequence: seq,
+      in: "0",
+      currentQty: req.body.quantity,
+      price: req.body.price,
+      criticalBalance: req.body.criticalBalance,
+      kpOwned: req.body.kpOwned,
     })
       .save()
-      .then(classification => {
-        new Inventory({
-          keyPartnerId: req.body.keyPartnerId,
-          desc: req.body.desc,
-          code: classification._id,
-          classification: req.body.classification,
-          color: req.body.color,
-          size: req.body.size,
-          sequence: seq,
-          in: "0",
-          currentQty: req.body.quantity,
-          price: req.body.price,
-          criticalBalance: req.body.criticalBalance,
-          kpOwned: req.body.kpOwned,
-        })
-          .save()
-          .then(async inventory => {
-            let item = await Inventory.findById(inventory._id)
-              .populate({
-                path: "code classification color size",
-                select: "code name",
-              })
-              .populate({
-                path: "keyPartnerId",
-                select: "email name",
-              })
-              .exec();
-
-            return res.status(200).json({ success: true, info: item });
+      .then(async inventory => {
+        let item = await Inventory.findById(inventory._id)
+          .populate({
+            path: "classification color size",
+            select: "code name",
           })
-          .catch(e => {
-            return res.status(500).json({
-              success: false,
-              msg: "Failed to save a new Item.",
-            });
-          });
+          .populate({
+            path: "keyPartnerId",
+            select: "email name",
+          })
+          .exec();
+
+        return res.status(200).json({ success: true, info: item });
       })
       .catch(e => {
         return res.status(500).json({
@@ -85,7 +64,7 @@ module.exports = {
         deletedAt: "",
       })
         .populate({
-          path: "code classification color size",
+          path: "classification color size",
           select: "code name",
         })
         .populate({
@@ -96,7 +75,7 @@ module.exports = {
       let newItems = [];
       items.map(item => {
         let clone = { ...item._doc };
-        clone.sku = `SKU-EC-${item.classification?.code}-${item.code?.code}-${item.color?.code}-${item.size?.code}-${item.sequence}`;
+        clone.sku = `SKU-EC-${item.classification?.code}-${item.color?.code}-${item.size?.code}-${item.sequence}`;
         newItems.push(clone);
       });
 
@@ -123,7 +102,7 @@ module.exports = {
         keyPartnerId: req.params.id,
       })
         .populate({
-          path: "code classification color size",
+          path: "classification color size",
           select: "code name",
         })
         .populate({
@@ -134,7 +113,7 @@ module.exports = {
       let newItems = [];
       items.map(item => {
         let clone = { ...item._doc };
-        clone.sku = `SKU-EC-${item.classification?.code}-${item.code?.code}-${item.color?.code}-${item.size?.code}-${item.sequence}`;
+        clone.sku = `SKU-EC-${item.classification?.code}-${item.color?.code}-${item.size?.code}-${item.sequence}`;
         newItems.push(clone);
       });
 
@@ -157,47 +136,12 @@ module.exports = {
    */
   updateInventory: async (req, res) => {
     let seq = req.body.sequence;
-
-    if (req.body.codeName !== req.body.code) {
-      let items = await Inventory.find({
-        deletedAt: "",
-      })
-        .populate({
-          path: "code",
-          select: "code",
-        })
-        .exec();
-
-      let filtered = items.filter(e => e.code.code === req.body.code);
-      let sorted = filtered.sort(
-        (a, b) => parseInt(b.sequence) - parseInt(a.sequence)
-      );
-
-      const format = "00000";
-      const count =
-        filtered.length === 0 ? 1 : parseInt(sorted[0].sequence) + 1;
-      const countChar = count.toString().length;
-      seq = format.substring(0, format.length - countChar) + count.toString();
-    }
-
     try {
-      let classification = await Classification.findByIdAndUpdate(
-        req.body.codeId,
-        {
-          name: req.body.desc,
-          code: req.body.code,
-        },
-        {
-          new: true,
-        }
-      ).exec();
-
       let item = await Inventory.findByIdAndUpdate(
         req.params.id,
         {
           keyPartnerId: req.body.keyPartnerId,
           desc: req.body.desc,
-          code: classification._id,
           classification: req.body.classification,
           color: req.body.color,
           size: req.body.size,
@@ -216,7 +160,7 @@ module.exports = {
 
       let populated = await Inventory.findById(item._id)
         .populate({
-          path: "code classification color size",
+          path: "classification color size",
           select: "code name",
         })
         .populate({
@@ -296,10 +240,8 @@ module.exports = {
    */
   exportInventory: async (req, res) => {
     try {
-      let inv = await Inventory.find({})
+      let inv = await Inventory.find({ deletedAt: '' })
         .populate("classification")
-        .populate("classification")
-        .populate("code")
         .populate("color")
         .populate("size")
         .exec();
@@ -316,9 +258,8 @@ module.exports = {
    */
   exportInventoryByKeyPartner: async (req, res) => {
     try {
-      let inv = await Inventory.find({ keyPartnerId: req.params.id })
+      let inv = await Inventory.find({ keyPartnerId: req.params.id, deletedAt: '' })
         .populate("classification")
-        .populate("code")
         .populate("color")
         .populate("size")
         .exec();

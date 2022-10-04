@@ -9,7 +9,7 @@ const {
 } = require('../utils/excel-formatting')
 
 const buildSKU = (inv) => {
-  return `SKU-EC-${inv.classification.code}-${inv.code.code}-${inv.color.code}-${inv.size.code}-${inv.sequence}`
+  return `SKU-EC-${inv.classification.code}-${inv.color.code}-${inv.size.code}-${inv.sequence}`
 }
 
 module.exports = (inv, id) => {
@@ -24,7 +24,7 @@ module.exports = (inv, id) => {
         row[2] = inv[i].desc
         row[3] = inv[i].classification.name
         row[4] = `EC-${inv[i].classification.code}`
-        row[5] = inv[i].code.code
+        row[5] = inv[i].classification.code
         row[6] = inv[i].color.code.toString()
         row[7] = inv[i].size.code.toString()
         row[8] = inv[i].sequence.toString()

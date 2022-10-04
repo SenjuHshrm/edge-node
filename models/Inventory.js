@@ -6,7 +6,7 @@ let inventorySchema = new mongoose.Schema(
     keyPartnerId: { type: ObjectId, required: true, ref: "user" },
     desc: { type: String, required: true },
     classification: { type: ObjectId, required: true, ref: "classification" },
-    code: { type: ObjectId, required: true, ref: "classification" },
+    code: String,
     color: { type: ObjectId, required: true, ref: "classification" },
     size: { type: ObjectId, required: true, ref: "classification" },
     sequence: { type: String, required: true },

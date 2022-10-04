@@ -1,33 +1,11 @@
-const Booking = require('../models/Booking')
-const Bundle = require('../models/Bundle')
+const Inventory = require('../models/Inventory')
 const mongoose = require('mongoose')
 
 mongoose.connect('mongodb://localhost:27017/edge-commerce')
 mongoose.connection
   .on('open', async () => {
     try {
-      await Booking.updateMany({ $set: { deletedAt: '' } }).exec()
-      let bookings = await Booking.find({ itemType: 'bundle' }).exec()
-      bookings.map(async booking => {
-        let bnd = await Bundle.findById(booking.bundleId).exec()
-        if(bnd !== null) {
-          booking.bundleId = {
-            name: bnd.name,
-            quantity: '',
-            items: bnd.items
-          }
-          booking.markModified('bundleId')
-          booking.save()
-        } else {
-          booking.bundleId = {
-            name: '',
-            quantity: '',
-            items: []
-          }
-          booking.markModified('bundleId')
-          booking.save()
-        }
-      })
+      await Inventory.updateMany({ $unset: { code: 1 } }).exec()
     } catch(e) {
       console.log(e)
     } finally {
