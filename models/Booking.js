@@ -17,7 +17,7 @@ let bookingSchema = new mongoose.Schema(
     city: { type: String, required: true },
     brgy: { type: String, required: true },
     hsStNum: { type: String, required: true },
-    zip: { type: String, required: true },
+    zip: String,
     courier: { type: String, required: true },
     cod: { type: String, required: true },
     sender: { type: String, required: true },
