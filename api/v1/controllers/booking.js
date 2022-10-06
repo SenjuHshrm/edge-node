@@ -389,7 +389,7 @@ module.exports = {
               })
               .exec();
             for (let j = 0; j < inv.length; j++) {
-              let sku = `SKU-EC-${inv[j].classification.code}-${inv[j].code.code}-${inv[j].color.code}-${inv[j].size.code}-${inv[j].sequence}`;
+              let sku = `SKU-EC-${inv[j].classification.code}-${inv[j].color.code}-${inv[j].size.code}-${inv[j].sequence}`;
               if (data[12] === sku) {
                 itemId = inv[j]._id;
                 break;
