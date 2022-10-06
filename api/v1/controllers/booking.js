@@ -152,10 +152,6 @@ module.exports = {
           path: "itemId",
           model: "inventory",
         })
-        .populate({
-          path: "bundleId",
-          model: "bundle",
-        })
         .exec();
 
       return res.status(200).json({ success: true, info: bookings });
@@ -176,10 +172,6 @@ module.exports = {
         .populate({
           path: "itemId",
           model: "inventory",
-        })
-        .populate({
-          path: "bundleId",
-          model: "bundle",
         })
         .exec();
 
@@ -422,6 +414,7 @@ module.exports = {
             quantity: data[13],
             itemType: data[14],
             status: "unfulfilled",
+            deletedAt: ""
           }).save();
           if (newBooking.itemType === "individual") {
             let inv = await Inventory.findById(newBooking.itemId).exec();
