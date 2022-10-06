@@ -304,10 +304,9 @@ module.exports = {
   exportOne: async (req, res) => {
     try {
       let token = jwt.decode(req.headers.authorization.split(" ")[1]);
-      let booking = await Booking.find({ _id: req.params.id })
-        .populate({ path: "itemId", populate: { path: "classification" } })
-        .populate("bundleId")
-        .exec();
+      let booking = await Booking.find({ _id: req.params.id }).populate({ path: "itemId", populate: { path: "classification size color" } })
+        // .populate("bundleId")
+        
       let file =
         booking[0].courier === "flash"
           ? await generateFlash(booking, token.sub)
