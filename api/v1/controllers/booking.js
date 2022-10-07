@@ -444,10 +444,28 @@ module.exports = {
               i.out = +i.out + +item.quantity;
               i.markModified("out");
               i.save();
+              if (+inv.currentQty <= +inv.criticalBalance) {
+                let admins = await User.find({ accessLvl: [1, 2] }).exec();
+                admins.forEach(async admin => {
+                  await NotificationCount.findOneAndUpdate(
+                    { userId: admin._id },
+                    { $inc: { adminInv: 1 } }
+                  ).exec();
+                  global.io.emit("admin inventory warning", {
+                    id: admin._id,
+                    info: 1,
+                  });
+                });
+                await NotificationCount.findOneAndUpdate(
+                  { userId: req.body.keyPartnerId },
+                  { $inc: { kpInv: 1 } }
+                ).exec();
+                global.io.emit("keypartner inventory warning", {
+                  id: req.body.keyPartnerId,
+                  info: 1,
+                });
+              }
             });
-            await Bundle.findByIdAndUpdate(newBooking.itemId, {
-              $set: { status: "out" },
-            }).exec();
           }
           let responseBooking = await Booking.findById(newBooking._id)
             .populate("itemId")
