@@ -31,7 +31,7 @@ module.exports = (booking, id) => {
         worksheet.getCell(`K${j + 2}`).value = ''
         worksheet.getCell(`L${j + 2}`).value = ''
         worksheet.getCell(`M${j + 2}`).value = (booking[j].itemType === 'individual') ? itemLs[0] : itemLs.join(', ')
-        worksheet.getCell(`N${j + 2}`).value = (booking[j].itemType === 'individual') ? { richText: [{ text: `Color: ${booking[j].itemId.color.name}` }, { text: ` \r\nSize: ${booking[j].itemId.size.name}` }] } : booking[j].itemType
+        worksheet.getCell(`N${j + 2}`).value = (booking[j].itemType === 'individual') ? { richText: [{ text: `Color: ${booking[j].itemId.color.name}, ` }, { text: `Size: ${booking[j].itemId.size.name}` }] } : booking[j].itemType
         worksheet.getCell(`O${j + 2}`).value = booking[j].cod
       }
       await workbook.xlsx.writeFile(`./temp/${filename}`)
