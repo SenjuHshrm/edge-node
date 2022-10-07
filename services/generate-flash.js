@@ -10,6 +10,14 @@ module.exports = (booking, id) => {
     .then(async () => {
       let worksheet = workbook.getWorksheet(1)
       for(let j = 0; j < booking.length; j ++) {
+        let itemLs = [];
+        if(booking[j].itemType === 'individual') {
+          itemLs.push(booking[j].itemId.desc)
+        } else if(booking[j].itemType === 'bundle') {
+          booking[j].bundleId.items.forEach(item => {
+            itemLs.push(item.item)
+          })
+        }
         worksheet.getCell(`A${j + 2}`).value = booking[j].bookingId
         worksheet.getCell(`B${j + 2}`).value = booking[j].customer
         worksheet.getCell(`C${j + 2}`).value = `${booking[j].hsStNum}, ${booking[j].brgy}, ${booking[j].city}, ${booking[j].province}`
@@ -22,7 +30,7 @@ module.exports = (booking, id) => {
         worksheet.getCell(`J${j + 2}`).value = ''
         worksheet.getCell(`K${j + 2}`).value = ''
         worksheet.getCell(`L${j + 2}`).value = ''
-        worksheet.getCell(`M${j + 2}`).value = (booking[j].itemType === 'individual') ? booking[j].itemId.desc : booking[j].bundleId.name
+        worksheet.getCell(`M${j + 2}`).value = (booking[j].itemType === 'individual') ? itemLs[0] : itemLs.join(', ')
         worksheet.getCell(`N${j + 2}`).value = (booking[j].itemType === 'individual') ? { richText: [{ text: `Color: ${booking[j].itemId.color.name}` }, { text: ` \r\nSize: ${booking[j].itemId.size.name}` }] } : booking[j].itemType
         worksheet.getCell(`O${j + 2}`).value = booking[j].cod
       }
