@@ -360,7 +360,7 @@ module.exports = {
       for (let i = 0; i < bookingData.length; i++) {
         if (bookingData[i] !== "") {
           let data = bookingData[i].split(","),
-            itemId = null;
+            itemId = {};
           let booking = await Booking.find({
             keyPartnerId: req.body.id,
           }).exec();
@@ -376,7 +376,7 @@ module.exports = {
             for (let j = 0; j < inv.length; j++) {
               let sku = `SKU-EC-${inv[j].classification.code}-${inv[j].color.code}-${inv[j].size.code}-${inv[j].sequence}`;
               if (data[12] === sku) {
-                itemId = inv[j]._id;
+                itemId.id = inv[j]._id;
                 break;
               }
             }
@@ -384,8 +384,13 @@ module.exports = {
             let bnd = await Bundle.findOne({
               keyPartnerId: req.body.id,
               name: data[12],
-            }).exec();
-            itemId = bnd._id;
+            }).populate('items').exec();
+            itemId.id = bnd._id
+            itemId.items = {
+              name: bnd.name,
+              quantity: '',
+              items: bnd.items
+            }
           }
           let newBooking = await new Booking({
             keyPartnerId: req.body.id,
@@ -402,8 +407,8 @@ module.exports = {
             sender: data[9],
             senderContact: data[10],
             remarks: data[11],
-            itemId: itemId,
-            bundleId: itemId,
+            itemId: itemId.id,
+            bundleId: (data[14] === 'individual') ? null : itemId.items,
             quantity: data[13],
             itemType: data[14],
             status: "unfulfilled",
@@ -444,7 +449,7 @@ module.exports = {
               i.out = +i.out + +item.quantity;
               i.markModified("out");
               i.save();
-              if (+inv.currentQty <= +inv.criticalBalance) {
+              if (+i.currentQty <= +i.criticalBalance) {
                 let admins = await User.find({ accessLvl: [1, 2] }).exec();
                 admins.forEach(async admin => {
                   await NotificationCount.findOneAndUpdate(
