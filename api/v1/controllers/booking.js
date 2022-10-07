@@ -16,35 +16,49 @@ module.exports = {
    *
    */
   createBooking: async (req, res) => {
-    let booking = await Booking.find({
-      keyPartnerId: req.body.keyPartnerId,
-    }).exec();
-    let user = await User.findById(req.body.keyPartnerId).exec();
-    let genId = generateId(booking, user.userId);
-    new Booking({
-      keyPartnerId: req.body.keyPartnerId,
-      bookingId: genId,
-      customer: req.body.customer,
-      customerContact: req.body.customerContact,
-      province: req.body.province,
-      city: req.body.city,
-      brgy: req.body.brgy,
-      hsStNum: req.body.hsStNum,
-      zip: req.body.zip,
-      courier: req.body.courier,
-      cod: req.body.cod,
-      sender: req.body.sender,
-      senderContact: req.body.senderContact,
-      remarks: req.body.remarks,
-      itemId: req.body.itemId,
-      bundleId: req.body.bundleId,
-      quantity: req.body.itemType === "individual" ? req.body.quantity : "1",
-      itemType: req.body.itemType,
-      status: "unfulfilled",
-      deletedAt: "",
-    })
-      .save()
-      .then(async newBooking => {
+    try {
+      let inv = null;
+      if(req.body.itemType === 'individual') {
+        inv = await Inventory.findById(req.body.itemId).exec()
+        if(+inv.currentQty < +req.body.quantity) {
+          return res.status(409).json({ success: false, msg: 'Selected item quantity is not enough to proceed booking process.' })
+        }
+      } else if(req.body.itemType === 'bundle') {
+        for(let i = 0; i < req.body.bundleId.items.length; i++) {
+          inv = await Inventory.findById(req.body.bundleId.items[i].itemId).exec()
+          if(+inv.currentQty < +req.body.bundleId.items[i].quantity) {
+            return res.status(409).json({ success: false, msg: 'Please check if the items in the bundle are enough' })
+            break;
+          }
+        }
+      }
+      let b = await Booking.find({
+        keyPartnerId: req.body.keyPartnerId,
+      }).exec();
+      let user = await User.findById(req.body.keyPartnerId).exec();
+      let genId = generateId(b, user.userId);
+      new Booking({
+        keyPartnerId: req.body.keyPartnerId,
+        bookingId: genId,
+        customer: req.body.customer,
+        customerContact: req.body.customerContact,
+        province: req.body.province,
+        city: req.body.city,
+        brgy: req.body.brgy,
+        hsStNum: req.body.hsStNum,
+        zip: req.body.zip,
+        courier: req.body.courier,
+        cod: req.body.cod,
+        sender: req.body.sender,
+        senderContact: req.body.senderContact,
+        remarks: req.body.remarks,
+        itemId: req.body.itemId,
+        bundleId: req.body.bundleId,
+        quantity: req.body.itemType === "individual" ? req.body.quantity : "1",
+        itemType: req.body.itemType,
+        status: "unfulfilled",
+        deletedAt: "",
+      }).save().then(async newBooking => {
         if (newBooking.itemType === "individual") {
           let inv = await Inventory.findById(newBooking.itemId).exec();
           inv.currentQty = +inv.currentQty - newBooking.quantity;
@@ -74,7 +88,6 @@ module.exports = {
             });
           }
         } else {
-          // let bundle = await Bundle.findById(newBooking.itemId).exec();
           req.body.bundleId.items.map(async item => {
             let inv = await Inventory.findById(item.itemId).exec();
             inv.currentQty = +inv.currentQty - +item.quantity;
@@ -103,43 +116,24 @@ module.exports = {
               });
             }
           });
-
-          // await Bundle.findByIdAndUpdate(newBooking.itemId, {
-          //   $set: { status: "out" },
-          // }).exec();
         }
-
         let booking = await Booking.findById(newBooking._id)
           .populate({
             path: "itemId",
             model: "inventory",
-          })
-          .populate({
-            path: "bundleId",
-            model: "bundle",
-          })
-          .exec();
-
-        // newBooking.items.forEach(async x => {
-        //   if (x.itemType === "individual") {
-        //     let inv = await Inventory.findById(x.itemId).exec();
-        //     inv.currentQty = +inv.currentQty - x.quantity;
-        //     inv.out = +inv.out + +x.quantity;
-        //     inv.markModified("currentQty");
-        //     inv.markModified("out");
-        //     inv.save();
-        //   } else if (x.itemType === "bundle") {
-        //     await Bundle.findByIdAndUpdate(x.itemId, {
-        //       $set: { status: "out" },
-        //     }).exec();
-        //   }
-        // });
-        return res.status(200).json({ success: true, info: booking });
+          }).exec();
+        return res.status(200).json({ success: true, info: booking })
       })
       .catch(e => {
         console.log(e);
         return res.status(500).json({ success: false, msg: "" });
       });
+
+      
+    } catch (e) {
+      console.log(e)
+      return res.status(500).json({ success: false, msg: '' })
+    }
   },
 
   getAllBookingPerKP: async (req, res) => {
@@ -417,8 +411,8 @@ module.exports = {
           }).save();
           if (newBooking.itemType === "individual") {
             let inv = await Inventory.findById(newBooking.itemId).exec();
-            inv.currentQty -= +newBooking.quantity;
-            inv.out += newBooking.quantity;
+            inv.currentQty = +inv.currentQty - +newBooking.quantity;
+            inv.out = +inv.out + +newBooking.quantity;
             inv.markModified("currentQty");
             inv.markModified("out");
             inv.save();
@@ -447,7 +441,7 @@ module.exports = {
             let bnd = await Bundle.findById(newBooking.itemId).exec();
             bnd.items.map(async item => {
               let i = await Inventory.findById(item.itemId).exec();
-              i.out += item.quantity;
+              i.out = +i.out + +item.quantity;
               i.markModified("out");
               i.save();
             });
