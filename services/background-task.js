@@ -14,8 +14,8 @@ module.exports = {
       let files = await File.find({}).exec()
       files.forEach(async file => {
         if(moment().diff(moment(file.createdAt), 'weeks') === 2) {
-          fs.unlinkSync(file.filePath)
-          if(file.from.collection === 'contract') {
+          if(file.from.collection !== 'contract') {
+            fs.unlinkSync(file.filePath)
             await File.findByIdAndDelete(file.from.id).exec()
           }
         }
