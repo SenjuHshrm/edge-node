@@ -192,6 +192,7 @@ router
     passport.authenticate("jwt", { session: false }),
     contractCtrl.markAsSeen
   )
+  .put('/inventory/form/selected', passport.authenticate('jwt', { session: false }), invCtrl.exportSelected)
   .put("/reset-password/:id", authCtrl.resetPassword);
 
 module.exports = router;

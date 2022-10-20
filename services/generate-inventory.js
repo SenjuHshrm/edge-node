@@ -29,16 +29,16 @@ module.exports = (inv, id) => {
         row[7] = inv[i].size.code.toString()
         row[8] = inv[i].sequence.toString()
         row[9] = buildSKU(inv[i])
-        row[10] = inv[i].in.toString()
-        row[11] = inv[i].out.toString()
-        row[12] = inv[i].defective.toString()
-        row[13] = inv[i].rts.toString()
-        row[14] = inv[i].currentQty.toString()
-        row[15] = +inv[i].price
-        row[16] = +(+inv[i].price * +inv[i].out).toFixed(2)
-        row[18] = inv[i].currentQty.toString()
-        row[19] = +inv[i].price
-        row[20] = +(+inv[i].price * +inv[i].currentQty).toFixed(2)
+        row[10] = (inv[i].status === 'moving') ? inv[i].in.toString() : ''
+        row[11] = (inv[i].status === 'moving') ? inv[i].out.toString() : ''
+        row[12] = (inv[i].status === 'moving') ? inv[i].defective.toString() : ''
+        row[13] = (inv[i].status === 'moving') ? inv[i].rts.toString() : ''
+        row[14] = (inv[i].status === 'moving') ? inv[i].currentQty.toString() : ''
+        row[15] = (inv[i].status === 'moving') ? +inv[i].price : ''
+        row[16] = (inv[i].status === 'moving') ? +(+inv[i].price * +inv[i].out).toFixed(2) : ''
+        row[18] = (inv[i].status === 'non-moving') ? inv[i].currentQty.toString() : ''
+        row[19] = (inv[i].status === 'non-moving') ? +inv[i].price : ''
+        row[20] = (inv[i].status === 'non-moving') ? +(+inv[i].price * +inv[i].currentQty).toFixed(2) : ''
         worksheet.insertRow(3 + i, row, '')
 
         worksheet.getCell(`A${3 + i}`).alignment = centerAlign

@@ -253,6 +253,17 @@ module.exports = {
     }
   },
 
+  exportSelected: async (req, res) => {
+    try {
+      let inv = await Inventory.find({ _id: req.body.items }).populate('classification').populate('color').populate('size').exec()
+      let file = await generateInv(inv, req.body.id)
+      return res.status(200).json({ success: true, info: file });
+    } catch(e) {
+      console.log(e)
+      return res.status(500).json({ success: false, msg: '' })
+    }
+  },
+
   /**
    *
    */
