@@ -52,5 +52,10 @@ router
     passport.authenticate('jwt', { session: false }),
     bookingCtrl.deleteBooking
   )
+  .delete(
+    '/items/selected',
+    passport.authenticate('jwt', { session: false }),
+    invCtrl.deleteSelected
+  )
 
 module.exports = router;

@@ -235,6 +235,17 @@ module.exports = {
     }
   },
 
+  deleteSelected: async (req, res) => {
+    try {
+      let ids = JSON.parse(req.query.ids)
+      await Inventory.updateMany({ _id: ids }, { deletedAt: new Date().toLocaleString() }).exec()
+      return res.sendStatus(204)
+    } catch(e) {
+      console.log(e)
+      return res.status(500).json({ success: false, msg: '' })
+    }
+  },
+
   /**
    *
    */
