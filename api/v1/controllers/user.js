@@ -2,6 +2,7 @@ const User = require("../../../models/User");
 const sendCred = require("../../../utils/mailer").sendPassword;
 const NotificationCount = require("../../../models/NotificationCount");
 const { sendRejectAcct } = require('../../../utils/mailer')
+const jwt = require('jsonwebtoken')
 
 module.exports = {
   /**
@@ -301,8 +302,13 @@ module.exports = {
         { img: path },
         { new: true }
       ).exec();
-      res.status(200).json({ success: true, info: user.img });
+      let oldToken = jwt.decode(req.headers.authorization.split(' ')[1])
+      let newToken = user.generateToken()
+      await User.findByIdAndUpdate(keyPartnerId, { $push: { refreshToken: { uid: newToken.uid, token: newToken.refresh } } }).exec()
+      await User.findByIdAndUpdate(keyPartnerId, { $pull: { refreshToken: { uid: oldToken.uid } } }).exec()
+      res.status(200).json({ success: true, info: newToken.access });
     } catch (error) {
+      console.log(error)
       return res.status(500).json({
         success: false,
         msg: "Failed to update the profile image.",
