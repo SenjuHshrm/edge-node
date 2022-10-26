@@ -5,6 +5,7 @@ const User = require("../../../models/User");
 const File = require("../../../models/File");
 const NotificationCount = require("../../../models/NotificationCount");
 const generateId = require("../../../utils/id-generator");
+const checkAddr = require('../../../utils/check-address')
 const moment = require("moment");
 const generateFlash = require("../../../services/generate-flash");
 const generateJnt = require("../../../services/generate-jnt");
@@ -63,8 +64,6 @@ module.exports = {
           let inv = await Inventory.findById(newBooking.itemId).exec();
           inv.currentQty = +inv.currentQty - newBooking.quantity;
           inv.out = +inv.out + +newBooking.quantity;
-          inv.markModified("currentQty");
-          inv.markModified("out");
           inv.save();
           if (+inv.currentQty <= +inv.criticalBalance) {
             let admins = await User.find({ accessLvl: [1, 2] }).exec();
@@ -92,7 +91,6 @@ module.exports = {
             let inv = await Inventory.findById(item.itemId).exec();
             inv.currentQty = +inv.currentQty - +item.quantity;
             inv.out = +inv.out + +item.quantity;
-            inv.markModified("out");
             inv.save();
             if (+inv.currentQty <= +inv.criticalBalance) {
               let admins = await User.find({ accessLvl: [1, 2] }).exec();
@@ -318,15 +316,10 @@ module.exports = {
     try {
       req.body.items.map(async item => {
         let it = await Inventory.findById(item.itemId).exec();
-        await Inventory.findByIdAndUpdate(
-          it._id,
-          {
-            defective: +it.defective + +item.defective,
-            currentQty: +it.currentQty + +item.good,
-            out: +it.out - +item.quantity,
-          },
-          { new: true }
-        ).exec();
+        it.defective = +it.defective + +item.defective
+        it.currentQty = +it.currentQty + +item.good
+        it.out = +it.out - +item.quantity
+        it.save()
       });
       await Booking.findByIdAndUpdate(req.params.id, {
         remarks: req.body.remarks,
@@ -351,105 +344,82 @@ module.exports = {
         `./uploads/booking/${req.body.filename}`,
         "utf-8"
       );
-      let bookingData = bookingFile.split("\r\n");
+      let bookingData = bookingFile.trim().split("\r\n");
       let returnBooking = [];
+      let checkBookingAddr = []
       bookingData.splice(0, 1);
+      
+      // console.log(checkAddr('RIZAL', 'CAINTA', 'SAN JUAN', 'flash'))
 
-      // let
-      // console.log(bookingData)
-      for (let i = 0; i < bookingData.length; i++) {
-        if (bookingData[i] !== "") {
-          let data = bookingData[i].split(","),
-            itemId = {};
-          let booking = await Booking.find({
-            keyPartnerId: req.body.id,
-          }).exec();
-          let user = await User.findById(req.body.id).exec();
-          let genId = generateId(booking, user.userId);
-          if (data[14] === "individual") {
-            let inv = await Inventory.find({ keyPartnerId: req.body.id })
-              .populate({
-                path: "classification code color size",
-                model: "classification",
-              })
-              .exec();
-            for (let j = 0; j < inv.length; j++) {
-              let sku = `SKU-EC-${inv[j].classification.code}-${inv[j].color.code}-${inv[j].size.code}-${inv[j].sequence}`;
-              if (data[12] === sku) {
-                itemId.id = inv[j]._id;
-                break;
+      for(let booking of bookingData) {
+        let b = booking.split(',')
+        checkBookingAddr.push(checkAddr(b[2], b[3], b[4], b[7]))
+      }
+
+      if(checkBookingAddr.indexOf('NO') === -1 && checkBookingAddr.indexOf('error') === -1) {
+        for (let i = 0; i < bookingData.length; i++) {
+          if (bookingData[i] !== "") {
+            let data = bookingData[i].split(","),
+              itemId = {};
+            let booking = await Booking.find({
+              keyPartnerId: req.body.id,
+            }).exec();
+            let user = await User.findById(req.body.id).exec();
+            let genId = generateId(booking, user.userId);
+            if (data[14] === "individual") {
+              let inv = await Inventory.find({ keyPartnerId: req.body.id })
+                .populate({
+                  path: "classification code color size",
+                  model: "classification",
+                })
+                .exec();
+              for (let j = 0; j < inv.length; j++) {
+                let sku = `SKU-EC-${inv[j].classification.code}-${inv[j].color.code}-${inv[j].size.code}-${inv[j].sequence}`;
+                if (data[12] === sku) {
+                  itemId.id = inv[j]._id;
+                  break;
+                }
+              }
+            } else if (data[14] === "bundle") {
+              let bnd = await Bundle.findOne({
+                keyPartnerId: req.body.id,
+                name: data[12],
+              }).populate('items').exec();
+              itemId.id = bnd._id
+              itemId.items = {
+                name: bnd.name,
+                quantity: '',
+                items: bnd.items
               }
             }
-          } else if (data[14] === "bundle") {
-            let bnd = await Bundle.findOne({
+            let newBooking = await new Booking({
               keyPartnerId: req.body.id,
-              name: data[12],
-            }).populate('items').exec();
-            itemId.id = bnd._id
-            itemId.items = {
-              name: bnd.name,
-              quantity: '',
-              items: bnd.items
-            }
-          }
-          let newBooking = await new Booking({
-            keyPartnerId: req.body.id,
-            bookingId: genId,
-            customer: data[0],
-            customerContact: data[1],
-            province: data[2],
-            city: data[3],
-            brgy: data[4],
-            hsStNum: data[5],
-            zip: data[6],
-            courier: data[7],
-            cod: data[8],
-            sender: data[9],
-            senderContact: data[10],
-            remarks: data[11],
-            itemId: itemId.id,
-            bundleId: (data[14] === 'individual') ? null : itemId.items,
-            quantity: data[13],
-            itemType: data[14],
-            status: "unfulfilled",
-            deletedAt: ""
-          }).save();
-          if (newBooking.itemType === "individual") {
-            let inv = await Inventory.findById(newBooking.itemId).exec();
-            inv.currentQty = +inv.currentQty - +newBooking.quantity;
-            inv.out = +inv.out + +newBooking.quantity;
-            inv.markModified("currentQty");
-            inv.markModified("out");
-            inv.save();
-            if (+inv.currentQty <= +inv.criticalBalance) {
-              let admins = await User.find({ accessLvl: [1, 2] }).exec();
-              admins.forEach(async admin => {
-                await NotificationCount.findOneAndUpdate(
-                  { userId: admin._id },
-                  { $inc: { adminInv: 1 } }
-                ).exec();
-                global.io.emit("admin inventory warning", {
-                  id: admin._id,
-                  info: 1,
-                });
-              });
-              await NotificationCount.findOneAndUpdate(
-                { userId: req.body.id },
-                { $inc: { kpInv: 1 } }
-              ).exec();
-              global.io.emit("keypartner inventory warning", {
-                id: req.body.id,
-                info: 1,
-              });
-            }
-          } else if (newBooking.itemType === "bundle") {
-            let bnd = await Bundle.findById(newBooking.itemId).exec();
-            bnd.items.map(async item => {
-              let i = await Inventory.findById(item.itemId).exec();
-              i.out = +i.out + +item.quantity;
-              i.markModified("out");
-              i.save();
-              if (+i.currentQty <= +i.criticalBalance) {
+              bookingId: genId,
+              customer: data[0],
+              customerContact: data[1],
+              province: data[2],
+              city: data[3],
+              brgy: data[4],
+              hsStNum: data[5],
+              zip: data[6],
+              courier: data[7],
+              cod: data[8],
+              sender: data[9],
+              senderContact: data[10],
+              remarks: data[11],
+              itemId: itemId.id,
+              bundleId: (data[14] === 'individual') ? null : itemId.items,
+              quantity: data[13],
+              itemType: data[14],
+              status: "unfulfilled",
+              deletedAt: ""
+            }).save();
+            if (newBooking.itemType === "individual") {
+              let inv = await Inventory.findById(newBooking.itemId).exec();
+              inv.currentQty = +inv.currentQty - +newBooking.quantity;
+              inv.out = +inv.out + +newBooking.quantity;
+              inv.save();
+              if (+inv.currentQty <= +inv.criticalBalance) {
                 let admins = await User.find({ accessLvl: [1, 2] }).exec();
                 admins.forEach(async admin => {
                   await NotificationCount.findOneAndUpdate(
@@ -462,24 +432,55 @@ module.exports = {
                   });
                 });
                 await NotificationCount.findOneAndUpdate(
-                  { userId: req.body.keyPartnerId },
+                  { userId: req.body.id },
                   { $inc: { kpInv: 1 } }
                 ).exec();
                 global.io.emit("keypartner inventory warning", {
-                  id: req.body.keyPartnerId,
+                  id: req.body.id,
                   info: 1,
                 });
               }
-            });
+            } else if (newBooking.itemType === "bundle") {
+              let bnd = await Bundle.findById(newBooking.itemId).exec();
+              bnd.items.map(async item => {
+                let i = await Inventory.findById(item.itemId).exec();
+                i.out = +i.out + +item.quantity;
+                i.currentQty = +i.currentQty - +item.quantity
+                i.save();
+                if (+i.currentQty <= +i.criticalBalance) {
+                  let admins = await User.find({ accessLvl: [1, 2] }).exec();
+                  admins.forEach(async admin => {
+                    await NotificationCount.findOneAndUpdate(
+                      { userId: admin._id },
+                      { $inc: { adminInv: 1 } }
+                    ).exec();
+                    global.io.emit("admin inventory warning", {
+                      id: admin._id,
+                      info: 1,
+                    });
+                  });
+                  await NotificationCount.findOneAndUpdate(
+                    { userId: req.body.keyPartnerId },
+                    { $inc: { kpInv: 1 } }
+                  ).exec();
+                  global.io.emit("keypartner inventory warning", {
+                    id: req.body.keyPartnerId,
+                    info: 1,
+                  });
+                }
+              });
+            }
+            let responseBooking = await Booking.findById(newBooking._id)
+              .populate("itemId")
+              .exec();
+            returnBooking.push(responseBooking);
           }
-          let responseBooking = await Booking.findById(newBooking._id)
-            .populate("itemId")
-            .exec();
-          returnBooking.push(responseBooking);
         }
+        new File({ filePath: `/uploads/booking/${req.body.filename}` }).save();
+        return res.status(200).json({ success: true, info: returnBooking });
+      } else {
+        return res.status(406).json({ success: false, msg: 'Unable to save booking. Please check addresses if not ODZ (Out of Delivery Zone) to the selected courier.' });
       }
-      new File({ filePath: `/uploads/booking/${req.body.filename}` }).save();
-      return res.status(200).json({ success: true, info: returnBooking });
     } catch (e) {
       console.log(e);
       return res.status(500).json({ success: false, msg: "" });

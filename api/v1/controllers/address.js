@@ -22,7 +22,7 @@ module.exports = {
       // 7
       try {
         let isAvailable = 'NO',
-          locations = content.split('\n'),
+          locations = content.split('\r\n'),
           paramCity = '',
           selectedProvince = [],
           selectedBrgy = []
@@ -32,7 +32,7 @@ module.exports = {
             locations.splice((locations.length - 1), 1)
             selectedProvince = locations.filter((x) => { return req.params.province.match(x.split(',')[1].toUpperCase()) })
             selectedCity = selectedProvince.filter((x) => { return x.split(',')[2].toUpperCase().match(paramCity.trim()) })
-            selectedBrgy = selectedCity.filter((x) => { return req.params.brgy.match(x.split(',')[3].toUpperCase()) })
+            selectedBrgy = selectedCity.filter((x) => { return x.split(',')[3].toUpperCase() === req.params.brgy })
             isAvailable = selectedBrgy[0].split(',')[7]
             break;
           case 'jnt':
