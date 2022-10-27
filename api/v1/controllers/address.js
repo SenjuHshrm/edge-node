@@ -42,7 +42,7 @@ module.exports = {
             locations.splice((locations.length - 1), 1)
             selectedProvince = locations.filter((x) => { return province.match(x.split(',')[4].toUpperCase()) })
             selectedCity = selectedProvince.filter((x) => { return x.split(',')[5].toUpperCase().match(paramCity.trim()) })
-            selectedBrgy = selectedCity.filter((x) => { return req.params.brgy.match(x.split(',')[6].toUpperCase()) })
+            selectedBrgy = selectedCity.filter((x) => { return x.split(',')[6].toUpperCase() === req.params.brgy.toUpperCase() })
             isAvailable = selectedBrgy[0].split(',')[7]
             break;
         }
