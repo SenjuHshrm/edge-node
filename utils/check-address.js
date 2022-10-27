@@ -19,23 +19,24 @@ module.exports = (province, city, brgy, type) => {
         paramCity = '',
         paramBrgy = brgy,
         selectedProvince = [],
-        selectedBrgy = []
+        selectedBrgy = [];
+
     switch(type) {
       case 'flash':
         paramCity = modCity(city)
         locations.splice((locations.length - 1), 1)
-        selectedProvince = locations.filter((x) => { return paramProvince.toUpperCase().match(x.split(',')[1].toUpperCase()) })
-        selectedCity = selectedProvince.filter((x) => { return x.split(',')[2].toUpperCase().match(paramCity.trim()) })
-        selectedBrgy = selectedCity.filter((x) => { return x.split(',')[3].toUpperCase() === paramBrgy.toUpperCase() })
+        selectedProvince = locations.filter((x) => { return paramProvince.match(x.split(',')[1]) })
+        selectedCity = selectedProvince.filter((x) => { return x.split(',')[2].match(paramCity.trim()) })
+        selectedBrgy = selectedCity.filter((x) => { return x.split(',')[3] === paramBrgy })
         isAvailable = selectedBrgy[0].split(',')[7]
         break;
       case 'jnt':
         let pr = paramProvince.replace(' ', '-')
         paramCity = city.replace(/[ *]/g, '-')
         locations.splice((locations.length - 1), 1)
-        selectedProvince = locations.filter((x) => { return pr.toUpperCase().match(x.split(',')[4].toUpperCase()) })
-        selectedCity = selectedProvince.filter((x) => { return x.split(',')[5].toUpperCase().match(paramCity.toUpperCase().trim()) })
-        selectedBrgy = selectedCity.filter((x) => { return x.split(',')[6].toUpperCase() === paramBrgy.toUpperCase() })
+        selectedProvince = locations.filter((x) => { return pr.match(x.split(',')[4]) })
+        selectedCity = selectedProvince.filter((x) => { return x.split(',')[5].match(paramCity.trim()) })
+        selectedBrgy = selectedCity.filter((x) => { return x.split(',')[6] === paramBrgy })
         isAvailable = selectedBrgy[0].split(',')[7]
         break;
     }
@@ -60,9 +61,9 @@ module.exports = (province, city, brgy, type) => {
   //       case 'flash':
   //         paramCity = modCity(city)
   //         locations.splice((locations.length - 1), 1)
-  //         selectedProvince = locations.filter((x) => { return paramProvince.match(x.split(',')[1].toUpperCase()) })
-  //         selectedCity = selectedProvince.filter((x) => { return x.split(',')[2].toUpperCase().match(paramCity.trim()) })
-  //         selectedBrgy = selectedCity.filter((x) => { return x.split(',')[3].toUpperCase() === brgy })
+  //         selectedProvince = locations.filter((x) => { return paramProvince.match(x.split(',')[1]) })
+  //         selectedCity = selectedProvince.filter((x) => { return x.split(',')[2].match(paramCity.trim()) })
+  //         selectedBrgy = selectedCity.filter((x) => { return x.split(',')[3] === brgy })
   //         isAvailable = selectedBrgy[0].split(',')[7]
   //         break;
   //       case 'jnt':
@@ -70,9 +71,9 @@ module.exports = (province, city, brgy, type) => {
   //         paramCity = city.replace(/[ *]/g, '-')
   //         console.log(paramCity)
   //         locations.splice((locations.length - 1), 1)
-  //         selectedProvince = locations.filter((x) => { return paramProvince.match(x.split(',')[4].toUpperCase()) })
-  //         selectedCity = selectedProvince.filter((x) => { return x.split(',')[5].toUpperCase().match(paramCity.trim()) })
-  //         selectedBrgy = selectedCity.filter((x) => { return brgy.match(x.split(',')[6].toUpperCase()) })
+  //         selectedProvince = locations.filter((x) => { return paramProvince.match(x.split(',')[4]) })
+  //         selectedCity = selectedProvince.filter((x) => { return x.split(',')[5].match(paramCity.trim()) })
+  //         selectedBrgy = selectedCity.filter((x) => { return brgy.match(x.split(',')[6]) })
   //         isAvailable = selectedBrgy[0].split(',')[7]
   //         break;
   //     }

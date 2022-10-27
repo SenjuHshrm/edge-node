@@ -353,7 +353,7 @@ module.exports = {
 
       for(let booking of bookingData) {
         let b = booking.split(',')
-        checkBookingAddr.push(checkAddr(b[2], b[3], b[4], b[7]))
+        checkBookingAddr.push(checkAddr(b[2].toUpperCase(), b[3].toUpperCase(), b[4].toUpperCase(), b[7]))
       }
 
       if(checkBookingAddr.indexOf('NO') === -1 && checkBookingAddr.indexOf('error') === -1) {
