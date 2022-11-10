@@ -12,14 +12,22 @@ const modCity = (city) => {
   return res
 }
 
+const modBrgy = (brgy) => {
+  let res = brgy, ind = brgy.indexOf('(');
+  if(ind !== -1) {
+    res = brgy.substr(0, ind).trim()
+  }
+  return res
+}
+
 module.exports = (province, city, brgy, type) => {
   try {
-    let content = fs.readFileSync(`${appRoot}/uploads/files/${type}.csv`, 'utf-8'),
+    let content = fs.readFileSync(`${appRoot}/uploads/files/${type}.csv`, 'latin1'),
         isAvailable = 'NO',
         locations = content.split('\r\n'),
         paramProvince = province,
         paramCity = '',
-        paramBrgy = brgy,
+        paramBrgy = modBrgy(brgy),
         selectedProvince = [],
         selectedBrgy = [];
 
@@ -29,7 +37,7 @@ module.exports = (province, city, brgy, type) => {
         locations.splice((locations.length - 1), 1)
         selectedProvince = locations.filter((x) => { return x.split(',')[1].toUpperCase().match(new RegExp(`${paramProvince}`)) })
         selectedCity = selectedProvince.filter((x) => { return x.split(',')[2].toUpperCase().match(new RegExp(`${paramCity}`)) })
-        selectedBrgy = selectedCity.filter((x) => { return x.split(',')[3].toUpperCase() === paramBrgy })
+        selectedBrgy = selectedCity.filter((x) => { return x.split(',')[3].toUpperCase().match(new RegExp(`${paramBrgy}`)) })
         isAvailable = selectedBrgy[0].split(',')[7]
         
         break;
