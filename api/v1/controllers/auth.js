@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken')
 const passport = require('passport')
 const User = require('../../../models/User')
 const { sendPasswordReset } = require('../../../utils/mailer')
+const writeLog = require('../../../utils/write-log')
 
 module.exports = {
   /**
@@ -38,12 +39,12 @@ module.exports = {
       await User.findOneAndUpdate({ _id: decode.sub, ['refreshToken.uid']: refr[0].uid }, { $set: { 'refreshToken.$': { uid: newToken.uid, token: newToken.refresh } } }).exec()
       return res.status(200).json({ success: true, token: newToken.access })
     } catch(e) {
-      console.log(e)
       if(e.name === 'TokenExpiredError') {
         let newToken = user.generateToken()
         await User.findOneAndUpdate({ _id: token.sub, ['refreshToken.uid']: refr[0].uid }, { $set: { 'refreshToken.$': { uid: newToken.uid, token: newToken.refresh } } }).exec()
         return res.status(200).json({ success: true, token: newToken.access })
       }
+      writeLog('auth', 'refreshToken', '00002', e.stack)
     }
   },
 
@@ -57,7 +58,7 @@ module.exports = {
         return res.status(200).json({ success: true })
       })
       .catch(e => {
-        console.log(e)
+        writeLog('auth', 'internalPageAuth', '00003', e.stack)
         return res.status(500).json({ success: false, msg: '' })
       })
   },
@@ -75,7 +76,7 @@ module.exports = {
       sendPasswordReset(req.body.email, resetToken)
       return res.sendStatus(204)
     } catch(e) {
-      console.log(e)
+      writeLog('auth', 'requestAuthPasswordReset', '00004', e.stack)
       return res.status(500).json({ success: false, msg: '' })
     }
   },
@@ -86,6 +87,7 @@ module.exports = {
   checkPasswordResetToken: (req, res) => {
     jwt.verify(req.params.token, process.env.JWT_SECRET, (error, decode) => {
       if(error) {
+        writeLog('auth', 'checkPasswordResetToken', '00005', error.stack)
         return res.status(403).json({ success: false, msg: error.message })
       }
       return res.sendStatus(204)
@@ -103,7 +105,7 @@ module.exports = {
       user.save()
       return res.sendStatus(204)
     } catch(e) {
-      console.log(e)
+      writeLog('auth', 'resetPassword', '00006', e.stack)
       return res.status(500).json({ success: false, msg: '' })
     }
   },
@@ -120,7 +122,7 @@ module.exports = {
       await User.findByIdAndUpdate(token.sub, { $pull: { refreshToken: { uid: token.uid } } })
       return res.status(200).json({ success: true, msg: 'logout' })
     } catch(e) {
-      console.log(e)
+      writeLog('auth', 'logout', '00007', e.stack)
       return res.status(500).json({ success: false, msg: 'error' })
     }
   }

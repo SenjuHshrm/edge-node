@@ -4,10 +4,12 @@ const PurchaseOrder = require('../../../models/PurchaseOrder')
 const generateFlash = require('../../../services/generate-flash')
 const generateJNT = require('../../../services/generate-jnt')
 const jwt = require('jsonwebtoken')
+const writeLog = require('../../../utils/write-log')
 
 module.exports = {
   /**
    * Generate excel file for both couriers
+   * 00029
    */
   generateExcelAllCourier: async (req, res) => {
     try {
@@ -19,13 +21,14 @@ module.exports = {
       let jntExcel = (jnt.length > 0) ? await generateJNT(jnt, token.sub) : null;
       return res.status(200).json({ success: true, info: [flashExcel, jntExcel] })
     } catch(e) {
-      console.log(e)
+      writeLog('excel', 'generateExcelAllCourier', '00029', e.stack)
       return res.status(500).json({ success: false, msg: '' })
     }
   },
 
   /**
    * Get report data
+   * 0002A
    */
   getTodaysReport: async (req, res) => {
     try {
@@ -34,7 +37,7 @@ module.exports = {
           po = await PurchaseOrder.countDocuments({ createdAt: { $gte: req.params.currDateStart, $lte: req.params.currDateEnd } }).exec();
       return res.status(200).json({ info: { bookings, quotations, po } })
     } catch(e) {
-      console.log(e)
+      writeLog('excel', 'getTodaysReport', '0002A', e.stack)
       return res.status(500).json({ msg: '' })
     }
   }

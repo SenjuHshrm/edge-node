@@ -3,11 +3,13 @@ const generateId = require('../../../utils/id-generator')
 const NotificationCount = require('../../../models/NotificationCount')
 const User = require('../../../models/User')
 const { generateSingleInquiry, generateMultipleInquiry } = require('../../../services/generate-inquiry')
+const writeLog = require('../../../utils/write-log')
 
 module.exports = {
 
   /**
    * Create inquiry to admin
+   * 0002B
    */
   createInquiry: async (req, res) => {
     let prevInq = await Inquiry.find({}).exec()
@@ -29,13 +31,14 @@ module.exports = {
         inqId, createdAt, items, isApproved, keyPartnerId: { name, email, company }
       } })
     }).catch(e => {
-      console.log(e)
+      writeLog('inquiry', 'createInquiry', '0002B', e.stack)
       return res.status(500).json({ success: false, msg: '' })
     })
   },
   
   /**
    * Approve inquiry
+   * 0002C
    */
   approveInquiry: async (req, res) => {
     try {
@@ -45,12 +48,14 @@ module.exports = {
       ).exec()
       return res.status(200).json({ success: true, msg: 'OK' })
     } catch(e) {
+      writeLog('inquiry', 'approveInquiry', '0002C', e.stack)
       return res.status(500).json({ success: false, msg: '' })
     }
   },
 
   /**
    * Get all inquiries
+   * 0002D
    */
   getAllInquiries: async (req, res) => {
     try {
@@ -74,12 +79,14 @@ module.exports = {
       })
       return res.status(200).json({ success: true, info: response })
     } catch(e) {
+      writeLog('inquiry', 'getAllInquiries', '0002D', e.stack)
       return res.status(500).json({ success: false, msg: '' })
     }
   },
 
   /**
    * Get inquiry filtered by key-partner
+   * 0002E
    */
   getInquiriesByKeyPartner: async (req, res) => {
     try {
@@ -102,13 +109,14 @@ module.exports = {
       })
       return res.status(200).json({ success: true, info: response })
     } catch(e) {
-      console.log(e)
+      writeLog('inquiry', 'getInquiriesByKeyPartner', '0002E', e.stack)
       return res.status(500).json({ success: false, msg: '' })
     }
   },
 
   /**
    * Generate single inquiry form
+   * 0002F
    */
   generateSingleInquiryForm: async (req, res) => {
     try {
@@ -116,13 +124,14 @@ module.exports = {
       let inqFile = await generateSingleInquiry(inq)
       return res.status(200).json({ success: true, info: inqFile })
     } catch(e) {
-      console.log(e)
+      writeLog('inquiry', 'generateSingleInquiryForm', '0002F', e.stack)
       return res.status(500).json({ success: false, msg: '' })
     }
   },
 
   /**
    * Generate multiple inquiry form
+   * 00030
    */
   generateMultipleInquiry: async (req, res) => {
     try {
@@ -130,7 +139,7 @@ module.exports = {
       let inqFile = await generateMultipleInquiry(inq, req.body.id)
       return res.status(200).json({ success: true, info: inqFile })
     } catch(e) {
-      console.log(e)
+      writeLog('inquiry', 'generateMultipleInquiry', '00030', e.stack)
       return res.status(500).json({ success: false, msg: '' })
     }
   }

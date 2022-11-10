@@ -6,10 +6,12 @@ const NotificationCount = require('../../../models/NotificationCount')
 const generateId = require('../../../utils/id-generator')
 const moment = require('moment')
 const { generateSinglePO, generateMultiplePO } = require('../../../services/generate-po')
+const writeLog = require('../../../utils/write-log')
 
 module.exports = {
   /**
    * Create purchase order
+   * 0003C
    */
   createPurchaseOrder: async (req, res) => {
     let user = await User.findById(req.body.keyPartnerId).exec()
@@ -31,26 +33,28 @@ module.exports = {
       })
       return res.status(200).json({ success: true, info: newPO })
     }).catch(e => {
-      console.log(e)
+      writeLog('purchase-order', 'createPurchaseOrder', '0003C', e.stack)
       return res.status(500).json({ success: false, msg: '' })
     })
   },
 
   /**
    * Get all created purchase order
+   * 0003D
    */
   getAllPurchaseOrder: async (req, res) => {
     try {
       let po = await PurchaseOrder.find({}).lean().populate('keyPartnerId', '_id name company contact addr').sort({ createdAt: -1 }).exec()
       return res.status(200).json({ success: true, info: po })
     } catch(e) {
-      console.log(e)
+      writeLog('purchase-order', 'getAllPurchaseOrder', '0003D', e.stack)
       return res.status(500).json({ success: false, msg: '' })
     }
   },
 
   /**
    * Generate purchase order form
+   * 0003E
    */
   generateSinglePOFile: async (req, res) => {
     try {
@@ -58,13 +62,13 @@ module.exports = {
       let poFile = await generateSinglePO(po)
       return res.status(200).json({ success: true, info: poFile })
     } catch(e) {
-      console.log(e)
+      writeLog('purchase-order', 'generateSinglePOFile', '0003E', e.stack)
       return res.status(500).json({ success: false, msg: '' })
     }
   },
 
   /**
-   * 
+   * 0003F
    */
   generateMultiplePO: async (req, res) => {
     try {
@@ -72,13 +76,13 @@ module.exports = {
       let poFile = await generateMultiplePO(pos, req.body.id)
       return res.status(200).json({ success: true, info: poFile })
     } catch(e) {
-      console.log(e)
+      writeLog('purchase-order', 'generateMultiplePO', '0003F', e.stack)
       return res.status(500).json({ success: false, msg: '' })
     }
   },
 
   /**
-   * 
+   * 00040
    */
    getMonthlyPurchaseOrder: async (req, res) => {
     try {
@@ -95,19 +99,20 @@ module.exports = {
       }
       return res.status(200).json({ succes: true, info: response });
     } catch (e) {
-      console.log(e);
+      writeLog('purchase-order', 'getMonthlyPurchaseOrder', '00040', e.stack)
       return res.status(500).json({ success: false, msg: "" });
     }
   },
 
   /**
-   * 
+   * 00041
    */
   setPOAsSeen: async (req, res) => {
     try {
       await PurchaseOrder.findByIdAndUpdate(req.params.id, { $push: { seenBy: req.body.id } }).exec()
       return res.status(200).json({ success: true, info: req.body.id })
     } catch(e) {
+      writeLog('purchase-order', 'setPOAsSeen', '00041', e.stack)
       return res.status(500).json({ success: false, msg: '' })
     }
   }

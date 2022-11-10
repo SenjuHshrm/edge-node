@@ -23,5 +23,12 @@ module.exports = {
     })
   },
 
+  createLogFile: () => {
+    schedule.scheduleJob('0 0 0 * * *', () => {
+      let filename = `EC-Logs-${moment(new Date()).format('MM-DD-YYYY')}.txt`
+      fs.writeFileSync(`./logs/${filename}`, `Error logs - ${moment(new Date()).format('MM-DD-YYYY')}\n`)
+    })
+  }
+
 
 }

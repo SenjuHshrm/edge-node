@@ -3,6 +3,7 @@ const Classification = require("../../../models/Classification");
 module.exports = {
   /**
    * Create classification for admin
+   * 0001A
    */
   createClassification: async (req, res) => {
     let checkCode = await Classification.find({
@@ -23,6 +24,7 @@ module.exports = {
           return res.status(200).json({ success: true, info: classification });
         })
         .catch(e => {
+          writeLog('classification', 'createClassification', '0001A', e.stack)
           return res.status(500).json({
             success: false,
             msg: "Failed to save a new Classification.",
@@ -38,12 +40,14 @@ module.exports = {
 
   /**
    * Get all classification
+   * 0001B
    */
   getAllClassification: async (req, res) => {
     try {
       let classifications = await Classification.find({ deletedAt: "" }).exec();
       return res.status(200).json({ success: true, info: classifications });
     } catch (e) {
+      writeLog('classification', 'getAllClassification', '0001B', e.stack)
       return res.status(500).json({
         success: false,
         msg: "Failed to get the list of classifications.",
@@ -53,6 +57,7 @@ module.exports = {
 
   /**
    * Get One classification
+   * 0001C
    */
   getClassification: async (req, res) => {
     try {
@@ -61,6 +66,7 @@ module.exports = {
       }).exec();
       return res.status(200).json({ success: true, info: classification });
     } catch (e) {
+      writeLog('classification', 'getClassification', '0001C', e.stack)
       return res.status(500).json({
         success: false,
         msg: "Failed to get the specific classification.",
@@ -70,6 +76,7 @@ module.exports = {
 
   /**
    * Get classifications by type
+   * 0001D
    */
   getClassificationByType: async (req, res) => {
     try {
@@ -79,6 +86,7 @@ module.exports = {
       }).exec();
       return res.status(200).json({ success: true, info: classification });
     } catch (e) {
+      writeLog('classification', 'getClassificationByType', '0001D', e.stack)
       return res.status(500).json({
         success: false,
         msg: "Failed to get the specific classification.",
@@ -88,6 +96,7 @@ module.exports = {
 
   /**
    * Update classification
+   * 0001E
    */
   updateClassification: async (req, res) => {
     let checkCode = await Classification.find({
@@ -107,6 +116,7 @@ module.exports = {
         ).exec();
         return res.status(200).json({ success: true, info: classification });
       } catch (e) {
+        writeLog('classification', 'updateClassification', '0001E', e.stack)
         return res.status(500).json({
           success: false,
           msg: "Failed to update the selected classification.",
@@ -122,6 +132,7 @@ module.exports = {
 
   /**
    * Delete classification
+   * 0001F
    */
   deleteClassification: async (req, res) => {
     try {
@@ -130,6 +141,7 @@ module.exports = {
       }).exec();
       return res.status(200).json({ success: true, info: req.params.id });
     } catch (e) {
+      writeLog('classification', 'deleteClassification', '0001F', e.stack)
       return res.status(500).json({
         success: false,
         msg: "Failed to delete the selected classification.",

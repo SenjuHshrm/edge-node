@@ -11,10 +11,11 @@ const generateFlash = require("../../../services/generate-flash");
 const generateJnt = require("../../../services/generate-jnt");
 const jwt = require("jsonwebtoken");
 const fs = require("fs");
+const writeLog = require('../../../utils/write-log')
 
 module.exports = {
   /**
-   *
+   *00008
    */
   createBooking: async (req, res) => {
     try {
@@ -129,11 +130,11 @@ module.exports = {
 
       
     } catch (e) {
-      console.log(e)
+      writeLog('booking', 'createBooking', '00008', e.stack)
       return res.status(500).json({ success: false, msg: '' })
     }
   },
-
+  // 00009
   getAllBookingPerKP: async (req, res) => {
     try {
       let bookings = await Booking.find({
@@ -148,14 +149,14 @@ module.exports = {
 
       return res.status(200).json({ success: true, info: bookings });
     } catch (e) {
-      console.log(e);
+      writeLog('booking', 'getAllBookingPerKP', '00009', e.stack)
       return res.status(500).json({
         success: false,
         msg: "Failed to get the list of bookings record.",
       });
     }
   },
-
+  // 0000A
   getAllBookings: async (req, res) => {
     try {
       let bookings = await Booking.find({
@@ -169,14 +170,14 @@ module.exports = {
 
       return res.status(200).json({ success: true, info: bookings });
     } catch (e) {
-      console.log(e);
+      writeLog('booking', 'getAllBookings', '0000A', e.stack)
       return res.status(500).json({
         success: false,
         msg: "Failed to get the list of bookings record.",
       });
     }
   },
-
+  // 0000B
   getSingleBooking: async (req, res) => {
     try {
       let booking = await Booking.findOne({
@@ -195,13 +196,14 @@ module.exports = {
 
       return res.status(200).json({ success: true, info: booking });
     } catch (e) {
+      writeLog('booking', 'getSingleBooking', '0000B', e.stack)
       return res.status(500).json({
         success: false,
         msg: "Failed to get the booking record.",
       });
     }
   },
-
+  // 0000C
   getMonthlyBooking: async (req, res) => {
     try {
       let response = [];
@@ -217,11 +219,11 @@ module.exports = {
       }
       return res.status(200).json({ succes: true, info: response });
     } catch (e) {
-      console.log(e);
+      writeLog('booking', 'getMonthlyBooking', '0000C', e.stack)
       return res.status(500).json({ success: false, msg: "" });
     }
   },
-
+  // 0000D
   getMonthlyBookingByKeyPartner: async (req, res) => {
     try {
       let response = [];
@@ -238,13 +240,14 @@ module.exports = {
       }
       return res.status(200).json({ succes: true, info: response });
     } catch (e) {
-      console.log(e);
+      writeLog('booking', 'getMonthlyBookingByKeyPartner', '0000D', e.stack)
       return res.status(500).json({ success: false, msg: "" });
     }
   },
 
   /**
    * Mark booking as fulfilled
+   * 0000E
    */
   markSelectedAsFulfilled: async (req, res) => {
     try {
@@ -256,13 +259,14 @@ module.exports = {
       });
       return res.status(200).json({ success: true, info: "" });
     } catch (e) {
-      console.log(e);
+      writeLog('booking', 'markSelectedAsFulfilled', '0000E', e.stack)
       return res.status(500).json({ success: false, msg: "" });
     }
   },
 
   /**
    * Mark one as fulfilled
+   * 0000F
    */
   markOneAsFulfilled: async (req, res) => {
     try {
@@ -271,12 +275,13 @@ module.exports = {
       }).exec();
       return res.status(200).json({ success: true, info: "" });
     } catch (e) {
-      console.log(e);
+      writeLog('booking', 'markOneAsFulfilled', '0000F', e.stack)
       return res.status(500).json({ success: false, msg: "" });
     }
   },
 
   /**
+   * 00010
    * Mark one as unfulfilled
    */
   markOneAsUnfulfilled: async (req, res) => {
@@ -286,12 +291,13 @@ module.exports = {
       }).exec();
       return res.status(200).json({ success: true, info: "" });
     } catch (e) {
-      console.log(e);
+      writeLog('booking', 'markOneAsUnFulfilled', '00010', e.stack)
       return res.status(500).json({ success: false, msg: "" });
     }
   },
   /**
    * Mark one as unfulfilled
+   * 00011
    */
   exportOne: async (req, res) => {
     try {
@@ -305,12 +311,13 @@ module.exports = {
           : await generateJnt(booking, token.sub);
       return res.status(200).json({ success: true, info: file });
     } catch (e) {
-      console.log(e);
+      writeLog('booking', 'exportOne', '00011', e.stack)
       return res.status(500).json({ success: false, msg: "" });
     }
   },
   /**
    * Booking Return
+   * 00012
    */
   returnBooking: async (req, res) => {
     try {
@@ -327,7 +334,7 @@ module.exports = {
         return res.status(200).json({ success: true, info: booking });
       });
     } catch (error) {
-      console.log(error);
+      writeLog('booking', 'returnBooking', '00012', error.stack)
       return res.status(500).json({
         success: false,
         msg: "Failed to return booking please try again.",
@@ -336,7 +343,7 @@ module.exports = {
   },
 
   /**
-   *
+   *00013
    */
   uploadBooking: async (req, res) => {
     try {
@@ -482,13 +489,13 @@ module.exports = {
         return res.status(406).json({ success: false, msg: 'Unable to save booking. Please check addresses if not ODZ (Out of Delivery Zone) to the selected courier.' });
       }
     } catch (e) {
-      console.log(e);
+      writeLog('booking', 'uploadBooking', '00013', e.stack)
       return res.status(500).json({ success: false, msg: "" });
     }
   },
 
   /**
-   *
+   *00014
    */
   deleteBooking: (req, res) => {
     // try {
@@ -571,7 +578,7 @@ module.exports = {
         }
       })
       .catch(e => {
-        console.log("Booking: ", e);
+        writeLog('booking', 'deleteBooking', '00014', e.stack)
         return res
           .status(500)
           .json({ success: false, msg: "Failed to delete booking" });

@@ -9,7 +9,7 @@ const { createServer } = require('http')
 const { Server } = require('socket.io')
 const app = express()
 const { corsConfig, db, port } = require('./config')
-const { clearFiles } = require('./services/background-task')
+const { clearFiles, createLogFile} = require('./services/background-task')
 const { v1GETRoutes, v1POSTRoutes, v1PUTRoutes, v1DELETERoutes } = require('./api/v1/routes')
 
 // Socket.IO intialization
@@ -43,6 +43,7 @@ global.appRoot = path.resolve(__dirname)
 global.io = io
 
 clearFiles()
+createLogFile()
 
 require('./config/passport')
 require('./socket/io')(io)

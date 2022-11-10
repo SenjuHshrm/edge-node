@@ -1,10 +1,12 @@
 const Inventory = require("../../../models/Inventory");
 const Classification = require("../../../models/Classification");
 const generateInv = require("../../../services/generate-inventory");
+const writeLog = require('../../../utils/write-log')
 
 module.exports = {
   /**
    * Create inventory for admin
+   * 00031
    */
   createInventory: async (req, res) => {
     let items = await Inventory.find({
@@ -49,14 +51,16 @@ module.exports = {
         return res.status(200).json({ success: true, info: item });
       })
       .catch(e => {
+        writeLog('inventory', 'createInventory', '00031', e.stack)
         return res.status(500).json({
           success: false,
           msg: "Failed to save a new Item.",
         });
       });
   },
-  /*
+  /**
    * Get all inventory items
+   * 00032
    */
   getAllItems: async (req, res) => {
     try {
@@ -86,16 +90,18 @@ module.exports = {
         ),
       });
     } catch (e) {
-      console.log(e);
+      writeLog('inventory', 'getAllItems', '00032', e.stack)
       return res.status(500).json({
         success: false,
         msg: "Failed to get the list of customers.",
       });
     }
   },
-  /*
+  /**
    * Get all inventory items
-   */ getAllByKeyPartners: async (req, res) => {
+   * 00033
+   */
+  getAllByKeyPartners: async (req, res) => {
     try {
       let items = await Inventory.find({
         deletedAt: "",
@@ -124,7 +130,7 @@ module.exports = {
         ),
       });
     } catch (e) {
-      console.log(e);
+      writeLog('inventory', 'getAllByKeyPartners', '00033', e.stack)
       return res.status(500).json({
         success: false,
         msg: "Failed to get the list of customers.",
@@ -133,6 +139,7 @@ module.exports = {
   },
   /**
    * Update inventory for admin
+   * 00034
    */
   updateInventory: async (req, res) => {
     let seq = req.body.sequence;
@@ -171,6 +178,7 @@ module.exports = {
 
       return res.status(200).json({ success: true, info: populated });
     } catch (e) {
+      writeLog('inventory', 'updateInventory', '00034', e.stack)
       return res.status(500).json({
         success: false,
         msg: "Failed to update the selected item.",
@@ -179,6 +187,7 @@ module.exports = {
   },
   /**
    * Update up to Many Moving to Non Moving classification
+   * 00035
    */
   updateManyNonMoving: async (req, res) => {
     try {
@@ -191,6 +200,7 @@ module.exports = {
       });
       return res.status(200).json({ success: true, info: req.body.ids });
     } catch (e) {
+      writeLog('inventory', 'updateManyNonMoving', '00035', e.stack)
       return res.status(500).json({
         success: false,
         msg: "Failed to update the selected items.",
@@ -199,6 +209,7 @@ module.exports = {
   },
   /**
    * Update up to Many Non Moving to Moving classification
+   * 00036
    */
   updateManyMoving: async (req, res) => {
     try {
@@ -211,6 +222,7 @@ module.exports = {
       });
       return res.status(200).json({ success: true, info: req.body.ids });
     } catch (e) {
+      writeLog('inventory', 'updateManyMoving', '00036', e.stack)
       return res.status(500).json({
         success: false,
         msg: "Failed to update the selected items.",
@@ -220,6 +232,7 @@ module.exports = {
 
   /**
    * Delete classification
+   * 00037
    */
   deleteItem: async (req, res) => {
     try {
@@ -228,6 +241,7 @@ module.exports = {
       }).exec();
       return res.status(200).json({ success: true, info: req.params.id });
     } catch (e) {
+      writeLog('inventory', 'deleteItem', '00037', e.stack)
       return res.status(500).json({
         success: false,
         msg: "Failed to delete the selected classification.",
@@ -235,19 +249,22 @@ module.exports = {
     }
   },
 
+  /**
+   * 00038
+   */
   deleteSelected: async (req, res) => {
     try {
       let ids = JSON.parse(req.query.ids)
       await Inventory.updateMany({ _id: ids }, { deletedAt: new Date().toLocaleString() }).exec()
       return res.sendStatus(204)
     } catch(e) {
-      console.log(e)
+      writeLog('inventory', 'deleteSelected', '00038', e.stack)
       return res.status(500).json({ success: false, msg: '' })
     }
   },
 
   /**
-   *
+   * 00039
    */
   exportInventory: async (req, res) => {
     try {
@@ -259,24 +276,27 @@ module.exports = {
       let file = await generateInv(inv, req.params.id);
       return res.status(200).json({ success: true, info: file });
     } catch (e) {
-      console.log(e);
+      writeLog('inventory', 'exportInventory', '00039', e.stack)
       return res.staus(500).json({ success: false, msg: "" });
     }
   },
 
+  /**
+   * 0003A
+   */
   exportSelected: async (req, res) => {
     try {
       let inv = await Inventory.find({ _id: req.body.items }).populate('classification').populate('color').populate('size').exec()
       let file = await generateInv(inv, req.body.id)
       return res.status(200).json({ success: true, info: file });
     } catch(e) {
-      console.log(e)
+      writeLog('inventory', 'exportSelected', '0003A', e.stack)
       return res.status(500).json({ success: false, msg: '' })
     }
   },
 
   /**
-   *
+   * 0003B
    */
   exportInventoryByKeyPartner: async (req, res) => {
     try {
@@ -288,7 +308,7 @@ module.exports = {
       let file = await generateInv(inv, req.params.id);
       return res.status(200).json({ success: true, info: file });
     } catch (e) {
-      console.log(e);
+      writeLog('inventory', 'exportInventoryByKeyPartner', '0003B', e.stack)
       return res.staus(500).json({ success: false, msg: "" });
     }
   },

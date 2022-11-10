@@ -3,12 +3,13 @@ const sendCred = require("../../../utils/mailer").sendPassword;
 const NotificationCount = require("../../../models/NotificationCount");
 const { sendRejectAcct } = require('../../../utils/mailer')
 const jwt = require('jsonwebtoken')
+const writeLog = require('../../../utils/write-log')
 
 module.exports = {
   /**
    *
    * User registration for key partners
-   *
+   * 0004A
    */
   register: (req, res) => {
     let user = new User({
@@ -61,13 +62,13 @@ module.exports = {
         return res.status(200).json({ msg: "Account registered successfully" });
       })
       .catch(err => {
-        console.log(err);
+        writeLog('user', 'register', '0004A', e.stack)
         return res.status(500).json({ msg: "An error occured" });
       });
   },
 
   /**
-   *
+   * 0004B
    */
   getAccountsForApproval: async (req, res) => {
     try {
@@ -77,12 +78,13 @@ module.exports = {
       ).exec();
       return res.status(200).json({ success: true, info: users });
     } catch (e) {
+      writeLog('user', 'getAccountsForApproval', '0004B', e.stack)
       return res.status(500).json({ success: false, msg: "" });
     }
   },
 
   /**
-   *
+   * 0004C
    */
   getApprovedKeyPartners: async (req, res) => {
     try {
@@ -92,24 +94,26 @@ module.exports = {
       ).exec();
       return res.status(200).json({ success: true, info: kp });
     } catch (e) {
+      writeLog('user', 'getApprovedKeyPartners', '0004C', e.stack)
       return res.status(500).json({ success: false, msg: "" });
     }
   },
 
   /**
-   *
+   * 0004D
    */
   getOneKeyPartners: async (req, res) => {
     try {
       let kp = await User.findById(req.params.id).exec();
       return res.status(200).json({ success: true, info: kp });
     } catch (e) {
+      writeLog('user', 'getOneKeyPartners', '0004D', e.stack)
       return res.status(500).json({ success: false, msg: "" });
     }
   },
 
   /**
-   *
+   * 0004E
    */
   getActiveKeyPartners: async (req, res) => {
     try {
@@ -119,28 +123,36 @@ module.exports = {
       ).exec();
       return res.status(200).json({ success: true, info: kp });
     } catch (e) {
+      writeLog('user', 'getActiveKeyPartners', '0004E', e.stack)
       return res.status(500).json({ success: false, msg: "" });
     }
   },
 
   /**
    * Get user information by user id
+   * 0004F
    */
   profile: async (req, res) => {
-    let user = await User.findById(req.params.id).exec();
-    if (!user) {
-      return res.status(404).json({ msg: "User not found." });
+    try {
+      let user = await User.findById(req.params.id).exec();
+      if (!user) {
+        return res.status(404).json({ msg: "User not found." });
+      }
+      return res.status(200).json({
+        success: true,
+        msg: "success",
+        data: user.userProfile(),
+        info: res.locals.token,
+      });
+    } catch(e) {
+      writeLog('user', 'profile', '0004F', e.stack)
+      return res.status(500).json({ msg: 'Failed to get profile' })
     }
-    return res.status(200).json({
-      success: true,
-      msg: "success",
-      data: user.userProfile(),
-      info: res.locals.token,
-    });
   },
 
   /**
    * Approve key partner account request
+   * 00050
    */
   approveAcctReq: async (req, res) => {
     try {
@@ -151,12 +163,13 @@ module.exports = {
         .status(200)
         .json({ success: true, msg: "Key Partner approved." });
     } catch (e) {
+      writeLog('user', 'approveAccReq', '00050', e.stack)
       return res.status(500).json({ success: false, msg: "" });
     }
   },
 
   /**
-   *
+   * 00051
    */
   setActiveStatus: async (req, res) => {
     try {
@@ -166,12 +179,13 @@ module.exports = {
       let msg = req.body.status ? "Account activated" : "Account deactivated";
       return res.status(200).json({ success: true, msg: msg });
     } catch (e) {
+      writeLog('user', 'setActiveStatus', '00051', e.stack)
       return res.status(500).json({ success: false, msg: "" });
     }
   },
 
   /**
-   *
+   * 00052, 00053
    */
   setKeyPartnerPassword: async (req, res) => {
     try {
@@ -188,17 +202,17 @@ module.exports = {
           });
         })
         .catch(e => {
-          console.log(e);
+          writeLog('user', 'setKeyPartnerPassword', '00053', e.stack)
           return res.status(500).json({ success: false, msg: "" });
         });
     } catch (e) {
-      console.log(e);
+      writeLog('user', 'setKeyPartnerPassword', '00052', e.stack)
       return res.status(500).json({ success: false, msg: "" });
     }
   },
 
   /**
-   *
+   * 00054
    */
   setKeyPartnerCode: async (req, res) => {
     try {
@@ -207,10 +221,14 @@ module.exports = {
       }).exec();
       return res.sendStatus(204);
     } catch (e) {
+      writeLog('user', 'setKeyPartnerCode', '00054', e.stack)
       return res.status(500).json({ success: false, msg: "" });
     }
   },
 
+  /**
+   * 00055, 00056
+   */
   assignCodeAndPassword: async (req, res) => {
     try {
       await User.findByIdAndUpdate(req.params.id, {
@@ -233,15 +251,18 @@ module.exports = {
           });
         })
         .catch(e => {
+          writeLog('user', 'assignCodeAndPassword', '00056', e.stack)
           return res.status(500).json({ success: false, msg: "" });
         });
     } catch (error) {
+      writeLog('user', 'assignCodeAndPassword', '00055', e.stack)
       return res.status(500).json({ success: false, msg: "" });
     }
   },
 
   /**
    * Reject key partner account request
+   * 00057
    */
   rejectAcctReq: async (req, res) => {
     try {
@@ -249,18 +270,14 @@ module.exports = {
       sendRejectAcct(req.params.email)
       return res.status(200).json({ success: true, info: req.params.id })
     } catch(e) {
-      console.log(e)
+      writeLog('user', 'rejectAcctReq', '00057', e.stack)
       return res.status(500).json({ success: false, msg: '' })
     }
   },
 
   /**
-   * Activate registered key partner's account
-   */
-  activateUser: async (req, res) => {},
-
-  /**
    * Update profile
+   * 00058
    */
   updateProfile: async (req, res) => {
     try {
@@ -269,6 +286,7 @@ module.exports = {
       }).exec();
       return res.status(200).json({ success: true, info: profile });
     } catch (e) {
+      writeLog('user', 'updateProfile', '00058', e.stack)
       return res.status(500).json({
         success: false,
         msg: "Failed to update the selected customer.",
@@ -276,6 +294,9 @@ module.exports = {
     }
   },
 
+  /**
+   * 00059
+   */
   updateUsername: async (req, res) => {
     try {
       await User.findByIdAndUpdate(
@@ -285,14 +306,17 @@ module.exports = {
       ).exec();
       return res.status(200).json({ success: true, msg: "Username updated" });
     } catch (e) {
-      console.log(e.errors.username.message);
+      writeLog('user', 'updateUsername', '00059', e.stack)
       return res
         .status(500)
         .json({ success: false, msg: e.errors.username.message });
     }
   },
 
-  /* Update Profile Image */
+  /**
+   * Update Profile Image
+   * 0005A
+   */
   updateProfileImage: async (req, res) => {
     try {
       const { filename, keyPartnerId } = req.body;
@@ -307,8 +331,8 @@ module.exports = {
       await User.findByIdAndUpdate(keyPartnerId, { $push: { refreshToken: { uid: newToken.uid, token: newToken.refresh } } }).exec()
       await User.findByIdAndUpdate(keyPartnerId, { $pull: { refreshToken: { uid: oldToken.uid } } }).exec()
       res.status(200).json({ success: true, info: newToken.access });
-    } catch (error) {
-      console.log(error)
+    } catch (e) {
+      writeLog('user', 'updateProfileImage', '0005A', e.stack)
       return res.status(500).json({
         success: false,
         msg: "Failed to update the profile image.",
@@ -318,6 +342,7 @@ module.exports = {
 
   /**
    * Get Keypartners
+   * 0005B
    */
   getKeyPartners: async (req, res) => {
     try {
@@ -327,6 +352,7 @@ module.exports = {
       }).exec();
       return res.status(200).json({ success: true, info: keyPartners });
     } catch (e) {
+      writeLog('user', 'getKeyPartners', '0005B', e.stack)
       return res.status(500).json({
         success: false,
         msg: "Failed to get the list of key partners.",
@@ -336,6 +362,7 @@ module.exports = {
 
   /**
    * Change password
+   * 0005C, 0005D
    */
   changePassword: async (req, res) => {
     try {
@@ -352,7 +379,7 @@ module.exports = {
             });
           })
           .catch(e => {
-            console.log(e);
+            writeLog('user', 'changePassword', '0005D', e.stack)
             return res.status(500).json({ success: false, msg: "" });
           });
       } else {
@@ -361,8 +388,8 @@ module.exports = {
           msg: "Please enter the right current password.",
         });
       }
-    } catch (error) {
-      console.log(error);
+    } catch (e) {
+      writeLog('user', 'changePassword', '0005C', e.stack)
       return res.status(500).json({
         success: false,
         msg: "Failed to change your password.",
@@ -372,6 +399,7 @@ module.exports = {
 
   /**
    * Change password for secure internal pages
+   * 0005E, 0005F
    */
   changeIPAPassword: async (req, res) => {
     try {
@@ -388,7 +416,7 @@ module.exports = {
             });
           })
           .catch(e => {
-            console.log(e);
+            writeLog('user', 'changeIPAPassword', '0005F', e.stack)
             return res.status(500).json({ success: false, msg: "" });
           });
       } else {
@@ -397,8 +425,8 @@ module.exports = {
           msg: "Please enter the right current password.",
         });
       }
-    } catch (error) {
-      console.log(error);
+    } catch (e) {
+      writeLog('user', 'changeIPAPassword', '0005E', e.stack)
       return res.status(500).json({
         success: false,
         msg: "Failed to change your password.",
@@ -408,6 +436,7 @@ module.exports = {
 
   /**
    * Get Notification counters
+   * 00060
    */
   getNotificationCounts: async (req, res) => {
     try {
@@ -416,13 +445,14 @@ module.exports = {
       }).exec();
       return res.status(200).json({ success: true, info: notifCounts });
     } catch (e) {
-      console.log(e);
+      writeLog('user', 'getNotificationCounts', '00060', e.stack)
       return res.status(500).json({ success: false, msg: "" });
     }
   },
 
   /**
    * Toggle opened pages with notifications
+   * 00061
    */
   updateNotifOpenStatus: async (req, res) => {
     try {
@@ -432,15 +462,15 @@ module.exports = {
       ).exec();
       return res.status(200).json({ success: true, msg: "ok" });
     } catch (e) {
-      console.log(e);
+      writeLog('user', 'updateNotifOpenStatus', '00061', e.stack)
       return res.status(500).json({ success: false, msg: "" });
     }
   },
 
   /**
    * Delete Key Partners
+   * 00062
    */
-
   deleteKeyPartners: async (req, res) => {
     try {
       await User.findByIdAndUpdate(req.params.id, {
@@ -450,7 +480,8 @@ module.exports = {
       return res
         .status(200)
         .json({ success: true, msg: "ok", info: req.params.id });
-    } catch (error) {
+    } catch (e) {
+      writeLog('user', 'deleteKeyPartners', '00062', e.stack)
       return res.status(500).json({
         success: false,
         msg: "Failed to delete the key partner.",

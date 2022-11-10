@@ -5,10 +5,12 @@ const NotificationCount = require('../../../models/NotificationCount')
 const generateId = require('../../../utils/id-generator')
 const moment = require('moment')
 const { generateSingleQuotation, generateMultipleQuoatation } = require('../../../services/generate-quotation')
+const writeLog = require('../../../utils/write-log')
 
 module.exports = {
   /**
    * Create quotation
+   * 00042
    */
   createQuotation: async (req, res) => {
     let user = await User.findById(req.body.keyPartnerId).exec()
@@ -28,38 +30,28 @@ module.exports = {
       global.io.emit('new quotation', { id: newQuote.keyPartnerId, info: 1 })
       return res.status(200).json({ success: true, info: newQuote })
     }).catch(e => {
-      console.log(e)
+      writeLog('quotation', 'createQuotation', '00042', e.stack)
       return res.status(500).json({ success: false, msg: '' })
     })
   },
 
-  // /**
-  //  * Approve quotation
-  //  */
-  // approveQuotation: async(req, res) => {
-  //   try {
-  //     await Quotation.findByIdAndUpdate(
-  //       req.params.id,
-  //       { $set: { status: true } }
-  //     ).exec()
-  //     return res.status(200).json({ success: true, msg: 'OK' })
-  //   } catch(e) {
-  //     return res.status(500).json({ success: false, msg: '' })
-  //   }
-  // },
-
   /**
    * Get all quotations
+   * 00043
    */
   getAllQuotations: async (req, res) => {
     try {
       let quotes = await Quotation.find({}).lean().populate('keyPartnerId', '_id name company contact addr').sort({ createdAt: -1 }).exec()
       return res.status(200).json({ success: true, info: quotes })
     } catch(e) {
+      writeLog('quotation', 'getAllQuotations', '00043', e.stack)
       return res.status(500).json({ success: false, msg: '' })
     }
   },
 
+  /** 
+   * 00044
+  */
   getForRequote: async (req, res) => {
     try {
       let resp = []
@@ -70,25 +62,27 @@ module.exports = {
       }
       return res.status(200).json({ success: true, info: resp })
     } catch(e) {
-      console.log(e)
+      writeLog('quotation', 'getForRequote', '00044', e.stack)
       return res.status(500).json({ success: false, msg: '' })
     }
   },
 
   /**
    * Get quotations filtered by key-partner
+   * 00045
    */
   getOuotationsByKeyPartner: async (req, res) => {
     try {
       let quotes = await Quotation.find({ keyPartnerId: req.params.id }).lean().populate('keyPartnerId', '_id name company contact addr').sort({ createdAt: -1 }).exec()
       return res.status(200).json({ success: true, info: quotes })
     } catch(e) {
+      writeLog('quotation', 'getQuotationsByKeyPartner', '00045', e.stack)
       return res.status(500).json({ success: false, msg: '' })
     }
   },
 
   /**
-   * 
+   * 00046
    */
   markAsPending: (req, res) => {
     Quotation.findByIdAndUpdate(req.params.id, { $set: { status: req.body.status } }, { new: true })
@@ -99,12 +93,13 @@ module.exports = {
         return res.sendStatus(204)
       })
       .catch(e => {
+        writeLog('quotation', 'markAsPending', '00046', e.stack)
         return res.status(500).json({ success: false, msg: '' })
       })
   },
 
   /**
-   * 
+   * 00047
    */
   generateSingleQuoteFile: async (req, res) => {
     try {
@@ -112,16 +107,13 @@ module.exports = {
       let file = await generateSingleQuotation(quote)
       return res.status(200).json({ success: true, info: file })
     } catch(e) {
-      console.log(e)
+      writeLog('quotation', 'generateSingleQuoteFile', '00047', e.stack)
       return res.status(500).json({ success: false, msg: '' })
     }
   },
 
   /**
-   * 
-   * @param {*} req 
-   * @param {*} res 
-   * @returns 
+   * 00048
    */
   generateMultipleQuoatation: async (req, res) => {
     try {
@@ -129,13 +121,13 @@ module.exports = {
       let file = await generateMultipleQuoatation(quotes, req.body.id)
       return res.status(200).json({ success: true, info: file })
     } catch(e) {
-      console.log(e)
+      writeLog('quotation', 'generateMultipleQuotation', '00048', e.stack)
       return res.status(500).json({ success: false, msg: '' })
     }
   },
 
   /**
-   * 
+   * 00049
    */
   getMonthlyQuotation: async (req, res) => {
     try {
@@ -150,7 +142,7 @@ module.exports = {
       }
       return res.status(200).json({ success: true, info: response })
     } catch(e) {
-      console.log(e)
+      writeLog('quotation', 'getMonthlyQuotation', '00049', e.stack)
       return res.status(500).json({ success: false, msg: '' })
     }
   }
