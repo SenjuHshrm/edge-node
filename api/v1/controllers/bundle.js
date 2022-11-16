@@ -31,7 +31,7 @@ module.exports = {
       let bundles = await Bundle.find({
         deletedAt: "",
         keyPartnerId: req.params.id,
-      }).exec();
+      }).populate({ path: 'items.itemId', populate: { path: 'color size' } }).exec();
       return res.status(200).json({ success: true, info: bundles });
     } catch (e) {
       writeLog('bundle', 'getAllBundledPerKeyPartners', '00016', e.stack)
