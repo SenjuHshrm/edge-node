@@ -26,41 +26,51 @@ module.exports = {
    * 
    */
   checkAddressToCourier: (req, res) => {
-    fs.readFile(`${appRoot}/uploads/files/${req.params.type}.csv`, 'latin1', (e, content) => {
-      if(e) throw e
-      // 7
-      try {
-        let isAvailable = 'NO',
-          locations = content.split('\r\n'),
-          paramCity = '',
-          paramBrgy = modBrgy(req.params.brgy),
-          selectedProvince = [],
-          selectedBrgy = []
-        switch(req.params.type) {
-          case 'flash':
-            paramCity = modCity(req.params.city)
-            console.log(paramBrgy)
-            locations.splice((locations.length - 1), 1)
-            selectedProvince = locations.filter((x) => { return x.split(',')[1].toUpperCase().match(new RegExp(`${req.params.province}`)) })
-            selectedCity = selectedProvince.filter((x) => { return x.split(',')[2].toUpperCase().match(new RegExp(`${paramCity}`)) })
-            selectedBrgy = selectedCity.filter((x) => { return x.split(',')[3].toUpperCase().match(new RegExp(`${paramBrgy}`)) })
-            isAvailable = selectedBrgy[0].split(',')[7]
-            break;
-          case 'jnt':
-            let province = req.params.province.replace(' ', '-')
-            paramCity = req.params.city.replace(/[ *]/g, '-')
-            locations.splice((locations.length - 1), 1)
-            selectedProvince = locations.filter((x) => { return x.split(',')[4].toUpperCase().match(new RegExp(`${province}`)) })
-            selectedCity = selectedProvince.filter((x) => { return x.split(',')[5].toUpperCase().match(new RegExp(`${paramCity}`)) })
-            selectedBrgy = selectedCity.filter((x) => { return x.split(',')[6].toUpperCase() === req.params.brgy })
-            isAvailable = selectedBrgy[0].split(',')[7]
-            break;
-        }
-        return res.status(200).json({ success: true, info: isAvailable })
-      } catch(e) {
-        writeLog('address', 'checkAddressToCourier', '00001', e.stack)
-        return res.status(500).json({ success: false, msg: '' })
+    let resLocations = {}
+    try {
+      let file = fs.readFileSync(`${appRoot}/uploads/files/${req.params.type}.csv`, 'latin1')
+      let locations = file.split('\r\n'), provinces, cities, brgys;
+      if(req.params.type === 'flash') {
+        let provincesAvailableFlash = locations.filter(x => x.split(',')[7] === 'YES')
+        let provincesOnlyFlash = provincesAvailableFlash.map(x => x.split(',')[1])
+        provinces = [...new Set(provincesOnlyFlash)].sort()
+        provinces.forEach(province => {
+          resLocations[province] = {
+            municipality_list: {}
+          }
+          let citiesFlash = provincesAvailableFlash.filter(x => x.split(',')[1] === province)
+          let citiesOnlyFlash = citiesFlash.map(x => x.split(',')[2])
+          cities = [...new Set(citiesOnlyFlash)]
+          cities.forEach(city => {
+            resLocations[province].municipality_list[city] = { barangay_list: [] }
+            let brgysFlash = citiesFlash.filter(x => x.split(',')[2] === city)
+            let brgysOnlyFlash = brgysFlash.map(x => x.split(',')[3])
+            resLocations[province].municipality_list[city].barangay_list = brgysOnlyFlash
+          })
+        })
+      } else if(req.params.type === 'jnt') {
+        let provincesAvailableJNT = locations.filter(x => x.split(',')[7] === 'YES')
+        let provincesOnlyJNT = provincesAvailableJNT.map(x => x.split(',')[4])
+        provinces = [...new Set(provincesOnlyJNT)].sort()
+        provinces.forEach(province => {
+          resLocations[province] = {
+            municipality_list: {}
+          }
+          let citiesJNT = provincesAvailableJNT.filter(x => x.split(',')[4] === province)
+          let citiesOnlyJNT = citiesJNT.map(x => x.split(',')[5])
+          cities = [...new Set(citiesOnlyJNT)]
+          cities.forEach(city => {
+            resLocations[province].municipality_list[city] = { barangay_list: [] }
+            let brgysJNT = citiesJNT.filter(x => x.split(',')[5] === city)
+            let brgysOnlyJNT = brgysJNT.map(x => x.split(',')[6])
+            resLocations[province].municipality_list[city].barangay_list = brgysOnlyJNT
+          })
+        })
       }
-    })
+      return res.status(200).json(resLocations)
+    } catch(e) {
+      writeLog('address', 'checkAddressToCourier', '00001', e.stack)
+      return res.sendStatus(500)
+    }
   }
 }

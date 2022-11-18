@@ -139,7 +139,7 @@ router
     contractCtrl.getContractByKeyPartner
   )
   .get(
-    "/check-address/:province/:city/:brgy/:type",
+    "/check-address/:type",
     passport.authenticate("jwt", { session: false }),
     addrCtrl.checkAddressToCourier
   )
