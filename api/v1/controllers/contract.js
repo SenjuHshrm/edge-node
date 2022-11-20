@@ -57,7 +57,7 @@ module.exports = {
    */
   getContractByKeyPartner: async (req, res) => {
     try {
-      let c = await Contract.find({ keyPartnerId: req.params.id, contract: req.params.type }).sort({ createdAt: -1 }).exec()
+      let c = await Contract.find({ keyPartner: req.params.id, contract: req.params.type }).sort({ createdAt: -1 }).exec()
       return res.status(200).json({ success: true, info: c })
     } catch(e) {
       writeLog('contract', 'getContractByKeyPartner', '00022', e.stack)
