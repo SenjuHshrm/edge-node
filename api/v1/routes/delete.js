@@ -9,6 +9,7 @@ const {
   invCtrl,
   bundleCtrl,
   bookingCtrl,
+  contractCtrl,
 } = require("../controllers");
 
 router
@@ -56,6 +57,11 @@ router
     '/items/selected',
     passport.authenticate('jwt', { session: false }),
     invCtrl.deleteSelected
+  )
+  .delete(
+    '/contract/:id',
+    passport.authenticate('jwt', { session: false }),
+    contractCtrl.deleteContract
   )
 
 module.exports = router;

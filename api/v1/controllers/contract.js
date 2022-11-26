@@ -1,6 +1,7 @@
 const Contract = require('../../../models/Contract')
 const File = require('../../../models/File')
 const User = require('../../../models/User')
+const fs = require('fs')
 const NotificationCount = require('../../../models/NotificationCount')
 const writeLog = require('../../../utils/write-log')
 
@@ -12,7 +13,7 @@ module.exports = {
    */
   getContractSendingHistory: async (req, res) => {
     try {
-      let contract = await Contract.find({ contract: req.params.type }).populate('keyPartner', { _id: 1, company: 1, email: 1, name: 1, file: 1 }).sort({ createdAt: -1 }).exec()
+      let contract = await Contract.find({ contract: req.params.type }).populate('keyPartner', { _id: 1, company: 1, email: 1, name: 1, file: 1, url: 1 }).sort({ createdAt: -1 }).exec()
       return res.status(200).json({ success: true, info: contract })
     } catch (e) {
       writeLog('contract', 'getContractSendingHistory', '00020', e.stack)
@@ -25,11 +26,12 @@ module.exports = {
    * 00021
    */
   saveContract: async (req, res) => {
-    let filename = `/contract/${req.body.filename}`
+    let filename = `./uploads/contract/${req.body.filename}`
     let cont = new Contract({
       keyPartner: req.body.id,
       contract: req.body.type,
-      file: filename
+      file: filename,
+      url: `/contract/${req.body.filename}`
     })
     await cont.save()
     cont.populate('keyPartner', { _id: 1, company: 1, email: 1, name: 1, file: 1 })
@@ -74,6 +76,21 @@ module.exports = {
       return res.status(200).json({ success: true, info: req.params.id })
     } catch(e) {
       writeLog('contract', 'markAsSeen', '00023', e.stack)
+      return res.sendStatus(500)
+    }
+  },
+
+  /**
+   * 
+   */
+  deleteContract: async (req, res) => {
+    try {
+      let contractToDelete = await Contract.findByIdAndDelete(req.params.id).exec()
+      await File.findOneAndDelete({ filePath: contractToDelete.file }).exec()
+      fs.unlinkSync(contractToDelete.file)
+      return res.sendStatus(204)
+    } catch(e) {
+      writeLog('contract', 'deleteContract', '0023-1', e.stack)
       return res.sendStatus(500)
     }
   }

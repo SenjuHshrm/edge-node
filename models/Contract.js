@@ -5,6 +5,7 @@ let contractSchema = new mongoose.Schema({
   keyPartner: { type: ObjectId, ref: 'user' },
   contract: String,
   file: String,
+  url: String,
   isSeen: Boolean
 }, { timestamps: true })
 
