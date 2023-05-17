@@ -149,9 +149,19 @@ router
     bookingCtrl.getAllBookingPerKP
   )
   .get(
+    "/get-all/booking/:id/:page/:limit",
+    passport.authenticate("jwt", { session: false }),
+    bookingCtrl.getAllBookingPerKPPerPage
+  )
+  .get(
     "/get-all/booking",
     passport.authenticate("jwt", { session: false }),
     bookingCtrl.getAllBookings
+  )
+  .get(
+    "/get-all/booking/:page/:limit",
+    passport.authenticate("jwt", { session: false }),
+    bookingCtrl.getAllBookingsByPage
   )
   .get(
     "/monthly-booking/:start/:end",

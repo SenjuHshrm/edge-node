@@ -156,6 +156,32 @@ module.exports = {
       });
     }
   },
+
+  getAllBookingPerKPPerPage: async (req, res) => {
+    try {
+      let limit = req.params.limit
+      let page = (req.params.page - 1) * limit
+      let bookings = await Booking.find({
+        deletedAt: "",
+        keyPartnerId: req.params.id,
+      })
+        .populate({
+          path: "itemId",
+          model: "inventory",
+        })
+        .skip(page)
+        .limit(limit)
+        .exec();
+
+      return res.status(200).json({ success: true, info: bookings });
+    } catch (e) {
+      writeLog('booking', 'getAllBookingPerKP', '00009', e.stack)
+      return res.status(500).json({
+        success: false,
+        msg: "Failed to get the list of bookings record.",
+      });
+    }
+  },
   // 0000A
   getAllBookings: async (req, res) => {
     try {
@@ -166,6 +192,31 @@ module.exports = {
           path: "itemId",
           model: "inventory",
         })
+        .exec();
+
+      return res.status(200).json({ success: true, info: bookings });
+    } catch (e) {
+      writeLog('booking', 'getAllBookings', '0000A', e.stack)
+      return res.status(500).json({
+        success: false,
+        msg: "Failed to get the list of bookings record.",
+      });
+    }
+  },
+
+  getAllBookingsByPage: async (req, res) => {
+    try {
+      let limit = req.params.limit
+      let page = (req.params.page - 1) * limit
+      let bookings = await Booking.find({
+        deletedAt: "",
+      })
+        .populate({
+          path: "itemId",
+          model: "inventory",
+        })
+        .skip(page)
+        .limit(limit)
         .exec();
 
       return res.status(200).json({ success: true, info: bookings });
