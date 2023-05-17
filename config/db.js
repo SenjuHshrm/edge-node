@@ -2,7 +2,11 @@ const mongoose = require('mongoose')
 const User = require('../models/User')
 
 module.exports = () => {
-  mongoose.connect(process.env.MONGODB_URL)
+  mongoose.connect(process.env.MONGODB_URL, {
+    authSource: 'admin',
+    user: process.env.MONGODB_USER,
+    pass: process.env.MONGODB_PASS
+  })
   mongoose.connection
     .on('open', () => {
       console.log('Connected to edge-commerce Database')
