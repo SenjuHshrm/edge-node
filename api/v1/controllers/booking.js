@@ -187,9 +187,10 @@ module.exports = {
   // 0000A
   getAllBookings: async (req, res) => {
     try {
-      let bookings = await Booking.find({
-        deletedAt: "",
-      })
+      console.log(JSON.parse(req.query.filters))
+      // let filters = (req.query === undefined) ? { deletedAt: '' } : 
+      let query = (req.query === undefined) ? { deletedAt: '' } : { deletedAt: '', [req.query.key]: { $regex: new RegExp(req.query.value, 'gi') } }
+      let bookings = await Booking.find(query)
         .populate({
           path: "itemId",
           model: "inventory",
@@ -208,6 +209,7 @@ module.exports = {
 
   getAllBookingsByPage: async (req, res) => {
     try {
+      let query = (req.query === undefined) ? { deletedAt: '' } : { deletedAt: '', [req.query.key]: { $regex: new RegExp(req.query.value, 'gi') } }
       let limit = req.params.limit
       let page = (req.params.page - 1) * limit
       let colSize = await Booking.countDocuments({ deletedAt: '' }).exec()
