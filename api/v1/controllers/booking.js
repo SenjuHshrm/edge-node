@@ -161,6 +161,7 @@ module.exports = {
     try {
       let limit = req.params.limit
       let page = (req.params.page - 1) * limit
+      let colSize = await Booking.countDocuments({ keyPartnerId: req.params.id, deletedAt: '' }).exec()
       let bookings = await Booking.find({
         deletedAt: "",
         keyPartnerId: req.params.id,
@@ -173,7 +174,7 @@ module.exports = {
         .limit(limit)
         .exec();
 
-      return res.status(200).json({ success: true, info: bookings });
+      return res.status(200).json({ success: true, info: bookings, length: colSize });
     } catch (e) {
       writeLog('booking', 'getAllBookingPerKP', '00009', e.stack)
       return res.status(500).json({
@@ -208,6 +209,7 @@ module.exports = {
     try {
       let limit = req.params.limit
       let page = (req.params.page - 1) * limit
+      let colSize = await Booking.countDocuments({ deletedAt: '' }).exec()
       let bookings = await Booking.find({
         deletedAt: "",
       })
@@ -219,7 +221,7 @@ module.exports = {
         .limit(limit)
         .exec();
 
-      return res.status(200).json({ success: true, info: bookings });
+      return res.status(200).json({ success: true, info: bookings, length: colSize });
     } catch (e) {
       writeLog('booking', 'getAllBookings', '0000A', e.stack)
       return res.status(500).json({
