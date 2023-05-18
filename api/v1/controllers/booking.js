@@ -170,6 +170,7 @@ module.exports = {
           path: "itemId",
           model: "inventory",
         })
+        .sort({ createdAt: -1 })
         .skip(page)
         .limit(limit)
         .exec();
@@ -217,6 +218,7 @@ module.exports = {
           path: "itemId",
           model: "inventory",
         })
+        .sort({ createdAt: -1 })
         .skip(page)
         .limit(limit)
         .exec();
