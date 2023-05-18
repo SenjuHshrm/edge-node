@@ -234,6 +234,36 @@ module.exports = {
       });
     }
   },
+
+  getAllBookingFiltered: async (req, res) => {
+    try {
+      let search = JSON.parse(req.query.search) || undefined
+      let filter = JSON.parse(req.query.filter)
+      if(search !== undefined) filter[search.key] = { $regex: new RegExp(search.value) }
+      if(filter.status === 'all') filter.status = ['fulfilled', 'unfulfilled']
+      let limit = req.params.limit
+      let page = (req.params.page - 1) * limit
+      let colSize = await Booking.countDocuments(filter).exec()
+      let bookings = await Booking.find(filter)
+        .populate({
+          path: "itemId",
+          model: "inventory",
+        })
+        .sort({ createdAt: -1 })
+        .skip(page)
+        .limit(limit)
+        .exec();
+
+      return res.status(200).json({ success: true, info: bookings, length: colSize });
+    } catch(e) {
+      writeLog('booking', 'getAllBookingFiltered', '0000AXX', e.stack)
+      return res.status(500).json({
+        success: false,
+        msg: "Failed to get the list of bookings record.",
+      });
+    }
+  },
+
   // 0000B
   getSingleBooking: async (req, res) => {
     try {
