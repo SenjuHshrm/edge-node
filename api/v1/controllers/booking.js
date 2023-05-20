@@ -209,7 +209,6 @@ module.exports = {
 
   getAllBookingsByPage: async (req, res) => {
     try {
-      let query = (req.query === undefined) ? { deletedAt: '' } : { deletedAt: '', [req.query.key]: { $regex: new RegExp(req.query.value, 'gi') } }
       let limit = req.params.limit
       let page = (req.params.page - 1) * limit
       let colSize = await Booking.countDocuments({ deletedAt: '' }).exec()
@@ -239,7 +238,8 @@ module.exports = {
     try {
       let search = JSON.parse(req.query.search) || undefined
       let filter = JSON.parse(req.query.filter)
-      if(search !== undefined) filter[search.key] = { $regex: new RegExp(search.value) }
+      filter.deletedAt =''
+      if(search !== undefined) filter[search.key] = { $regex: new RegExp(search.value, 'gi') }
       if(filter.status === 'all') filter.status = ['fulfilled', 'unfulfilled']
       let limit = req.params.limit
       let page = (req.params.page - 1) * limit
