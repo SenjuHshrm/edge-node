@@ -174,6 +174,11 @@ router
     bookingCtrl.getAllBookingFiltered
   )
   .get(
+    '/get-all/booking-filtered/:id/:page/:limit',
+    passport.authenticate('jwt', { session: false }),
+    bookingCtrl.getAllBookingPerKPFiltered
+  )
+  .get(
     "/monthly-booking/:start/:end/:id",
     passport.authenticate("jwt", { session: false }),
     bookingCtrl.getMonthlyBookingByKeyPartner
