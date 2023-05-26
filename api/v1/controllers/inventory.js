@@ -1,4 +1,5 @@
 const Inventory = require("../../../models/Inventory");
+const User = require('../../../models/User')
 const Classification = require("../../../models/Classification");
 const generateInv = require("../../../services/generate-inventory");
 const writeLog = require('../../../utils/write-log')
@@ -40,11 +41,11 @@ module.exports = {
         let item = await Inventory.findById(inventory._id)
           .populate({
             path: "classification color size",
-            select: "code name",
+            select: "code name -_id",
           })
           .populate({
             path: "keyPartnerId",
-            select: "email name",
+            select: "email name -_id",
           })
           .exec();
 
@@ -64,17 +65,23 @@ module.exports = {
    */
   getAllItems: async (req, res) => {
     try {
+      let limit = req.params.limit
+      let page = (req.params.page - 1) * limit
+      let colSize = await Inventory.countDocuments({ deletedAt: '' }).exec()
       let items = await Inventory.find({
         deletedAt: "",
       })
         .populate({
           path: "classification color size",
-          select: "code name",
+          select: "code name -_id",
         })
         .populate({
           path: "keyPartnerId",
-          select: "email name",
+          select: "email name -_id",
         })
+        .sort({ createdAt: -1 })
+        .skip(page)
+        .limit(limit)
         .exec();
       let newItems = [];
       items.map(item => {
@@ -85,12 +92,74 @@ module.exports = {
 
       return res.status(200).json({
         success: true,
-        info: newItems.sort(
-          (a, b) => Number(b.createdAt) - Number(a.createdAt)
-        ),
+        info: newItems,
+        length: colSize
       });
     } catch (e) {
       writeLog('inventory', 'getAllItems', '00032', e.stack)
+      return res.status(500).json({
+        success: false,
+        msg: "Failed to get the list of customers.",
+      });
+    }
+  },
+
+  getAllItemsFiltered: async (req, res) => {
+    try {
+      let limit = req.params.limit
+      let page = (req.params.page - 1) * limit
+      let filter = JSON.parse(req.query.filter), search = JSON.parse(req.query.search), sort = JSON.parse(req.query.sort);
+      let filterData = {}
+      let sortData = (sort !== undefined) ? sort.sortBy : { createdAt: -1 };
+      if(filter !== undefined) {
+        filterData = { ...filter }
+      }
+      if(search !== undefined) {
+        if(search.key === 'email') {
+          let user = await User.findOne({ email: search.value }).exec()
+          filterData.keyPartnerId = user._id
+        }
+
+        if(search.key === 'desc') {
+          filterData.desc = { $regex: new RegExp(search.value, 'gi') }
+        }
+
+        if(search.key === 'sku') {
+          // cls - color - size
+          let code = search.value.classification
+          let cls = await Classification.findOne({ type: 'classification', code: code[0] }).exec(),
+              color = await Classification.findOne({ type: 'color', code: code[1] }).exec(),
+              size = await Classification.findOne({ type: 'size', code: code[2] }).exec()
+          filterData.classification = cls._id
+          filterData.color = color._id
+          filterData.size = size._id
+          filterData.sequence = search.value.sequence
+        }
+      }
+      let itemSize = await Inventory.countDocuments(filterData).exec()
+      let items = await Inventory.find(filterData)
+        .populate({
+          path: "classification color size",
+          select: "code name -_id",
+        })
+        .populate({
+          path: "keyPartnerId",
+          select: "email name -_id",
+        })
+        .sort(sortData)
+        .collation({ locale: 'en_US', numericOrdering: true })
+        .skip(page)
+        .limit(limit)
+        .exec();
+      let newItems = [];
+      items.map(item => {
+        let clone = { ...item._doc };
+        clone.sku = `SKU-EC-${item.classification?.code}-${item.color?.code}-${item.size?.code}-${item.sequence}`;
+        newItems.push(clone);
+      });
+      return res.status(200).json({ success: true, info: newItems, length: itemSize })
+    } catch(e) {
+      writeLog('inventory', 'getAllItems', '00032XX', e.stack)
       return res.status(500).json({
         success: false,
         msg: "Failed to get the list of customers.",

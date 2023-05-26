@@ -82,9 +82,15 @@ router
   )
 
   .get(
-    "/get-all-inventory",
+    "/get-all-inventory/:page/:limit",
     passport.authenticate("jwt", { session: false }),
     invCtrl.getAllItems
+  )
+
+  .get(
+    "/get-all-inventory-filtered/:page/:limit",
+    passport.authenticate('jwt', { session: false }),
+    invCtrl.getAllItemsFiltered
   )
 
   .get(
