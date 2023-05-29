@@ -100,6 +100,12 @@ router
   )
 
   .get(
+    "/get-all-inventory-byKey/:id/:page/:limit",
+    passport.authenticate('jwt', { session: false }),
+    invCtrl.getallByKeyPartnersPerPage
+  )
+
+  .get(
     "/get-all-bundles-byKey/:id",
     passport.authenticate("jwt", { session: false }),
     bundleCtrl.getAllBundledPerKeyPartners

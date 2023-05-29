@@ -206,6 +206,47 @@ module.exports = {
       });
     }
   },
+
+  getallByKeyPartnersPerPage: async (req, res) => {
+    try {
+      let limit = req.params.limit
+      let page = (req.params.page - 1) * limit
+      let itemSize = await Inventory.countDocuments({ keyPartnerId: req.params.id, deletedAt: '' }).exec()
+      let items = await Inventory.find({
+        deletedAt: "",
+        keyPartnerId: req.params.id,
+      })
+        .populate({
+          path: "classification color size",
+          select: "code name",
+        })
+        .populate({
+          path: "keyPartnerId",
+          select: "email name",
+        })
+        .skip(page)
+        .limit(limit)
+        .exec();
+      let newItems = [];
+      items.map(item => {
+        let clone = { ...item._doc };
+        clone.sku = `SKU-EC-${item.classification?.code}-${item.color?.code}-${item.size?.code}-${item.sequence}`;
+        newItems.push(clone);
+      });
+
+      return res.status(200).json({
+        success: true,
+        info: newItems,
+        length: itemSize
+      });
+    } catch(e) {
+      writeLog('inventory', 'getAllByKeyPartners', '00033', e.stack)
+      return res.status(500).json({
+        success: false,
+        msg: "Failed to get the list of customers.",
+      });
+    }
+  },
   /**
    * Update inventory for admin
    * 00034
