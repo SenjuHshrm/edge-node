@@ -98,6 +98,11 @@ router
     passport.authenticate("jwt", { session: false }),
     invCtrl.getAllByKeyPartners
   )
+  .get(
+    "/get-all-inventory-byKey-filtered/:id/:page/:limit",
+    passport.authenticate("jwt", { session: false }),
+    invCtrl.getAllByKeyPartnersFiltered
+  )
 
   .get(
     "/get-all-inventory-byKey/:id/:page/:limit",

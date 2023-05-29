@@ -207,6 +207,52 @@ module.exports = {
     }
   },
 
+  getAllByKeyPartnersFiltered: async (req, res) => {
+    try {
+      let limit = req.params.limit
+      let page = (req.params.page - 1) * limit
+      let filter = JSON.parse(req.query.filter), search = JSON.parse(req.query.search), sort = JSON.parse(req.query.sort);
+      let filterData = {}
+      filterData.keyPartnerId = req.params.id
+      let sortData = (sort !== undefined) ? sort.sortBy : { createdAt: -1 };
+      if(filter !== undefined) {
+        filterData = { ...filter }
+      }
+      if(search !== undefined) {
+        filterData.desc = { $regex: new RegExp(search.desc, 'gi') }
+      }
+      console.log(filterData)
+      let itemSize = await Inventory.countDocuments(filterData).exec()
+      let items = await Inventory.find(filterData)
+        .populate({
+          path: "classification color size",
+          select: "code name -_id",
+        })
+        .populate({
+          path: "keyPartnerId",
+          select: "email name -_id",
+        })
+        .sort(sortData)
+        .collation({ locale: 'en_US', numericOrdering: true })
+        .skip(page)
+        .limit(limit)
+        .exec();
+      let newItems = [];
+      items.map(item => {
+        let clone = { ...item._doc };
+        clone.sku = `SKU-EC-${item.classification?.code}-${item.color?.code}-${item.size?.code}-${item.sequence}`;
+        newItems.push(clone);
+      });
+      return res.status(200).json({ success: true, info: newItems, length: itemSize })
+    } catch(e) {
+      writeLog('inventory', 'getAllByKeyPartners', '00033', e.stack)
+      return res.status(500).json({
+        success: false,
+        msg: "Failed to get the list of customers.",
+      });
+    }
+  },
+
   getallByKeyPartnersPerPage: async (req, res) => {
     try {
       let limit = req.params.limit
