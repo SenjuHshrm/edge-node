@@ -9,7 +9,8 @@ let updateBookingStatus = async (res, bookingId, deliveryStatus) => {
       update.$set.status = 'fulfilled'
     }
     await Booking.findOneAndUpdate({ bookingId }, update).exec()
-    return res.status(200).json({ success: true,  })
+    if(deliveryStatus === 'delivered') global.io.emit('booking:update-status', { bookingId, status: 'fulfilled' })
+    return res.status(200).json({ success: true })
   } catch(e) {
     // OPEN-BOOKING-0001
     writeLog('open-booking-service', 'updateBookingStatus', 'OPEN-BOOKING-0001', e.stack)
