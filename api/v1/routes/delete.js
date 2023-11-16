@@ -10,6 +10,7 @@ const {
   bundleCtrl,
   bookingCtrl,
   contractCtrl,
+  apiKeyCtrl,
 } = require("../controllers");
 
 router
@@ -62,6 +63,11 @@ router
     '/contract/:id',
     passport.authenticate('jwt', { session: false }),
     contractCtrl.deleteContract
+  )
+  .delete(
+    '/api-key/remove/:id',
+    passport.authenticate('jwt', { session: false }),
+    apiKeyCtrl.deleteClient
   )
 
 module.exports = router;

@@ -29,6 +29,7 @@ let bookingSchema = new mongoose.Schema(
     quantity: { type: String },
     itemType: String,
     deletedAt: String,
+    deliveryStatus: String,
   },
   {
     timestamps: true,

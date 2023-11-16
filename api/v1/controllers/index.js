@@ -12,6 +12,7 @@ const contractCtrl = require('./contract')
 const addrCtrl = require('./address')
 const bookingCtrl = require('./booking')
 const excelCtrl = require('./excel')
+const apiKeyCtrl = require('./api-key')
 
 module.exports = {
   userCtrl,
@@ -27,5 +28,6 @@ module.exports = {
   contractCtrl,
   addrCtrl,
   bookingCtrl,
-  excelCtrl
+  excelCtrl,
+  apiKeyCtrl
 };

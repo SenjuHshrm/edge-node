@@ -11,6 +11,7 @@ const app = express()
 const { corsConfig, db, port } = require('./config')
 const { clearFiles, createLogFile} = require('./services/background-task')
 const { v1GETRoutes, v1POSTRoutes, v1PUTRoutes, v1DELETERoutes } = require('./api/v1/routes')
+const openBookingRoute = require('./api/open/booking/controller')
 
 // Socket.IO intialization
 const http = createServer(app)
@@ -53,6 +54,8 @@ app.use('/api/v1/get/', v1GETRoutes)
 app.use('/api/v1/post/', v1POSTRoutes)
 app.use('/api/v1/put/', v1PUTRoutes)
 app.use('/api/v1/delete/', v1DELETERoutes)
+
+app.use('/api/open/booking/', openBookingRoute)
 
 app.get('/*', (req, res) => {
   res.sendFile(__dirname + '/app/index.html')

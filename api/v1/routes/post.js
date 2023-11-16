@@ -13,6 +13,7 @@ const {
   bundleCtrl,
   contractCtrl,
   bookingCtrl,
+  apiKeyCtrl
 } = require("../controllers");
 const path = require("path");
 const multer = require("multer");
@@ -112,6 +113,11 @@ router
   .post(
     '/request/password-reset',
     authCtrl.requestAuthPasswordReset
+  )
+  .post(
+    '/api-key/add-client',
+    passport.authenticate('jwt', { session: false }),
+    apiKeyCtrl.addClient
   )
 
 module.exports = router;

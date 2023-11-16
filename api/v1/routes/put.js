@@ -14,6 +14,7 @@ const {
   poCtrl,
   contractCtrl,
   authCtrl,
+  apiKeyCtrl
 } = require("../controllers");
 const path = require("path");
 const multer = require("multer");
@@ -193,6 +194,7 @@ router
     contractCtrl.markAsSeen
   )
   .put('/inventory/form/selected', passport.authenticate('jwt', { session: false }), invCtrl.exportSelected)
-  .put("/reset-password/:id", authCtrl.resetPassword);
+  .put("/reset-password/:id", authCtrl.resetPassword)
+  .put('/api-key/generate/:id', passport.authenticate('jwt', { session: false }), apiKeyCtrl.generateApiKey)
 
 module.exports = router;

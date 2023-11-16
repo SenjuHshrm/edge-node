@@ -213,7 +213,6 @@ module.exports = {
       let page = (req.params.page - 1) * limit
       let filter = JSON.parse(req.query.filter), search = JSON.parse(req.query.search), sort = JSON.parse(req.query.sort);
       let filterData = {}
-      filterData.keyPartnerId = req.params.id
       let sortData = (sort !== undefined) ? sort.sortBy : { createdAt: -1 };
       if(filter !== undefined) {
         filterData = { ...filter }
@@ -221,6 +220,7 @@ module.exports = {
       if(search !== undefined) {
         filterData.desc = { $regex: new RegExp(search.desc, 'gi') }
       }
+      filterData.keyPartnerId = req.params.id
       console.log(filterData)
       let itemSize = await Inventory.countDocuments(filterData).exec()
       let items = await Inventory.find(filterData)

@@ -14,7 +14,8 @@ const {
   poCtrl,
   addrCtrl,
   bookingCtrl,
-  excelCtrl
+  excelCtrl,
+  apiKeyCtrl
 } = require("../controllers");
 
 router
@@ -247,6 +248,7 @@ router
   )
   .get('/report/current/:currDateStart/:currDateEnd', passport.authenticate('jwt', { session: false }), excelCtrl.getTodaysReport)
   .get('/check/password-reset/:token', authCtrl.checkPasswordResetToken)
-  .get("/refresh/access", authCtrl.refreshToken);
+  .get("/refresh/access", authCtrl.refreshToken)
+  .get('/api-key/clients', passport.authenticate('jwt', { session: false }), apiKeyCtrl.getClientList)
 
 module.exports = router;
