@@ -13,11 +13,11 @@ module.exports = (booking, id) => {
       for(let j = 0; j < booking.length; j ++) {
         let remarkVal = []
         if(booking[j].itemType === 'individual') {
-          remarkVal.push(`Color: ${booking[j].itemId.color.name}, Size: ${booking[j].itemId.size.name}`)
+          remarkVal.push(`Color: ${booking[j].itemId.color.name}, Size: ${booking[j].itemId.size.name}, Booking ID: ${booking[j].bookingId}`)
         } else if(booking[j].itemType === 'bundle') {
           for(let k = 0; k < booking[j].bundleId.items.length; k++) {
             let i = await Inventory.findById(booking[j].bundleId.items[k].itemId).populate({ path: 'color size' }).exec()
-            remarkVal.push(`Name: ${i.desc}, Color: ${i.color.name}, Size: ${i.size.name}`)
+            remarkVal.push(`Name: ${i.desc}, Color: ${i.color.name}, Size: ${i.size.name}, Booking ID: ${booking[j].bookingId}`)
           }
         }
 
