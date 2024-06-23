@@ -30,6 +30,10 @@ let bookingSchema = new mongoose.Schema(
     itemType: String,
     deletedAt: String,
     deliveryStatus: String,
+    jtWaybill: {
+      number: String,
+      file: String
+    }
   },
   {
     timestamps: true,

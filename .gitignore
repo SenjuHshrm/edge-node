@@ -9,6 +9,7 @@ uploads/files/*
 !uploads/files/
 temp/*.xlsx
 temp/*.zip
+tmp/*.png
 
 
 /logs/*.txt

@@ -9,6 +9,7 @@ const checkAddr = require('../../../utils/check-address')
 const moment = require("moment");
 const generateFlash = require("../../../services/generate-flash");
 const generateJnt = require("../../../services/generate-jnt");
+const { jntWaybill } = require('./../../../services')
 const jwt = require("jsonwebtoken");
 const fs = require("fs");
 const writeLog = require('../../../utils/write-log')
@@ -703,4 +704,40 @@ module.exports = {
           .json({ success: false, msg: "Failed to delete booking" });
       });
   },
+
+  /**
+   * 00015
+   */
+  jntGenerateWaybill: async (req, res) => {
+    try {
+      let booking = await Booking.findById(
+        req.body.id
+      ).populate({
+        path: 'itemId',
+        model: 'inventory',
+        select: 'classification color desc size price sequence',
+        populate: [
+          { path: 'classification', model: 'classification' },
+          { path: 'color', model: 'classification' },
+          { path: 'size', model: 'classification' }
+        ]
+      }).populate({
+        path: 'keyPartnerId',
+        model: 'user',
+        select: 'name addr'
+      }).exec()
+      let clone = { ...booking._doc }
+      clone.sku = `SKU-EC-${booking.itemId.classification?.code}-${booking.itemId.color?.code}-${booking.itemId.size?.code}-${booking.itemId.sequence}`
+      let resp = await jntWaybill.generateSingleWaybill(clone)
+      booking.jtWaybill = {
+        number: resp.waybillNo,
+        file: resp.link
+      }
+      booking.save()
+      return res.status(200).json(resp)
+    } catch(e) {
+      writeLog('booking', 'jntGenerateWaybill', '00015', e.stack)
+      return res.status(500).json({ success: false, msg: '' })
+    }
+  }
 };

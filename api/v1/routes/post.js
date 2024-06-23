@@ -119,5 +119,10 @@ router
     passport.authenticate('jwt', { session: false }),
     apiKeyCtrl.addClient
   )
+  .post(
+    '/booking/jnt-waybill/generate',
+    passport.authenticate('jwt', { session: false }),
+    bookingCtrl.jntGenerateWaybill
+  )
 
 module.exports = router;

@@ -22,7 +22,15 @@ let userSchema = new mongoose.Schema(
     name: { type: String, required: true },
     contact: { type: String, required: true },
     company: { type: String, required: true },
-    addr: { type: String },
+    // addr: { type: String },
+    addr: {
+      bldgNum: String,
+      street: String,
+      brgy: String,
+      city: String,
+      province: String,
+      zip: String
+    },
     refreshToken: [rftSchema],
     accessLvl: { type: Number, required: true },
     isApproved: { type: String, default: "pending" },
