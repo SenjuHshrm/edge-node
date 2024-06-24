@@ -122,6 +122,7 @@ module.exports = {
             path: "itemId",
             model: "inventory",
           }).exec();
+          writeLog('booking', 'createBooking', 'Success', req.user.email)
         return res.status(200).json({ success: true, info: booking })
       })
       .catch(e => {
@@ -147,7 +148,7 @@ module.exports = {
           model: "inventory",
         })
         .exec();
-
+      writeLog('booking', 'getAllBookingPerKP', 'Success', req.user.email)
       return res.status(200).json({ success: true, info: bookings });
     } catch (e) {
       writeLog('booking', 'getAllBookingPerKP', '00009', e.stack)
@@ -175,7 +176,7 @@ module.exports = {
         .skip(page)
         .limit(limit)
         .exec();
-
+      writeLog('booking', 'getAllBookingPerKPPerPage', 'Success', req.user.email)
       return res.status(200).json({ success: true, info: bookings, length: colSize });
     } catch (e) {
       writeLog('booking', 'getAllBookingPerKP', '00009', e.stack)
@@ -206,7 +207,7 @@ module.exports = {
         .skip(page)
         .limit(limit)
         .exec();
-
+      writeLog('booking', 'getAllBookingPerKPFiltered' , 'Success', req.user.email)
       return res.status(200).json({ success: true, info: bookings, length: colSize });
     } catch(e) {
       writeLog('booking', 'getAllBookingFiltered', '0000AXX', e.stack)
@@ -229,7 +230,7 @@ module.exports = {
           model: "inventory",
         })
         .exec();
-
+      writeLog('booking', 'getAllBookings' , 'Success', req.user.email)
       return res.status(200).json({ success: true, info: bookings });
     } catch (e) {
       writeLog('booking', 'getAllBookings', '0000A', e.stack)
@@ -256,7 +257,7 @@ module.exports = {
         .skip(page)
         .limit(limit)
         .exec();
-
+      writeLog('booking', 'getAllBookingsByPage' , 'Success', req.user.email)
       return res.status(200).json({ success: true, info: bookings, length: colSize });
     } catch (e) {
       writeLog('booking', 'getAllBookings', '0000A', e.stack)
@@ -286,7 +287,7 @@ module.exports = {
         .skip(page)
         .limit(limit)
         .exec();
-
+      writeLog('booking', 'getAllBookingFiltered' , 'Success', req.user.email)
       return res.status(200).json({ success: true, info: bookings, length: colSize });
     } catch(e) {
       writeLog('booking', 'getAllBookingFiltered', '0000AXX', e.stack)
@@ -313,7 +314,7 @@ module.exports = {
           model: "bundle",
         })
         .exec();
-
+      writeLog('booking', 'getSingleBooking' , 'Success', req.user.email)
       return res.status(200).json({ success: true, info: booking });
     } catch (e) {
       writeLog('booking', 'getSingleBooking', '0000B', e.stack)
@@ -337,6 +338,7 @@ module.exports = {
         let j = moment(bookings[i].createdAt).format("DD");
         response[parseInt(j) - 1] += 1;
       }
+      writeLog('booking', 'getMonthlyBooking' , 'Success', req.user.email)
       return res.status(200).json({ succes: true, info: response });
     } catch (e) {
       writeLog('booking', 'getMonthlyBooking', '0000C', e.stack)
@@ -358,6 +360,7 @@ module.exports = {
         let j = moment(bookings[i].createdAt).format("DD");
         response[parseInt(j) - 1] += 1;
       }
+      writeLog('booking', 'getMonthlyBookingByKeyPartner', 'Success', req.user.email)
       return res.status(200).json({ succes: true, info: response });
     } catch (e) {
       writeLog('booking', 'getMonthlyBookingByKeyPartner', '0000D', e.stack)
@@ -377,6 +380,7 @@ module.exports = {
         booking.markModified("status");
         booking.save();
       });
+      writeLog('booking', 'markSelectedAsFulfilled' , 'Success', req.user.email)
       return res.status(200).json({ success: true, info: "" });
     } catch (e) {
       writeLog('booking', 'markSelectedAsFulfilled', '0000E', e.stack)
@@ -393,6 +397,7 @@ module.exports = {
       await Booking.findByIdAndUpdate(req.params.id, {
         $set: { status: "fulfilled" },
       }).exec();
+      writeLog('booking', 'markOneAsFulfilled', 'Success', req.user.email)
       return res.status(200).json({ success: true, info: "" });
     } catch (e) {
       writeLog('booking', 'markOneAsFulfilled', '0000F', e.stack)
@@ -409,6 +414,7 @@ module.exports = {
       await Booking.findByIdAndUpdate(req.params.id, {
         $set: { status: "unfulfilled" },
       }).exec();
+      writeLog('booking', 'markOneAsUnfulfilled' , 'Success', req.user.email)
       return res.status(200).json({ success: true, info: "" });
     } catch (e) {
       writeLog('booking', 'markOneAsUnFulfilled', '00010', e.stack)
@@ -429,6 +435,7 @@ module.exports = {
         booking[0].courier === "flash"
           ? await generateFlash(booking, token.sub)
           : await generateJnt(booking, token.sub);
+      writeLog('booking', 'exportOne' , 'Success', req.user.email)
       return res.status(200).json({ success: true, info: file });
     } catch (e) {
       writeLog('booking', 'exportOne', '00011', e.stack)
@@ -451,6 +458,7 @@ module.exports = {
       await Booking.findByIdAndUpdate(req.params.id, {
         remarks: req.body.remarks,
       }).then(booking => {
+        writeLog('booking', 'returnBooking' , 'Success', req.user.email)
         return res.status(200).json({ success: true, info: booking });
       });
     } catch (error) {
@@ -604,6 +612,7 @@ module.exports = {
           }
         }
         new File({ filePath: `/uploads/booking/${req.body.filename}` }).save();
+        writeLog('booking', 'uploadBooking' , 'Success', req.user.email)
         return res.status(200).json({ success: true, info: returnBooking });
       } else {
         return res.status(406).json({ success: false, msg: 'Unable to save booking. Please check addresses if not ODZ (Out of Delivery Zone) to the selected courier.' });
@@ -654,6 +663,7 @@ module.exports = {
               info: 1,
             });
           }
+          writeLog('booking', 'deleteBooking' , 'Success', req.user.email)
           return res.sendStatus(204);
         } else if (booking.itemType === "bundle") {
           Bundle.findById(booking.itemId)
@@ -687,6 +697,7 @@ module.exports = {
                   });
                 }
               });
+              writeLog('booking', 'deleteBooking' , 'Success', req.user.email)
               return res.sendStatus(204);
             })
             .catch(e => {
@@ -734,6 +745,7 @@ module.exports = {
         file: resp.link
       }
       booking.save()
+      writeLog('booking', 'jntGenerateWaybill', 'Success', req.user.email)
       return res.status(200).json(resp)
     } catch(e) {
       writeLog('booking', 'jntGenerateWaybill', '00015', e.stack)

@@ -48,7 +48,7 @@ module.exports = {
             select: "email name -_id",
           })
           .exec();
-
+        writeLog('inventory', 'createInventory', 'Success', req.user.email)
         return res.status(200).json({ success: true, info: item });
       })
       .catch(e => {
@@ -89,7 +89,7 @@ module.exports = {
         clone.sku = `SKU-EC-${item.classification?.code}-${item.color?.code}-${item.size?.code}-${item.sequence}`;
         newItems.push(clone);
       });
-
+      writeLog('inventory', 'getAllItems', 'Success', req.user.email)
       return res.status(200).json({
         success: true,
         info: newItems,
@@ -157,9 +157,10 @@ module.exports = {
         clone.sku = `SKU-EC-${item.classification?.code}-${item.color?.code}-${item.size?.code}-${item.sequence}`;
         newItems.push(clone);
       });
+      writeLog('inventory', 'getAllItemsFiltered', 'Success', req.user.email)
       return res.status(200).json({ success: true, info: newItems, length: itemSize })
     } catch(e) {
-      writeLog('inventory', 'getAllItems', '00032XX', e.stack)
+      writeLog('inventory', 'getAllItemsFiltered', '00032XX', e.stack)
       return res.status(500).json({
         success: false,
         msg: "Failed to get the list of customers.",
@@ -191,7 +192,7 @@ module.exports = {
         clone.sku = `SKU-EC-${item.classification?.code}-${item.color?.code}-${item.size?.code}-${item.sequence}`;
         newItems.push(clone);
       });
-
+      writeLog('inventory', 'getAllByKeyPartners', 'Success', req.user.email)
       return res.status(200).json({
         success: true,
         info: newItems.sort(
@@ -243,9 +244,10 @@ module.exports = {
         clone.sku = `SKU-EC-${item.classification?.code}-${item.color?.code}-${item.size?.code}-${item.sequence}`;
         newItems.push(clone);
       });
+      writeLog('inventory', 'getAllByKeyPartnersFiltered', 'Success', req.user.email)
       return res.status(200).json({ success: true, info: newItems, length: itemSize })
     } catch(e) {
-      writeLog('inventory', 'getAllByKeyPartners', '00033', e.stack)
+      writeLog('inventory', 'getAllByKeyPartnersFiltered', '00033', e.stack)
       return res.status(500).json({
         success: false,
         msg: "Failed to get the list of customers.",
@@ -279,14 +281,14 @@ module.exports = {
         clone.sku = `SKU-EC-${item.classification?.code}-${item.color?.code}-${item.size?.code}-${item.sequence}`;
         newItems.push(clone);
       });
-
+      writeLog('inventory', 'getAllByKeyPartnersPerPage', 'Success', req.user.email)
       return res.status(200).json({
         success: true,
         info: newItems,
         length: itemSize
       });
     } catch(e) {
-      writeLog('inventory', 'getAllByKeyPartners', '00033', e.stack)
+      writeLog('inventory', 'getAllByKeyPartnersPerPage', '00033', e.stack)
       return res.status(500).json({
         success: false,
         msg: "Failed to get the list of customers.",
@@ -331,7 +333,7 @@ module.exports = {
           select: "email name",
         })
         .exec();
-
+      writeLog('inventory', 'updateInventory', 'Success', req.user.email)
       return res.status(200).json({ success: true, info: populated });
     } catch (e) {
       writeLog('inventory', 'updateInventory', '00034', e.stack)
@@ -354,6 +356,7 @@ module.exports = {
           { new: true }
         ).exec();
       });
+      writeLog('inventory', 'updateManyNonMoving', 'Success', req.user.email)
       return res.status(200).json({ success: true, info: req.body.ids });
     } catch (e) {
       writeLog('inventory', 'updateManyNonMoving', '00035', e.stack)
@@ -376,6 +379,7 @@ module.exports = {
           { new: true }
         ).exec();
       });
+      writeLog('inventory', 'updateManyMoving', 'Success', req.user.email)
       return res.status(200).json({ success: true, info: req.body.ids });
     } catch (e) {
       writeLog('inventory', 'updateManyMoving', '00036', e.stack)
@@ -395,6 +399,7 @@ module.exports = {
       await Inventory.findByIdAndUpdate(req.params.id, {
         deletedAt: new Date().toLocaleString(),
       }).exec();
+      writeLog('inventory', 'deleteItem', 'Success', req.user.email)
       return res.status(200).json({ success: true, info: req.params.id });
     } catch (e) {
       writeLog('inventory', 'deleteItem', '00037', e.stack)
@@ -412,6 +417,7 @@ module.exports = {
     try {
       let ids = JSON.parse(req.query.ids)
       await Inventory.updateMany({ _id: ids }, { deletedAt: new Date().toLocaleString() }).exec()
+      writeLog('inventory', 'deleteSelected', 'Success', req.user.email)
       return res.sendStatus(204)
     } catch(e) {
       writeLog('inventory', 'deleteSelected', '00038', e.stack)
@@ -430,6 +436,7 @@ module.exports = {
         .populate("size")
         .exec();
       let file = await generateInv(inv, req.params.id);
+      writeLog('inventory', 'exportInventory', 'Success', req.user.email)
       return res.status(200).json({ success: true, info: file });
     } catch (e) {
       writeLog('inventory', 'exportInventory', '00039', e.stack)
@@ -444,6 +451,7 @@ module.exports = {
     try {
       let inv = await Inventory.find({ _id: req.body.items }).populate('classification').populate('color').populate('size').exec()
       let file = await generateInv(inv, req.body.id)
+      writeLog('inventory', 'exportSelected', 'Success', req.user.email)
       return res.status(200).json({ success: true, info: file });
     } catch(e) {
       writeLog('inventory', 'exportSelected', '0003A', e.stack)
@@ -462,6 +470,7 @@ module.exports = {
         .populate("size")
         .exec();
       let file = await generateInv(inv, req.params.id);
+      writeLog('inventory', 'exportInventoryByKeyPartner', 'Success', req.user.email)
       return res.status(200).json({ success: true, info: file });
     } catch (e) {
       writeLog('inventory', 'exportInventoryByKeyPartner', '0003B', e.stack)

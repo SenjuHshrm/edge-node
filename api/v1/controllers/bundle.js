@@ -15,6 +15,7 @@ module.exports = {
         items: req.body.items,
         status: "in",
       }).save()
+      writeLog('bundle', 'createBundle' , 'Success', req.user.email)
       return res.status(200).json({ success: true, info: bundle });
     } catch(e) {
       writeLog('bundle', 'createBundle', '00015', e.stack)
@@ -32,6 +33,7 @@ module.exports = {
         deletedAt: "",
         keyPartnerId: req.params.id,
       }).populate({ path: 'items.itemId', populate: { path: 'color size' } }).exec();
+      writeLog('bundle', 'getAllBundledPerKeyPartners' , 'Success', req.user.email)
       return res.status(200).json({ success: true, info: bundles });
     } catch (e) {
       writeLog('bundle', 'getAllBundledPerKeyPartners', '00016', e.stack)
@@ -48,6 +50,7 @@ module.exports = {
   getOneBundle: async (req, res) => {
     try {
       let bundle = await Bundle.findById(req.params.id).exec();
+      writeLog('bundle', 'getOneBundle' , 'Success', req.user.email)
       return res.status(200).json({ success: true, info: bundle });
     } catch (e) {
       writeLog('bundle', 'getOneBundle', '00017', e.stack)
@@ -67,7 +70,7 @@ module.exports = {
       let bundle = await Bundle.findByIdAndUpdate(req.params.id, req.body, {
         new: true,
       }).exec();
-
+      writeLog('bundle', 'updateBundle' , 'Success', req.user.email)
       return res.status(200).json({ success: true, info: bundle });
     } catch (e) {
       writeLog('bundle', 'updateBundle', '00018', e.stack)
@@ -97,6 +100,7 @@ module.exports = {
       await Bundle.findByIdAndUpdate(req.params.id, {
         deletedAt: new Date().toLocaleString(),
       }).exec();
+      writeLog('bundle', 'deleteBundle' , 'Success', req.user.email)
       return res.status(200).json({ success: true, info: req.params.id });
     } catch (e) {
       writeLog('bundle', 'deleteBundle', '00019', e.stack)
