@@ -15,7 +15,8 @@ const {
   addrCtrl,
   bookingCtrl,
   excelCtrl,
-  apiKeyCtrl
+  apiKeyCtrl,
+  logCtrl
 } = require("../controllers");
 
 router
@@ -250,5 +251,6 @@ router
   .get('/check/password-reset/:token', authCtrl.checkPasswordResetToken)
   .get("/refresh/access", authCtrl.refreshToken)
   .get('/api-key/clients', passport.authenticate('jwt', { session: false }), apiKeyCtrl.getClientList)
+  .get('/logs/:date', passport.authenticate('jwt', { session: false }), logCtrl.getLogsByDate)
 
 module.exports = router;

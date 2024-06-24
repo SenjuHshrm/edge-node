@@ -13,6 +13,7 @@ const addrCtrl = require('./address')
 const bookingCtrl = require('./booking')
 const excelCtrl = require('./excel')
 const apiKeyCtrl = require('./api-key')
+const logCtrl = require('./log')
 
 module.exports = {
   userCtrl,
@@ -29,5 +30,6 @@ module.exports = {
   addrCtrl,
   bookingCtrl,
   excelCtrl,
-  apiKeyCtrl
+  apiKeyCtrl,
+  logCtrl
 };
