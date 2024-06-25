@@ -1,15 +1,24 @@
 const writeLog = require('../../../utils/write-log')
 const Booking = require('./../../../models/Booking')
 
-let updateBookingStatus = async (res, waybill, deliveryStatus) => {
+let updateBookingStatus = async (res, data) => {
   try {
     let update = { $set: {} }
-    update.$set.deliveryStatus = deliveryStatus
-    if(deliveryStatus === 'delivered') {
-      update.$set.status = 'fulfilled'
+    // update.$set.deliveryStatus = deliveryStatus
+    update.$set = {
+      deliveryStatus: data.status
     }
-    await Booking.findOneAndUpdate({ ['jtWaybill.number']: waybill }, update).exec()
-    if(deliveryStatus === 'delivered') global.io.emit('booking:update-status', { waybill, status: 'fulfilled', deliveryStatus: 'delivered' })
+    if(data.status === 'Delivered') {
+      update.$set.status = 'fulfilled'
+    } else {
+      update.$set.status = 'unfulfilled'
+    }
+    await Booking.findOneAndUpdate({ ['jtWaybill.number']: data.waybill_number, bookingId: data.order_number }, update).exec()
+    global.io.emit('booking:update-status', {
+      waybill: data.waybill_number,
+      status: data.status === 'Delivered' ? 'fulfilled' : 'unfullfiled',
+      deliveryStatus: data.status
+    })
     return res.status(200).json({ success: true })
   } catch(e) {
     // OPEN-BOOKING-0001

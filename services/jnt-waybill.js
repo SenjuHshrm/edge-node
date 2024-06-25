@@ -63,6 +63,10 @@ let generate = async (booking, jntData, workbook, filename) => {
 
   await workbook.xlsx.writeFile(`./uploads/jt-waybill/${filename}`, { useSharedStrings: true, useStyles: true })
 
+  fs.unlinkSync(`./tmp/qr-${jntData.responseitems[0].mailno}.png`)
+  fs.unlinkSync(`./tmp/barcode-${jntData.responseitems[0].mailno}.png`)
+  fs.unlinkSync(`./tmp/barcode-vert-${jntData.responseitems[0].mailno}.png`)
+
   return { link: `/jt-waybill/${filename}`, waybillNo: jntData.responseitems[0].mailno,  filename }
 
 }
