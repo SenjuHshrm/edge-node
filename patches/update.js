@@ -1,11 +1,11 @@
-const Inventory = require('../models/Inventory')
+const Booking = require('../models/Booking')
 const mongoose = require('mongoose')
 
 mongoose.connect('mongodb://localhost:27017/edge-commerce')
 mongoose.connection
   .on('open', async () => {
     try {
-      await Inventory.updateMany({ $unset: { code: 1 } }).exec()
+      await Booking.updateMany({ $set: { jtWaybill: { number: '', file: '' } } }).exec()
     } catch(e) {
       console.log(e)
     } finally {
