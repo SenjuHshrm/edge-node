@@ -5,7 +5,7 @@ mongoose.connect('mongodb://localhost:27017/edge-commerce')
 mongoose.connection
   .on('open', async () => {
     try {
-      await Booking.updateMany({ $set: { jtWaybill: { number: '', file: '' } } }).exec()
+      await Booking.updateMany({ $set: { deliveryStatus: '' } }).exec()
     } catch(e) {
       console.log(e)
     } finally {

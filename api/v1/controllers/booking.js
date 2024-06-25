@@ -61,7 +61,8 @@ module.exports = {
         itemType: req.body.itemType,
         status: "unfulfilled",
         deletedAt: "",
-        jtWaybill: { number: '', file: '' }
+        jtWaybill: { number: '', file: '' },
+        deliveryStatus: ''
       }).save().then(async newBooking => {
         if (newBooking.itemType === "individual") {
           let inv = await Inventory.findById(newBooking.itemId).exec();
