@@ -13,7 +13,8 @@ let updateBookingStatus = async (res, data) => {
     } else {
       update.$set.status = 'unfulfilled'
     }
-    await Booking.findOneAndUpdate({ ['jtWaybill.number']: data.waybill_number, bookingId: data.order_number }, update).exec()
+    // await Booking.findOneAndUpdate({ ['jtWaybill.number']: data.waybill_number, bookingId: data.order_number }, update).exec()
+    await Booking.findOneAndUpdate({ ['jtWaybill.number']: data.waybill_number }, update).exec()
     global.io.emit('booking:update-status', {
       waybill: data.waybill_number,
       status: data.status === 'Delivered' ? 'fulfilled' : 'unfullfiled',
