@@ -8,7 +8,7 @@ const {encryptBody, qr, barcode, barcodeVertical} = require('./../utils/jnt-encr
 const addrBuild = require('./../utils/address-build')
 // const fetch = require('node-fetch')
 
-let generate = async (booking, jntData, workbook, filename) => {
+let generate = async (booking, jntData, workbook, filename, waybillQuery) => {
   let worksheet = workbook.getWorksheet(1)
   let imgBarcode = workbook.addImage({
     filename: `./tmp/barcode-${jntData.responseitems[0].mailno}.png`,
@@ -34,6 +34,9 @@ let generate = async (booking, jntData, workbook, filename) => {
   worksheet.getCell('E16').value = moment(booking.createdAt).format('M/DD/YYYY hh:mm:ss a')
   worksheet.getCell('C4').value = jntData.responseitems[0].txlogisticid
   worksheet.getCell('C16').value = jntData.responseitems[0].txlogisticid
+
+  worksheet.getCell('G1:H3').value = waybillQuery.responseitems[0].orderList[0].expresstype
+  worksheet.getCell('G13:H15').value = waybillQuery.responseitems[0].orderList[0].expresstype
   
   worksheet.getCell('C5').value = booking.customer
   worksheet.getCell('A6').value = `${booking.province}, ${booking.city}, ${booking.brgy}`
@@ -120,13 +123,14 @@ let generateLogisticsInt = (booking) => {
 let generateSingleWaybill = async (booking) => {
   let reqBody = generateLogisticsInt(booking)
   let waybill = await requestWaybillNumber(reqBody)
+  let waybillQuery = await requestOrderQuery(waybill.responseitems[0].mailno)
   let workbook = new Excel.Workbook()
   let filename = `booking-${booking.bookingId}.xlsx`
   qr(waybill.responseitems[0].mailno)
   barcode(waybill.responseitems[0].mailno)
   return workbook.xlsx.readFile('./templates/jnt-waybill.xlsx')
     .then(async () => {
-      return generate(booking, waybill, workbook, filename)
+      return generate(booking, waybill, workbook, filename, waybillQuery)
     })
 }
 
@@ -154,6 +158,30 @@ let requestWaybillNumber = async (body) => {
   }
 }
 
+let requestOrderQuery = async (waybill) => {
+  try {
+    let body = { eccompanyid: process.env.JNT_ECCOMPANY_ID, customerid: process.env.JNT_CUSTOMER_ID, command: 2, serialnumber: waybill }
+    let urlencode = new URLSearchParams()
+    urlencode.append('eccompanyid', process.env.JNT_ECCOMPANY_ID)
+    urlencode.append('logistics_interface', JSON.stringify(body))
+    urlencode.append('data_digest', encryptBody(body))
+    urlencode.append('msg_type', 'ORDERQUERY')
+    let resp = await fetch(
+      process.env.JNT_QUERY_ORDER,
+      {
+        method: 'post',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: urlencode
+      }
+    )
+    let data = await resp.json()
+    return await data
+  } catch(e) {
+    console.log(e)
+  }
+}
 module.exports = {
   generateSingleWaybill
   
