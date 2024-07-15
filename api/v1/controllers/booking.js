@@ -666,6 +666,9 @@ module.exports = {
             });
           }
           writeLog('booking', 'deleteBooking' , 'Success', req.user.email)
+          if(booking.courier === 'jnt') {
+            jntWaybill.cancelOrderQuery(booking.bookingId)
+          }
           return res.sendStatus(204);
         } else if (booking.itemType === "bundle") {
           Bundle.findById(booking.itemId)
@@ -700,6 +703,9 @@ module.exports = {
                 }
               });
               writeLog('booking', 'deleteBooking' , 'Success', req.user.email)
+              if(booking.courier === 'jnt') {
+                jntWaybill.cancelOrderQuery(booking.bookingId)
+              }
               return res.sendStatus(204);
             })
             .catch(e => {
@@ -740,7 +746,7 @@ module.exports = {
         select: 'name addr'
       }).exec()
       let clone = { ...booking._doc }
-      clone.sku = `SKU-EC-${booking.itemId.classification?.code}-${booking.itemId.color?.code}-${booking.itemId.size?.code}-${booking.itemId.sequence}`
+      // clone.sku = `SKU-EC-${booking.itemId.classification?.code}-${booking.itemId.color?.code}-${booking.itemId.size?.code}-${booking.itemId.sequence}`
       let resp = await jntWaybill.generateSingleWaybill(clone)
       booking.jtWaybill = {
         number: resp.waybillNo,

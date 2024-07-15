@@ -6,7 +6,8 @@ const File = require('../models/File')
 const Booking = require('../models/Booking')
 const {encryptBody, qr, barcode, barcodeVertical} = require('./../utils/jnt-encrypt')
 const addrBuild = require('./../utils/address-build')
-// const fetch = require('node-fetch')
+const jtWaybillLog = require('../utils/jt-waybill-log')
+const fetch = require('node-fetch')
 
 let generate = async (booking, jntData, workbook, filename, waybillQuery) => {
   let worksheet = workbook.getWorksheet(1)
@@ -152,6 +153,7 @@ let requestWaybillNumber = async (body) => {
       }
     )
     let data = await resp.json()
+    jtWaybillLog(await data, '\n')
     return await data
   } catch(e) {
     console.log(e)
@@ -177,13 +179,33 @@ let requestOrderQuery = async (waybill) => {
       }
     )
     let data = await resp.json()
+    jtWaybillLog(await data, '\n\n')
     return await data
   } catch(e) {
     console.log(e)
   }
 }
-module.exports = {
-  generateSingleWaybill
-  
 
+let cancelOrderQuery = async (txlogisticid) => {
+  try {
+    let body = { eccompanyid: process.env.JNT_ECCOMPANY_ID, customerid: process.env.JNT_CUSTOMER_ID, txlogisticid, reason: 'Cancelled by seller' }
+    let urlencode = new URLSearchParams()
+    urlencode.append('eccompanyid', process.env.JNT_ECCOMPANY_ID)
+    urlencode.append('logistics_interface', JSON.stringify(body))
+    urlencode.append('data_digest', encryptBody(body))
+    urlencode.append('msg_type', 'ORDERCANCEL')
+    await fetch(process.env.JNT_CANCEL_ORDER, {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: urlencode
+    })
+  } catch(e) {
+    console.log(e)
+  }
+}
+module.exports = {
+  generateSingleWaybill,
+  cancelOrderQuery
 }

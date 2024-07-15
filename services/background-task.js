@@ -28,6 +28,13 @@ module.exports = {
       let filename = `EC-Logs-${moment(new Date()).format('MM-DD-YYYY')}.txt`
       fs.writeFileSync(`./logs/${filename}`, `Error logs - ${moment(new Date()).format('MM-DD-YYYY')}\n`)
     })
+  },
+
+  createJTWaybillGenLog: () => {
+    schedule.scheduleJob('0 0 0 * * *', () => {
+      let filename = `JT-Log-${moment(new Date()).format('MM-DD-YYYY')}.txt`
+      fs.writeFileSync(`./logs/${filename}`, `J&T Waybill Generation Logs - ${moment(new Date()).format('MM-DD-YYYY')}`)
+    })
   }
 
 
