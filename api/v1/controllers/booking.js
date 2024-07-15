@@ -740,7 +740,7 @@ module.exports = {
         select: 'name addr'
       }).exec()
       let clone = { ...booking._doc }
-      clone.sku = `SKU-EC-${booking.itemId.classification?.code}-${booking.itemId.color?.code}-${booking.itemId.size?.code}-${booking.itemId.sequence}`
+      //clone.sku = `SKU-EC-${booking.itemId.classification?.code}-${booking.itemId.color?.code}-${booking.itemId.size?.code}-${booking.itemId.sequence}`
       let resp = await jntWaybill.generateSingleWaybill(clone)
       booking.jtWaybill = {
         number: resp.waybillNo,

@@ -6,7 +6,7 @@ const File = require('../models/File')
 const Booking = require('../models/Booking')
 const {encryptBody, qr, barcode, barcodeVertical} = require('./../utils/jnt-encrypt')
 const addrBuild = require('./../utils/address-build')
-// const fetch = require('node-fetch')
+const fetch = require('node-fetch')
 
 let generate = async (booking, jntData, workbook, filename, waybillQuery) => {
   let worksheet = workbook.getWorksheet(1)
